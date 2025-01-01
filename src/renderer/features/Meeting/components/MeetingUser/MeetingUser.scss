@@ -1,0 +1,50 @@
+.meeting-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 8px 16px;
+  margin-top: 1px;
+
+  &:hover {
+    background-color: #ff3c3c18;
+  }
+
+  .meeting-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .meeting-user-name {
+      .name {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.85);
+
+        .role {
+          margin-left: 4px;
+          color: rgba(0, 0, 0, 0.45);
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .meeting-user-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .ant-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &.disabled {
+        color: #ff4d4f;
+      }
+    }
+  }
+}

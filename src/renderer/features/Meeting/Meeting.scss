@@ -1,0 +1,184 @@
+.root {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+
+}
+
+
+.meeting {
+  &-sidebar {
+    background-color: white;
+    transition: flex 0.1s ease-in-out;
+    max-height: 100%;
+    flex: 0;
+    overflow: hidden;
+
+    &.visible {
+      display: block;
+      flex: 3;
+    }
+  }
+
+  &-container {
+    flex-direction: column;
+    height: 100vh;
+    display: flex;
+    background-color: #1A1A1A;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    flex: 7;
+  }
+
+  &-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    position: relative;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+
+      p {
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+      }
+    }
+
+    &-controls {
+      gap: 8px;
+      display: flex;
+      align-items: center;
+      position: absolute;
+      right: 8px;
+
+      &-button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        flex-direction: column;
+
+        span {
+          color: #CCCCCC;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  &-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    background-color: black;
+    min-height: 0;
+
+    &-grid {
+      display: flex;
+      overflow-y: auto;
+      width: 100%;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &.visible {
+        width: 70%;
+      }
+    }
+
+
+    .meeting-sidebar-container {
+      background-color: #F7F7F7;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &.visible {
+        width: 30%;
+        transform: translateX(0);
+      }
+    }
+
+    .meeting-users-container {
+      width: 100%;
+      background-color: #F7F7F7;
+      display: flex;
+      flex-direction: column;
+
+      &-title {
+        font-size: 16px;
+        font-weight: 600;
+        padding: 20px;
+        align-self: center;
+      }
+
+      &-segmented {
+        align-self: center;
+      }
+    }
+  }
+
+  &-footer {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1A1A1A;
+    margin: 0 16px 8px;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.meeting-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+
+  // Khi chỉ có 1 người
+  &.single-user {
+    .video-item {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  // Khi có 2 người
+  &.two-users {
+    .video-item {
+      width: calc(50% - 4px); // 50% trừ đi nửa gap
+      height: 100%;
+    }
+  }
+
+  // Khi có 3-4 người
+  &.three-to-four-users {
+    .video-item {
+      width: calc(50% - 4px);
+      height: calc(50% - 4px); // 50% trừ đi nửa gap
+      aspect-ratio: 16/9; // Width sẽ tự động tính theo tỷ lệ 16:9
+    }
+  }
+
+  // Khi có nhiều hơn 4 người
+  &.many-users {
+    .video-item {
+      width: 30%;
+      height: 50%;
+    }
+  }
+}
+

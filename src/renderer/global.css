@@ -1,0 +1,44 @@
+
+@font-face {
+  font-family: 'SF-Compact-Display';
+  src: url('../../assets/fonts/SF-Compact-Display-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SF-Compact-Display';
+  src: url('../../assets/fonts/SF-Compact-Display-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SF-Compact-Display';
+  src: url('../../assets/fonts/SF-Compact-Display-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SF-Compact-Display';
+  src: url('../../assets/fonts/SF-Compact-Display-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SF-Compact-Display';
+  src: url('../../assets/fonts/SF-Compact-Display-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+/* Áp dụng font cho toàn bộ ứng dụng */
+* {
+  font-family: 'SF-Compact-Display', sans-serif;
+  color: #333333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}

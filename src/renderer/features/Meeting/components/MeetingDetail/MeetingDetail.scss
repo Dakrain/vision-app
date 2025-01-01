@@ -1,0 +1,67 @@
+.meeting-detail-modal {
+  .ant-modal-content {
+    background: rgba(33, 33, 33, 0.9) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    color: white;
+  }
+
+  .ant-modal-header {
+    background: transparent !important;
+    border-bottom: none;
+  }
+
+  .ant-modal-body {
+    background: transparent;
+    padding: 12px 0;
+  }
+
+  .ant-modal-title {
+    color: white !important;
+  }
+
+  .ant-modal-close {
+    color: rgba(255, 255, 255, 0.65);
+
+    &:hover {
+      color: white;
+    }
+  }
+
+  .ant-typography {
+    color: white !important;
+
+    &.ant-typography-secondary {
+      color: rgba(255, 255, 255, 0.65) !important;
+    }
+  }
+
+  .ant-btn-text {
+    color: rgba(255, 255, 255, 0.65) !important;
+
+    &:hover {
+      color: white !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+    }
+  }
+
+  .meeting-detail {
+    padding: 12px 0;
+
+    .meeting-info-item {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .ant-space {
+        margin-top: 4px;
+      }
+    }
+  }
+}

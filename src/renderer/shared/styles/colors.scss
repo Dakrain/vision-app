@@ -1,0 +1,54 @@
+// Primary Colors
+$color-primary: #FF4D4F;
+$color-primary-hover: #ff7875;
+$color-primary-light: rgba(255, 77, 79, 0.05);
+
+// Secondary Colors
+$color-success: #1EC88C;
+$color-success-hover: #4AD3A4;
+$color-warning: #FFC83C;
+$color-danger: #FF3C3C;
+$color-info: #50C8FF;
+$color-purple: #7850DC;
+$color-orange: #FF7800;
+
+// Greyscale
+$color-grey-90: #1A1A1A;  // Darkest
+$color-grey-80: #333333;
+$color-grey-70: #595959;
+$color-grey-60: #666666;
+$color-grey-50: #808080;
+$color-grey-40: #999999;
+$color-grey-30: #CCCCCC;
+$color-grey-20: #E0E0E0;
+$color-grey-10: #F0F0F0;
+$color-grey-5: #F7F7F7;   // Lightest
+
+// Base Colors
+$color-white: #FFFFFF;
+$color-black: #000000;
+
+// Functional Colors
+$color-text-primary: #333333;
+$color-text-secondary: #8C8C8C;
+$color-text-light: #FFFFFF;
+
+// Background Colors
+$color-bg-primary: #FFFFFF;
+$color-bg-secondary: #F7F7F7;
+$color-bg-dark: #1A1A1A;
+
+// Overlay Colors
+$color-overlay: rgba(0, 0, 0, 0.5);
+$color-overlay-light: rgba(0, 0, 0, 0.1);
+
+// Chat Colors
+$color-chat-bubble: #F0F0F0;
+$color-chat-bubble-me: #FFC3A0;
+
+// Border Colors
+$color-border: #EEEEEE;
+$color-border-light: #F0F0F0;
+
+// Shadow Colors
+$color-shadow: rgba(0, 0, 0, 0.1);

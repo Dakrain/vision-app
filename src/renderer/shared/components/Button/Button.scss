@@ -1,0 +1,37 @@
+.custom-button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.primary {
+    background-color: #FF4D4F;
+    color: white;
+    border: none;
+
+    &:hover {
+      background-color: darken(#FF4D4F, 5%);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &.outline {
+    background-color: transparent;
+    color: #FF4D4F;
+    border: 1px solid #FF4D4F;
+
+    &:hover {
+      background-color: rgba(#FF4D4F, 0.1);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

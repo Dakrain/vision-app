@@ -1,0 +1,35 @@
+.home-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 72px;
+  cursor: pointer;
+  padding: 16px 8px;
+  background-color: white;
+  transition: all 0.2s ease-in-out;
+
+  &:hover:not(.active) {
+    background-color: #f8f9fa;
+    transform: scale(1.05);
+  }
+
+  &.active {
+    background-color: #ff3c3c;
+
+    &:hover {
+      background-color: #ff3c3c;
+    }
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #999999;
+    transition: color 0.2s ease;
+
+    &.active {
+      color: white;
+    }
+  }
+}

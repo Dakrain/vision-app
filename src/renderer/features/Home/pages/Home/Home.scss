@@ -1,0 +1,60 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 434px;
+  height: 100%;
+  margin: 0 auto;
+  padding-bottom: 48px;
+
+  .welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+
+    .title-welcome {
+      font-size: 40px;
+      font-weight: 600;
+      color: #000;
+      margin-top: 8px;
+    }
+
+    .description-welcome {
+      font-size: 16px;
+      font-weight: 400;
+      color: #808080;
+    }
+  }
+
+  .content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+
+    .button-create-meeting {
+      margin-top: 16px;
+    }
+    .title-create-meeting {
+      font-size: 24px;
+      font-weight: 600;
+      color: #000;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .description-create-meeting {
+      font-size: 14px;
+      font-weight: 400;
+      color: #808080;
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .text-bold {
+      font-weight: 600;
+    }
+  }
+}
