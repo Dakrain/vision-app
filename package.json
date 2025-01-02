@@ -256,7 +256,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Your App Name"
+      "shortcutName": "Vision20"
     },
     "directories": {
       "app": "release/app",

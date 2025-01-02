@@ -175,7 +175,7 @@ function Meeting() {
         {activeTab === MEETING_USER_TABS[0].value ? inRoomTab : pendingTab}
       </div>
     );
-  }, [meetingUsers, activeTab]);
+  }, [activeTab, meetingUsers, remoteUsers]);
 
   return (
     <div className="root">

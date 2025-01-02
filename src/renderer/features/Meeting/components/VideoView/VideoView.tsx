@@ -4,7 +4,8 @@ import { Avatar } from '@/renderer/shared/components';
 import Icon from 'assets/svg/icons';
 import { VideoViewProps } from './types';
 import './VideoView.scss';
-import { VideoMirrorModeType } from 'agora-electron-sdk';
+
+const { VideoMirrorModeType } = window.require('agora-electron-sdk');
 
 const { RenderModeType, VideoSourceType, VideoViewSetupMode } =
   window.require('agora-electron-sdk');

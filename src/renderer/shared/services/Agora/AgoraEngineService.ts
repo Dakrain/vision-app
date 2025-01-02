@@ -1,4 +1,4 @@
-import { IRtcEngineEx, createAgoraRtcEngine } from 'agora-electron-sdk';
+const AgoraRTC = window.require('agora-electron-sdk');
 
 class AgoraEngineService {
   // eslint-disable-next-line no-use-before-define
@@ -7,7 +7,7 @@ class AgoraEngineService {
   private engine: any;
 
   private constructor() {
-    this.engine = createAgoraRtcEngine();
+    this.engine = AgoraRTC.createAgoraRtcEngine();
     this.engine.initialize({ appId: 'c2c92894c294415d9af39e31bcec8832' });
     this.engine.enableExtension(
       'agora_video_filters_segmentation',
@@ -23,7 +23,7 @@ class AgoraEngineService {
     return AgoraEngineService.instance;
   }
 
-  public getEngine(): IRtcEngineEx {
+  public getEngine(): any {
     return this.engine;
   }
 }

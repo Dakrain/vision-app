@@ -3,6 +3,7 @@ export type VirtualBackground = {
   type: string;
   src: string;
   name: string;
+  filePath: string;
 };
 
 export type VirtualBackgroundProps = {

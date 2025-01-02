@@ -1,9 +1,10 @@
 import './ShareScreenDialog.scss';
 import { thumbImageBufferToBase64 } from '@/renderer/shared/utils/base64';
 import { Button } from '@/renderer/shared/components/Button';
-import { ScreenCaptureSourceInfo } from 'agora-electron-sdk';
 import { useEffect, useState } from 'react';
 import { ShareScreenDialogProps } from './types';
+
+const { ScreenCaptureSourceInfo } = window.require('agora-electron-sdk');
 
 export function ShareScreenDialog({
   open,
@@ -11,8 +12,9 @@ export function ShareScreenDialog({
   onShare,
   sources,
 }: ShareScreenDialogProps) {
-  const [selectedSource, setSelectedSource] =
-    useState<ScreenCaptureSourceInfo | null>(null);
+  const [selectedSource, setSelectedSource] = useState<
+    typeof ScreenCaptureSourceInfo | null
+  >(null);
 
   useEffect(() => {
     if (!open) {

@@ -3,15 +3,13 @@ import { Button } from '@/renderer/shared/components/Button';
 import { useEffect, useState } from 'react';
 
 import AgoraEngineService from '@/renderer/shared/services/Agora';
+import { Image } from 'antd';
 import { VirtualBackgroundProps, VirtualBackground } from './types';
+
 const { ipcRenderer, nativeImage } = window.require('electron');
 
-import {
-  BackgroundBlurDegree,
-  BackgroundSourceType,
-  MediaSourceType,
-} from 'agora-electron-sdk';
-import { Image } from 'antd';
+const { BackgroundBlurDegree, BackgroundSourceType, MediaSourceType } =
+  window.require('agora-electron-sdk');
 
 export function VirtualBackgroundDialog({
   open,
