@@ -10,7 +10,7 @@
  */
 import path from 'path';
 
-import { app, BrowserWindow, shell, ipcMain, globalShortcut } from 'electron';
+import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -50,6 +50,18 @@ ipcMain.on('resize-window', (_event, { width, height }) => {
     win.setSize(width, height);
     win.center();
   }
+});
+
+ipcMain.handle('get-virtual-background-path', (_, imageNumber: number) => {
+  return process.env.NODE_ENV === 'development'
+    ? path.resolve(
+        __dirname,
+        `../../assets/images/virtual_background/virtual_background_${imageNumber}.jpg`,
+      )
+    : path.join(
+        process.resourcesPath,
+        `assets/images/virtual_background/virtual_background_${imageNumber}.jpg`,
+      );
 });
 
 if (process.env.NODE_ENV === 'production') {

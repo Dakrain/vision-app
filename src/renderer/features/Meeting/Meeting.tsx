@@ -287,6 +287,13 @@ function Meeting() {
             />
             <MenuItem icon="chat" name="Chat" onClick={toggleShowChat} />
             <MenuItem icon="setting" name="Cài đặt" onClick={() => {}} />
+            <MenuItem
+              icon="setting"
+              name="Phong nền"
+              onClick={() => {
+                setOpenVirtualBackgroundDialog(true);
+              }}
+            />
           </div>
           <Button
             variant="primary"
