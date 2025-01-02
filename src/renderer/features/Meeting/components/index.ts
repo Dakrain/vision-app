@@ -5,3 +5,4 @@ export * from './MeetingDetail';
 export * from './MeetingUser';
 export * from './UserSection';
 export * from './MeetingChat';
+export * from './VirtualBackgroundDialog';

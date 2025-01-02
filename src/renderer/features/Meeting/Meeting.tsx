@@ -16,12 +16,15 @@ import {
   VideoView,
   MeetingChat,
   UserSection,
+  VirtualBackgroundDialog,
 } from './components';
 import { ShareScreenDialog } from './components/ShareScreenDialog/ShareScreenDialog';
 import { MEETING_USER_TABS } from './constants';
 
 function Meeting() {
   const [openShareScreenDialog, setOpenShareScreenDialog] = useState(false);
+  const [openVirtualBackgroundDialog, setOpenVirtualBackgroundDialog] =
+    useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [openMeetingDetail, setOpenMeetingDetail] = useState(false);
@@ -325,6 +328,12 @@ function Meeting() {
             setOpenMeetingDetail(false);
           }}
           meetingInfo={meetingDetail?.room || {}}
+        />
+        <VirtualBackgroundDialog
+          open={openVirtualBackgroundDialog}
+          onClose={() => {
+            setOpenVirtualBackgroundDialog(false);
+          }}
         />
       </div>
     </div>
