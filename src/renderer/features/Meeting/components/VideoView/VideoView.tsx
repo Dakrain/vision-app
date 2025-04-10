@@ -5,11 +5,11 @@ import { useLayoutEffect, useMemo, useRef } from 'react';
 import { VideoViewProps } from './types';
 import './VideoView.scss';
 
-// const { VideoMirrorModeType } = window.require('agora-electron-sdk');
+const { RenderModeType, VideoMirrorModeType, VideoSourceType, VideoViewSetupMode } = window.require('agora-electron-sdk');
 
 // const { RenderModeType, VideoSourceType, VideoViewSetupMode } =
 //   window.require('agora-electron-sdk');
-import { RenderModeType, VideoMirrorModeType, VideoSourceType, VideoViewSetupMode } from 'agora-electron-sdk';
+// import { RenderModeType, VideoMirrorModeType, VideoSourceType, VideoViewSetupMode } from 'agora-electron-sdk';
 export function VideoView({
   className,
   uid,

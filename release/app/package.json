@@ -15,5 +15,6 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {
+    "agora-electron-sdk": "^4.5.0"  
   }
 }

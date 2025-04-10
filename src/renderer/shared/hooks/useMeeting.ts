@@ -37,14 +37,14 @@ import { camelizeKeys, decamelizeKeys } from 'humps';
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
 import { AgoraRtmMessage, MeetingChat } from '../types/meeting';
 
-// const {
-//   IRtcEngineEventHandler,
-//   ScreenCaptureSourceInfo,
-//   ChannelProfileType,
-//   ClientRoleType,
-//   ConnectionStateType,
-// } = window.require('agora-electron-sdk');
-import { ChannelProfileType, ClientRoleType, ConnectionStateType, IRtcEngineEventHandler, ScreenCaptureSourceInfo } from 'agora-electron-sdk';
+const {
+  IRtcEngineEventHandler,
+  ScreenCaptureSourceInfo,
+  ChannelProfileType,
+  ClientRoleType,
+  ConnectionStateType,
+} = window.require('agora-electron-sdk');
+// import { ChannelProfileType, ClientRoleType, ConnectionStateType, IRtcEngineEventHandler, ScreenCaptureSourceInfo } from 'agora-electron-sdk';
 
 const useClient = createClient('c2c92894c294415d9af39e31bcec8832');
 
@@ -60,7 +60,7 @@ export const useMeeting = () => {
   const [enableCamera, setEnableCamera] = useState(true);
   const [enableMic, setEnableMic] = useState(true);
   const [shareScreen, setShareScreen] = useState(false);
-  const [sources, setSources] = useState<(ScreenCaptureSourceInfo)[]>(
+  const [sources, setSources] = useState<(typeof ScreenCaptureSourceInfo)[]>(
     [],
   );
   const [isSharing, setIsSharing] = useState(false);
@@ -178,14 +178,14 @@ export const useMeeting = () => {
 
  
   const [remoteUsers, setRemoteUsers] = useState<number[]>([]);
-  const eventHandler = useMemo< IRtcEngineEventHandler>(
+  const eventHandler = useMemo<typeof IRtcEngineEventHandler>(
     () => ({
-      onJoinChannelSuccess(connection) {
+      onJoinChannelSuccess(connection: any) {
         console.log("🚀 ~ onJoinChannelSuccess ~ connection:", connection)
         setIsConnected(true);
       },
 
-      onUserJoined(connection, remoteUid) {
+      onUserJoined(connection: any, remoteUid: any) {
         console.log("🚀 ~ onUserJoined ~ connection:", connection)
         setRemoteUsers((prevUsers) => {
           // Chỉ thêm remoteUid nếu nó chưa tồn tại trong mảng
@@ -196,7 +196,7 @@ export const useMeeting = () => {
         dispatch(debouncedFetchMeetingUsers(Number(meetingId)));
       },
 
-      onUserOffline(connection, remoteUid, reason) {
+      onUserOffline(connection: any, remoteUid: any, reason: any) {
         console.log("🚀 ~ onUserOffline ~ connection:", connection)
         setRemoteUsers((prevUsers) =>
           prevUsers.filter((user) => user !== remoteUid),
@@ -204,19 +204,19 @@ export const useMeeting = () => {
         dispatch(removeMeetingUser(remoteUid));
       },
 
-      onUserMuteAudio(connection, remoteUid, muted) {
+      onUserMuteAudio(connection: any, remoteUid: any, muted: any) {
         console.log("🚀 ~ onUserMuteAudio ~ connection:", connection)
         dispatch(remoteUserMutedAudio({ agUid: remoteUid, muted }));
       },
-      onUserMuteVideo(connection, remoteUid, muted) {
+      onUserMuteVideo(connection: any, remoteUid: any, muted: any) {
         console.log("🚀 ~ onUserMuteVideo ~ connection:", connection)
         dispatch(remoteUserMutedVideo({ agUid: remoteUid, muted }));
       },
 
-      onRemoteAudioStats(connection, stats) {
+      onRemoteAudioStats(connection: any, stats: any) {
       console.log("🚀 ~ useMeeting ~ connection:", connection)
       },
-      onConnectionStateChanged(connection, state, reason) {
+      onConnectionStateChanged(connection: any, state: any, reason: any) {
         console.log("🚀 ~ onConnectionStateChanged ~ connection:", connection)
         if (state === ConnectionStateType.ConnectionStateDisconnected) {
           setIsConnected(false);
@@ -225,29 +225,29 @@ export const useMeeting = () => {
         }
       },
 
-      onError(err, msg) {
+      onError(err: any, msg: any) {
         console.log("🚀 ~ onError ~ err:", err, msg)
         setIsError(true);
       },
 
       onRemoteVideoStateChanged(
-        connection,
-        remoteUid,
-        state,
-        _reason,
-        _elapsed,
+        connection: any,
+        remoteUid: any,
+        state: any,
+        _reason: any,
+        _elapsed: any,
       ) {
         console.log("🚀 ~ useMeeting ~ connection:", state)
       },
-      onLocalVideoStateChanged(source, state, reason) {
+      onLocalVideoStateChanged(source: any, state: any, reason: any) {
         console.log("🚀 ~ onLocalVideoStateChanged ~ source:", source, state, reason);
       },
       onRemoteAudioStateChanged(
-        connection,
-        remoteUid,
-        state,
-        _reason,
-        _elapsed,
+        connection: any,
+        remoteUid: any,
+        state: any,
+        _reason: any,
+        _elapsed: any,
       ) {
         console.log("🚀 ~ onRemoteAudioStateChanged ~ connection:", connection);
       },
