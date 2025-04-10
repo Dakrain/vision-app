@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { login, fetchUserInfo } from './action';
+import { fetchUserInfo, login } from './action';
 import INITIAL_STATE from './constants';
 
 export const NS_AUTH = 'auth';
@@ -7,7 +7,13 @@ export const NS_AUTH = 'auth';
 export const authSlice = createSlice({
   name: NS_AUTH,
   initialState: INITIAL_STATE,
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      state.user = undefined;
+      localStorage.setItem('token', '');
+      localStorage.setItem('last_login_user', '');
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(login.pending, (state) => {
       state.error = undefined;
@@ -49,4 +55,5 @@ export const authSlice = createSlice({
   },
 });
 
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

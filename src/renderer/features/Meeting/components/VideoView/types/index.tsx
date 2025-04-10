@@ -10,4 +10,5 @@ export interface VideoViewProps {
   isLocal: boolean;
   debug?: boolean;
   style?: CSSProperties;
+  reaction?: string;
 }

@@ -1,15 +1,18 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { createSlice } from '@reduxjs/toolkit';
 import { MeetingChat } from '@/renderer/shared/types/meeting';
+import { createSlice } from '@reduxjs/toolkit';
 import { random } from 'lodash';
-import INITIAL_STATE from './constants';
 import {
+  fetchAllMeetingData,
+  fetchChats,
   fetchMeetingDetail,
   fetchMeetingUsers,
-  fetchChats,
-  updateUserConfig,
   sendChat,
+  startShareScreen,
+  stopShareScreen,
+  updateUserConfig,
 } from './action';
+import INITIAL_STATE from './constants';
 
 export const NS_MEETING = 'meeting';
 
@@ -17,6 +20,29 @@ export const meetingSlice = createSlice({
   name: NS_MEETING,
   initialState: INITIAL_STATE,
   reducers: {
+    userReaction: (state, action) => {
+      const userAguid = state.meetingDetail?.user?.agUid;
+
+      // find user index
+      const userIndex = state.meetingUsers.findIndex(
+        (user) => user.agUid === userAguid,
+      );
+
+      if (userIndex >= 0) {
+        state.meetingUsers[userIndex].reaction = action.payload;
+      }
+    },
+    setReaction: (state, action) => {
+      const { agUid, reaction } = action.payload;
+
+      const userIndex = state.meetingUsers.findIndex(
+        (user) => user.agUid === agUid,
+      );
+
+      if (userIndex >= 0) {
+        state.meetingUsers[userIndex].reaction = reaction;
+      }
+    },
     setMeetingDetail: (state, action) => {
       state.meetingDetail = action.payload;
     },
@@ -68,6 +94,48 @@ export const meetingSlice = createSlice({
     builder.addCase(fetchMeetingDetail.fulfilled, (state, action) => {
       state.meetingDetail = action.payload;
     });
+    builder.addCase(startShareScreen.pending, (state, action) => {
+      const stateUser = state.meetingDetail?.user;
+
+      if (stateUser) {
+        const userIndex = state.meetingUsers.findIndex(
+          (user) => user.agUid === stateUser.agUid,
+        );
+
+        if (userIndex >= 0) {
+          state.meetingUsers = state.meetingUsers.map((user, index) =>
+            index === userIndex
+              ? {
+                  ...user,
+                  enableVideo: 1,
+                  enableAudio: 1,
+                }
+              : user,
+          );
+        }
+      }
+    });
+    builder.addCase(stopShareScreen.pending, (state, action) => {
+      const stateUser = state.meetingDetail?.user;
+
+      if (stateUser) {
+        const userIndex = state.meetingUsers.findIndex(
+          (user) => user.agUid === stateUser.agUid,
+        );
+
+        if (userIndex >= 0) {
+          state.meetingUsers = state.meetingUsers.map((user, index) =>
+            index === userIndex
+              ? {
+                  ...user,
+                  enableVideo: 0,
+                  enableAudio: 0,
+                }
+              : user,
+          );
+        }
+      }
+    });
     builder.addCase(fetchMeetingUsers.fulfilled, (state, action) => {
       state.meetingUsers = action.payload.rows ?? [];
     });
@@ -117,6 +185,14 @@ export const meetingSlice = createSlice({
     builder.addCase(fetchChats.fulfilled, (state, action) => {
       state.chats = action.payload;
     });
+
+    builder
+      .addCase(fetchAllMeetingData.fulfilled, (state, action) => {
+        state.meetingDetail = action.payload.meetingDetail;
+        state.meetingUsers = action.payload.meetingUsers.rows ?? [];
+        state.chats = action.payload.chats;
+      })
+     ;
   },
 });
 export const {
@@ -128,5 +204,7 @@ export const {
   remoteUserMutedVideo,
   resetMeetingState,
   addChat,
+  userReaction,
+  setReaction,
 } = meetingSlice.actions;
 export default meetingSlice.reducer;

@@ -1,21 +1,24 @@
-import './Dashboard.scss';
-import { Layout, Divider } from 'antd';
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { logout } from '@/renderer/shared/store/auth/slice';
 import {
   Avatar,
+  CreateMeetingDialog,
   JoinMeetingDialog,
   MenuItem,
-  CreateMeetingDialog,
 } from '@/shared/components/';
-import { useSelector } from 'react-redux';
+import { LogoutOutlined } from '@ant-design/icons';
+import { Divider, Layout, Popover, Typography } from 'antd';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { selectAuth } from '../../shared/store/auth/selector';
+import { PAGE_TRANSITION, PAGE_VARIANTS } from './constants';
+import './Dashboard.scss';
+import Chat from './pages/Chat/Chat';
+import Home from './pages/Home/Home';
+import Library from './pages/Library/Library';
 import Meeting from './pages/Meeting/Meeting';
 import Setting from './pages/Setting/Setting';
-import Chat from './pages/Chat/Chat';
-import Library from './pages/Library/Library';
-import Home from './pages/Home/Home';
-import { PAGE_VARIANTS, PAGE_TRANSITION } from './constants';
-import { selectAuth } from '../../shared/store/auth/selector';
 
 const { Sider } = Layout;
 const { ipcRenderer } = window.require('electron');
@@ -25,11 +28,13 @@ function Dashboard() {
     ipcRenderer.send('resize-window', { width: 1366, height: 768 });
   }, []);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState<string>('home');
   const userDetail = useSelector(selectAuth);
   const [openJoinMeetingDialog, setOpenJoinMeetingDialog] = useState(false);
   const [openCreateMeetingDialog, setOpenCreateMeetingDialog] = useState(false);
-
+  const [settingOpen, setSettingOpen] = useState(false);
   const renderPage = (page: string) => {
     const content = (() => {
       switch (page.toLowerCase()) {
@@ -77,11 +82,45 @@ function Dashboard() {
       <Sider width={80} className="home-layout__sider">
         <div className="home-layout__menu-container">
           <div className="home-layout__avatar">
-            <Avatar
-              url={userDetail.user?.avatarUrl || ''}
-              radius={24}
-              name={userDetail.user?.fullName || ''}
-            />
+            
+            <Popover
+              content={
+                <div>
+                  <Typography>Phiên bản 1.0.0</Typography>
+                  <div 
+                    style={{ 
+                      cursor: 'pointer', 
+                      marginTop: 8,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      color: '#ff4d4f'
+                    }}
+                    onClick={() => {
+                      dispatch(logout());
+                      navigate('/login');
+                    }}
+                  >
+                    <LogoutOutlined />
+                    <Typography style={{ color: '#ff4d4f' }}>Đăng xuất</Typography>
+                  </div>
+                </div>
+              }
+              trigger="hover"
+              open={settingOpen}
+              onOpenChange={(open) => {
+                setSettingOpen(open);
+              }}
+              placement='rightBottom'
+            >
+              <div >
+                <Avatar
+                  url={userDetail.user?.avatarUrl || ''}
+                  radius={24}
+                  name={userDetail.user?.fullName || ''}
+                />
+              </div>
+            </Popover>
           </div>
           <MenuItem
             label="Home"

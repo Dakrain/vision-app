@@ -36,3 +36,23 @@
     border-top: 1px solid #f0f0f0;
   }
 }
+
+.send-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    color: #1890ff;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/renderer/store/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   addChat,
@@ -9,19 +9,22 @@ import {
   remoteUserMutedVideo,
   removeMeetingUser,
   resetMeetingState,
+  setReaction,
+  userReaction
 } from '@/renderer/features/Meeting/store/slice';
 
 import {
-  fetchMeetingDetail,
   debouncedFetchMeetingUsers,
   debouncedUpdateUserConfig,
-  fetchChats,
+  fetchAllMeetingData,
+  startShareScreen,
+  stopShareScreen
 } from '@/renderer/features/Meeting/store/action';
-import useLoading from '@/renderer/shared/hooks/useLoading';
 import {
   selectMeetingDetail,
   selectMeetingUsers,
 } from '@/renderer/features/Meeting/store/selector';
+import useLoading from '@/renderer/shared/hooks/useLoading';
 import MeetingService from '@/shared/services/Meeting/MeetingService';
 import {
   createClient,
@@ -29,18 +32,19 @@ import {
   RtmMessage,
   RtmTextMessage,
 } from 'agora-rtm-react';
-import { camelizeKeys, decamelizeKeys } from 'humps';
 import useMessage from 'antd/es/message/useMessage';
+import { camelizeKeys, decamelizeKeys } from 'humps';
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
 import { AgoraRtmMessage, MeetingChat } from '../types/meeting';
 
-const {
-  IRtcEngineEventHandler,
-  ScreenCaptureSourceInfo,
-  ChannelProfileType,
-  ClientRoleType,
-  ConnectionStateType,
-} = window.require('agora-electron-sdk');
+// const {
+//   IRtcEngineEventHandler,
+//   ScreenCaptureSourceInfo,
+//   ChannelProfileType,
+//   ClientRoleType,
+//   ConnectionStateType,
+// } = window.require('agora-electron-sdk');
+import { ChannelProfileType, ClientRoleType, ConnectionStateType, IRtcEngineEventHandler, ScreenCaptureSourceInfo } from 'agora-electron-sdk';
 
 const useClient = createClient('c2c92894c294415d9af39e31bcec8832');
 
@@ -55,7 +59,8 @@ export const useMeeting = () => {
   const [isError, setIsError] = useState(false);
   const [enableCamera, setEnableCamera] = useState(true);
   const [enableMic, setEnableMic] = useState(true);
-  const [sources, setSources] = useState<(typeof ScreenCaptureSourceInfo)[]>(
+  const [shareScreen, setShareScreen] = useState(false);
+  const [sources, setSources] = useState<(ScreenCaptureSourceInfo)[]>(
     [],
   );
   const [isSharing, setIsSharing] = useState(false);
@@ -66,9 +71,9 @@ export const useMeeting = () => {
   const toggleMic = () => {
     setEnableMic(!enableMic);
     if (enableMic) {
-      AgoraEngineService.muteLocalAudioStream(false);
-    } else {
       AgoraEngineService.muteLocalAudioStream(true);
+    } else {
+      AgoraEngineService.muteLocalAudioStream(false);
     }
     dispatch(
       debouncedUpdateUserConfig({
@@ -79,25 +84,6 @@ export const useMeeting = () => {
       }),
     );
   };
-
-  const sendMessage = (message: MeetingChat) => {
-    // add message to store
-    dispatch(addChat(message));
-
-    const rtmMessage: AgoraRtmMessage = {
-      message_type: 'NEW_CHAT',
-      message_sub_type: null,
-      message_content: decamelizeKeys(message),
-    };
-
-    const rtm = client.createMessage({
-      text: JSON.stringify(rtmMessage),
-      messageType: 'TEXT',
-    });
-
-    channel.current?.sendMessage(rtm);
-  };
-
   const toggleCamera = () => {
     setEnableCamera(!enableCamera);
     if (enableCamera) {
@@ -115,14 +101,92 @@ export const useMeeting = () => {
     );
   };
 
+  const updateMediaState = useCallback(({
+    enableMic: newEnableMic,
+    enableCamera: newEnableCamera,
+    shareScreen: newShareScreen
+  }: {
+    enableMic?: boolean;
+    enableCamera?: boolean;
+    shareScreen?: boolean;
+  }) => {
+    if (newEnableMic !== undefined) {
+      setEnableMic(newEnableMic);
+      AgoraEngineService.muteLocalAudioStream(!newEnableMic);
+    }
+    
+    if (newEnableCamera !== undefined) {
+      setEnableCamera(newEnableCamera);
+      AgoraEngineService.muteLocalVideoStream(!newEnableCamera);
+    }
+    
+    if (newShareScreen !== undefined) {
+      setShareScreen(newShareScreen);
+    }
+  }, []);
+
+  const startSharingScreen = useCallback(() => {
+    updateMediaState({
+      enableMic: true,
+      enableCamera: true,
+      shareScreen: true
+    });
+    dispatch(startShareScreen(Number(meetingId)));
+  }, [dispatch, meetingId, updateMediaState]);
+
+  const stopSharingScreen = useCallback(() => {
+    updateMediaState({
+      enableMic: false,
+      enableCamera: false,
+      shareScreen: false
+    });
+    dispatch(stopShareScreen(Number(meetingId)));
+  }, [dispatch, meetingId, updateMediaState]);
+
+  const sendMessage = (message: MeetingChat) => {
+    // Only send the message through the channel
+    const rtmMessage: AgoraRtmMessage = {
+      message_type: 'NEW_CHAT',
+      message_sub_type: null,
+      message_content: decamelizeKeys(message),
+    };
+
+    const rtm = client.createMessage({
+      text: JSON.stringify(rtmMessage),
+      messageType: 'TEXT',
+    });
+
+    channel.current?.sendMessage(rtm);
+  };
+
+  const sendReaction = (reaction: string) => {
+    const rtmMessage: AgoraRtmMessage = {
+      message_type: 'ACTION',
+      message_sub_type: 'ROOM_REACTION',
+      message_content: reaction,
+    };
+
+    const rtm = client.createMessage({
+      text: JSON.stringify(rtmMessage),
+      messageType: 'TEXT',
+    });
+
+    channel.current?.sendMessage(rtm);
+
+    dispatch(userReaction(reaction));
+  };
+
+ 
   const [remoteUsers, setRemoteUsers] = useState<number[]>([]);
-  const eventHandler = useMemo<typeof IRtcEngineEventHandler>(
+  const eventHandler = useMemo< IRtcEngineEventHandler>(
     () => ({
       onJoinChannelSuccess(connection) {
-        console.log('RTC: Successfully joined channel:', connection.channelId);
+        console.log("🚀 ~ onJoinChannelSuccess ~ connection:", connection)
+        setIsConnected(true);
       },
 
       onUserJoined(connection, remoteUid) {
+        console.log("🚀 ~ onUserJoined ~ connection:", connection)
         setRemoteUsers((prevUsers) => {
           // Chỉ thêm remoteUid nếu nó chưa tồn tại trong mảng
           return prevUsers.includes(remoteUid)
@@ -133,6 +197,7 @@ export const useMeeting = () => {
       },
 
       onUserOffline(connection, remoteUid, reason) {
+        console.log("🚀 ~ onUserOffline ~ connection:", connection)
         setRemoteUsers((prevUsers) =>
           prevUsers.filter((user) => user !== remoteUid),
         );
@@ -140,16 +205,19 @@ export const useMeeting = () => {
       },
 
       onUserMuteAudio(connection, remoteUid, muted) {
+        console.log("🚀 ~ onUserMuteAudio ~ connection:", connection)
         dispatch(remoteUserMutedAudio({ agUid: remoteUid, muted }));
       },
       onUserMuteVideo(connection, remoteUid, muted) {
-        console.log('RTC: onUserMuteVideo:', remoteUid, 'Muted:', muted);
+        console.log("🚀 ~ onUserMuteVideo ~ connection:", connection)
         dispatch(remoteUserMutedVideo({ agUid: remoteUid, muted }));
       },
 
-      onRemoteAudioStats(connection, stats) {},
-
+      onRemoteAudioStats(connection, stats) {
+      console.log("🚀 ~ useMeeting ~ connection:", connection)
+      },
       onConnectionStateChanged(connection, state, reason) {
+        console.log("🚀 ~ onConnectionStateChanged ~ connection:", connection)
         if (state === ConnectionStateType.ConnectionStateDisconnected) {
           setIsConnected(false);
         } else if (state === ConnectionStateType.ConnectionStateConnected) {
@@ -158,6 +226,7 @@ export const useMeeting = () => {
       },
 
       onError(err, msg) {
+        console.log("🚀 ~ onError ~ err:", err, msg)
         setIsError(true);
       },
 
@@ -168,20 +237,10 @@ export const useMeeting = () => {
         _reason,
         _elapsed,
       ) {
-        console.log(
-          'RTC: Remote video state changed:',
-          state,
-          'for user:',
-          remoteUid,
-        );
+        console.log("🚀 ~ useMeeting ~ connection:", state)
       },
       onLocalVideoStateChanged(source, state, reason) {
-        console.log(
-          'RTC: Local video state changed:',
-          state,
-          'Reason:',
-          reason,
-        );
+        console.log("🚀 ~ onLocalVideoStateChanged ~ source:", source, state, reason);
       },
       onRemoteAudioStateChanged(
         connection,
@@ -190,12 +249,7 @@ export const useMeeting = () => {
         _reason,
         _elapsed,
       ) {
-        console.log(
-          'RTC: Remote audio state changed:',
-          state,
-          'for user:',
-          remoteUid,
-        );
+        console.log("🚀 ~ onRemoteAudioStateChanged ~ connection:", connection);
       },
     }),
     [dispatch, meetingId],
@@ -208,9 +262,7 @@ export const useMeeting = () => {
     AgoraEngineService.leaveChannel();
 
     if (meetingId) {
-      withLoading(dispatch(fetchMeetingDetail(Number(meetingId))));
-      withLoading(dispatch(debouncedFetchMeetingUsers(Number(meetingId))));
-      withLoading(dispatch(fetchChats(Number(meetingId))));
+      withLoading(dispatch(fetchAllMeetingData(Number(meetingId))));
     }
 
     client.on('MessageFromPeer', (state, reason) => {});
@@ -254,7 +306,7 @@ export const useMeeting = () => {
           meetingDetail?.room?.channelName || '',
         );
         channel.current = newChannel;
-        newChannel.on('ChannelMessage', (message: RtmMessage) => {
+        newChannel.on('ChannelMessage', (message: RtmMessage, memberId: string) => {
           const data = message as RtmTextMessage;
           if (data) {
             const rtmMessage: AgoraRtmMessage = JSON.parse(data.text);
@@ -271,6 +323,7 @@ export const useMeeting = () => {
                   break;
 
                 case 'ROOM_REACTION':
+                  dispatch(setReaction({ agUid: Number(memberId), reaction: rtmMessage.message_content }));
                   break;
 
                 default:
@@ -354,7 +407,10 @@ export const useMeeting = () => {
     toggleMic,
     toggleCamera,
     leaveMeeting,
+    startSharingScreen,
+    stopSharingScreen,
     sendMessage,
+    sendReaction,
     meetingUsers,
     meetingDetail,
     meetingId,

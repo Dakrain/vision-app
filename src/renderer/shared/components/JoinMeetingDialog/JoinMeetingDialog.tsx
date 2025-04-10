@@ -1,12 +1,12 @@
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Input, Typography, Modal } from 'antd';
-import './JoinMeetingDialog.scss';
-import { MeetingService } from '@/shared/services/Meeting';
 import useLoading from '@/shared/hooks/useLoading';
+import { MeetingService } from '@/shared/services/Meeting';
 import { selectAuth } from '@/shared/store/auth';
+import { Input, Modal, Typography } from 'antd';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../Button';
+import './JoinMeetingDialog.scss';
 
 interface Props {
   onClose: () => void;
@@ -15,8 +15,9 @@ interface Props {
 
 export function JoinMeetingDialog({ onClose, open }: Props) {
   const user = useSelector(selectAuth);
-  const [meetingId, setMeetingId] = useState('7B1127');
-  const [passcode, setPasscode] = useState('309B5983');
+  //ID: B71169, Password: F6670360
+  const [meetingId, setMeetingId] = useState('B71169');
+  const [passcode, setPasscode] = useState('F6670360');
   const [name] = useState(user.user?.fullName || '');
   const navigate = useNavigate();
   const { withLoading } = useLoading();

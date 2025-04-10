@@ -1,14 +1,14 @@
-import { ChatBubble } from '@/renderer/shared/components';
-import { Input } from 'antd';
 import Icon from '@/assets/svg/icons';
-import './MeetingChat.scss';
+import { ChatBubble } from '@/renderer/shared/components';
+import { useAppDispatch } from '@/renderer/store';
 import { useAuth } from '@/shared/hooks';
+import { Input } from 'antd';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useAppDispatch } from '@/renderer/store';
-import { useState } from 'react';
-import { selectChats } from '../../store/selector';
 import { sendChat } from '../../store/action';
+import { selectChats } from '../../store/selector';
+import './MeetingChat.scss';
 import { MeetingChatProps } from './types';
 
 export function MeetingChat({ sendMessage }: MeetingChatProps) {
@@ -53,7 +53,7 @@ export function MeetingChat({ sendMessage }: MeetingChatProps) {
       <div className="chat-input">
         <Input
           placeholder="Nhập tin nhắn..."
-          suffix={<Icon name="send" />}
+          suffix={<button className="send-icon" onClick={() => sendChatMessage()}><Icon name="send" /></button>}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onPressEnter={() => sendChatMessage()}

@@ -1,28 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, ReactNode, memo, useMemo } from 'react';
-import { Button } from '@/shared/components/Button';
-import { CaretDownOutlined } from '@ant-design/icons';
-import { useMeeting } from '@/shared/hooks/index';
-
-import './Meeting.scss';
 import AgoraEngineService from '@/renderer/shared/services/Agora/AgoraEngineService';
-import { Segmented, Tabs, Typography } from 'antd';
-import { MeetingRole, MemberStatus } from '@/renderer/shared/types/meeting';
 import type { MeetingUser as MeetingUserType } from '@/renderer/shared/types/meeting';
+import { MeetingRole, MemberStatus } from '@/renderer/shared/types/meeting';
+import { Button } from '@/shared/components/Button';
+import { useMeeting } from '@/shared/hooks/index';
+import { CaretDownOutlined } from '@ant-design/icons';
+import { Segmented, Typography } from 'antd';
+import { useMemo, useState } from 'react';
 import {
+  EmojiPicker,
+  MeetingChat,
   MeetingDetail,
   MeetingUser,
   MenuItem,
-  VideoView,
-  MeetingChat,
   UserSection,
-  VirtualBackgroundDialog,
+  VideoView,
+  VirtualBackgroundDialog
 } from './components';
 import { ShareScreenDialog } from './components/ShareScreenDialog/ShareScreenDialog';
 import { MEETING_USER_TABS } from './constants';
-
+import './Meeting.scss';
+// const { ScreenCaptureSourceInfo, ScreenCaptureSourceType, ClientRoleType } = window.require('agora-electron-sdk');
+import { ClientRoleType, ScreenCaptureSourceType } from 'agora-electron-sdk';
 function Meeting() {
   const [openShareScreenDialog, setOpenShareScreenDialog] = useState(false);
+  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
   const [openVirtualBackgroundDialog, setOpenVirtualBackgroundDialog] =
     useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -31,6 +33,7 @@ function Meeting() {
   const [activeTab, setActiveTab] = useState(MEETING_USER_TABS[0].value);
   const [showMeetingUser, setShowMeetingUser] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [reaction, setReaction] = useState(false);
 
   const toggleShowMeetingUser = () => {
     setShowMeetingUser(!showMeetingUser);
@@ -55,7 +58,10 @@ function Meeting() {
     remoteUsers,
     toggleCamera,
     toggleMic,
+    sendReaction,
     sendMessage,
+    startSharingScreen,
+    stopSharingScreen
   } = useMeeting();
   const getGridClass = (totalParticipants: number) => {
     if (totalParticipants === 1) return 'single-user';
@@ -82,19 +88,19 @@ function Meeting() {
         user.agUid === meetingDetail?.user?.agUid ||
         remoteUsers.some((remoteUser) => remoteUser === user.agUid),
     );
-
     return (
       <div className={`meeting-grid ${getGridClass(activeUsers.length)}`}>
         {activeUsers.map((user) => (
           <VideoView
             key={user.agUid}
-            uid={user.agUid || 0}
-            isLocal={user.agUid === meetingDetail?.user?.agUid}
+            uid={user.agUid ?? 0}
+            isLocal={user.agUid === meetingDetail?.user?.agUid }
             debug={false}
             enableAudio={user.enableAudio === 1}
-            enableVideo={user.enableVideo === 1}
+            enableVideo={ user.enableVideo === 1 }
             avatar={user.avatarUrl ?? ''}
             label={user.fullName ?? 'Vision20User'}
+            reaction={user.reaction}
             className="video-item"
           />
         ))}
@@ -104,6 +110,11 @@ function Meeting() {
 
   const onAction = (user: MeetingUserType) => {
     console.log(user);
+  };
+  
+
+  const handleEmojiSelect = (emoji: string) => {
+    console.log('Selected emoji:', emoji);
   };
 
   const renderChat = useMemo(() => {
@@ -267,6 +278,8 @@ function Meeting() {
               onClick={() => {
                 if (isSharing) {
                   AgoraEngineService.stopScreenCapture();
+                  AgoraEngineService.leaveChannelEx({ channelId: meetingDetail?.room?.channelName ?? '', localUid: (meetingDetail?.user?.agUid ?? 0) + 10000 });
+                  stopSharingScreen();
                   setIsSharing(false);
                 } else {
                   const res = AgoraEngineService.getScreenCaptureSources(
@@ -279,7 +292,26 @@ function Meeting() {
                 }
               }}
             />
-            <MenuItem icon="emoji" name="Thả cảm xúc" onClick={() => {}} />
+            <EmojiPicker
+              open={openEmojiPicker}
+              onClose={() => {
+                setOpenEmojiPicker(false);
+              }}
+              onEmojiSelect={(emoji) => {
+                sendReaction(emoji);
+                setReaction(true);
+                setOpenEmojiPicker(false);
+              }} 
+            >
+              <MenuItem icon="emoji" name={reaction ? 'Dừng thả cảm xúc' : 'Thả cảm xúc'} onClick={() => {
+                if(reaction) {
+                  setReaction(false);
+                  sendReaction('NONE');
+                } else {
+                  setOpenEmojiPicker(true);
+                }
+              }} />
+            </EmojiPicker>
             <MenuItem
               icon="users"
               name="Người tham dự"
@@ -308,9 +340,31 @@ function Meeting() {
             setOpenShareScreenDialog(false);
           }}
           onShare={(selectedSource) => {
+            try {
+              
             setIsSharing(true);
             setOpenShareScreenDialog(false);
-            if (selectedSource && selectedSource.sourceId) {
+            startSharingScreen();
+            console.log('onShare boolean',selectedSource.sourceId);
+            if ( selectedSource.sourceId !== undefined) {
+              console.log('onShare Token', meetingDetail?.user?.agScreenToken);
+
+              if(selectedSource.type === ScreenCaptureSourceType.ScreencapturesourcetypeWindow) {
+              AgoraEngineService.startScreenCaptureByWindowId(
+                selectedSource.sourceId,
+                {},
+                {
+                  dimensions: { width: 1920, height: 1080 },
+                  frameRate: 15,
+                  bitrate: 0,
+                  captureMouseCursor: true,
+                  windowFocus: false,
+                  highLightWidth: 0,
+                  highLightColor: 0xff8cbf26,
+                  enableHighLight: false,
+                },
+              );
+            } else if(selectedSource.type === ScreenCaptureSourceType.ScreencapturesourcetypeScreen) {
               AgoraEngineService.startScreenCaptureByDisplayId(
                 selectedSource.sourceId,
                 {},
@@ -326,9 +380,34 @@ function Meeting() {
                 },
               );
             }
-          }}
+            AgoraEngineService.updateChannelMediaOptions({
+              publishScreenTrack: true,
+              publishCameraTrack: false,
+              clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+            });
+
+            AgoraEngineService.joinChannelEx(
+              meetingDetail?.user?.agScreenToken ?? '',
+              {channelId: meetingDetail?.room?.channelName ?? '', 
+                localUid: (meetingDetail?.user?.agUid ?? 0) + 800000,
+              },
+              {
+                autoSubscribeAudio: false,
+                autoSubscribeVideo: false,
+                publishMicrophoneTrack: false,
+                publishCameraTrack: false,
+                clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+                publishScreenTrack: true,
+              }
+            );
+          }
+            } catch (error) {
+              console.log('onShare', error);
+            }
+}}
           sources={sources}
         />
+
         <MeetingDetail
           isOpen={openMeetingDetail}
           onClose={() => {

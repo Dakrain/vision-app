@@ -69,6 +69,8 @@ export interface MeetingUser {
   agRtmToken?: string;
   agScreenToken?: string;
   avatarUrl?: string;
+  reaction?: string; //Use for view only
+  isScreenShare?: boolean;
 }
 
 export interface Host {

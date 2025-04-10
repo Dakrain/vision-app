@@ -1,15 +1,15 @@
-import AgoraEngineService from '@/shared/services/Agora/AgoraEngineService';
-import { useLayoutEffect } from 'react';
 import { Avatar } from '@/renderer/shared/components';
+import AgoraEngineService from '@/shared/services/Agora/AgoraEngineService';
 import Icon from 'assets/svg/icons';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { VideoViewProps } from './types';
 import './VideoView.scss';
 
-const { VideoMirrorModeType } = window.require('agora-electron-sdk');
+// const { VideoMirrorModeType } = window.require('agora-electron-sdk');
 
-const { RenderModeType, VideoSourceType, VideoViewSetupMode } =
-  window.require('agora-electron-sdk');
-
+// const { RenderModeType, VideoSourceType, VideoViewSetupMode } =
+//   window.require('agora-electron-sdk');
+import { RenderModeType, VideoMirrorModeType, VideoSourceType, VideoViewSetupMode } from 'agora-electron-sdk';
 export function VideoView({
   className,
   uid,
@@ -20,28 +20,93 @@ export function VideoView({
   label,
   debug = true,
   style,
+  reaction,
 }: VideoViewProps) {
+  const isSetup = useRef(false);
+
   useLayoutEffect(() => {
-    if (debug) {
-      // Do nothing
-    } else if (isLocal) {
+    if (debug || !enableVideo) {
+      return;
+    }
+
+    const view = document.getElementById(`surface-view-${uid}`);
+    if (!view || isSetup.current) {
+      return;
+    }
+
+    if (isLocal) {
       AgoraEngineService.setupLocalVideo({
-        sourceType: VideoSourceType.VideoSourceCameraPrimary,
+        sourceType: VideoSourceType.VideoSourceScreen,
         renderMode: RenderModeType.RenderModeFit,
-        view: document.getElementById(`surface-view-${uid}`),
-        mirrorMode: VideoMirrorModeType.VideoMirrorModeEnabled,
+        view,
+        // mirrorMode: VideoMirrorModeType.VideoMirrorModeEnabled,
         setupMode: VideoViewSetupMode.VideoViewSetupReplace,
       });
     } else {
       AgoraEngineService.setupRemoteVideo({
         uid,
         sourceType: VideoSourceType.VideoSourceRemote,
-        view: document.getElementById(`surface-view-${uid}`),
+        view,
         renderMode: RenderModeType.RenderModeFit,
         setupMode: VideoViewSetupMode.VideoViewSetupReplace,
       });
     }
+
+    isSetup.current = true;
+
+    return () => {
+      if (isLocal) {
+        AgoraEngineService.setupLocalVideo({
+          sourceType: VideoSourceType.VideoSourceScreen,
+          renderMode: RenderModeType.RenderModeFit,
+          view: null,
+          mirrorMode: VideoMirrorModeType.VideoMirrorModeEnabled,
+          setupMode: VideoViewSetupMode.VideoViewSetupReplace,
+        });
+      } else {
+        AgoraEngineService.setupRemoteVideo({
+          uid,
+          sourceType: VideoSourceType.VideoSourceRemote,
+          view: null,
+          renderMode: RenderModeType.RenderModeFit,
+          setupMode: VideoViewSetupMode.VideoViewSetupReplace,
+        });
+      }
+      isSetup.current = false;
+    };
   }, [isLocal, uid, debug, enableVideo]);
+
+  const renderReaction = useMemo(() => {
+    if (reaction) {
+      let name = ''
+      switch(reaction.toLocaleLowerCase()) {
+        case 'hand':
+          name = 'hand';
+          break;
+        case 'clap':
+          name = 'clap';
+          break;
+        case 'heart':
+          name = 'heart';
+          break;
+        case 'like':
+          name = 'like';
+          break;
+        default:
+          break;
+      }
+      if(name) {
+        return <Icon name={name} className="surface-view-info-reaction" style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '32px',
+          height: '32px',
+        }} />;
+      }
+    }
+  }, [reaction]);
 
   return (
     <div
@@ -60,6 +125,7 @@ export function VideoView({
         <Icon name={enableAudio ? 'micOn' : 'micOff'} />
         <span className="surface-view-info-label">{label}</span>
       </div>
+      {renderReaction}
     </div>
   );
 }
