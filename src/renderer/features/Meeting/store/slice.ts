@@ -8,8 +8,6 @@ import {
   fetchMeetingDetail,
   fetchMeetingUsers,
   sendChat,
-  startShareScreen,
-  stopShareScreen,
   updateUserConfig,
 } from './action';
 import INITIAL_STATE from './constants';
@@ -87,54 +85,15 @@ export const meetingSlice = createSlice({
       return INITIAL_STATE;
     },
     addChat: (state, action) => {
+      // The same message can come from both the history fetch and RTM.
+      const { id } = action.payload ?? {};
+      if (id && state.chats.some((chat) => chat.id === id)) return;
       state.chats = [...state.chats, action.payload];
     },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchMeetingDetail.fulfilled, (state, action) => {
       state.meetingDetail = action.payload;
-    });
-    builder.addCase(startShareScreen.pending, (state, action) => {
-      const stateUser = state.meetingDetail?.user;
-
-      if (stateUser) {
-        const userIndex = state.meetingUsers.findIndex(
-          (user) => user.agUid === stateUser.agUid,
-        );
-
-        if (userIndex >= 0) {
-          state.meetingUsers = state.meetingUsers.map((user, index) =>
-            index === userIndex
-              ? {
-                  ...user,
-                  enableVideo: 1,
-                  enableAudio: 1,
-                }
-              : user,
-          );
-        }
-      }
-    });
-    builder.addCase(stopShareScreen.pending, (state, action) => {
-      const stateUser = state.meetingDetail?.user;
-
-      if (stateUser) {
-        const userIndex = state.meetingUsers.findIndex(
-          (user) => user.agUid === stateUser.agUid,
-        );
-
-        if (userIndex >= 0) {
-          state.meetingUsers = state.meetingUsers.map((user, index) =>
-            index === userIndex
-              ? {
-                  ...user,
-                  enableVideo: 0,
-                  enableAudio: 0,
-                }
-              : user,
-          );
-        }
-      }
     });
     builder.addCase(fetchMeetingUsers.fulfilled, (state, action) => {
       state.meetingUsers = action.payload.rows ?? [];
@@ -153,11 +112,9 @@ export const meetingSlice = createSlice({
               ? {
                   ...user,
                   enableVideo:
-                    action.meta.arg.request?.enable_video ||
-                    stateUser.enableVideo,
+                    action.meta.arg.request?.enable_video ?? user.enableVideo,
                   enableAudio:
-                    action.meta.arg.request?.enable_audio ||
-                    stateUser.enableAudio,
+                    action.meta.arg.request?.enable_audio ?? user.enableAudio,
                 }
               : user,
           );
@@ -167,7 +124,7 @@ export const meetingSlice = createSlice({
     builder.addCase(sendChat.pending, (state, action) => {
       const message: MeetingChat = {
         avatar: action.meta?.arg?.user?.avatarUrl,
-        createdAt: new Date().getTime(),
+        createdAt: Math.floor(Date.now() / 1000),
         id: random(10000).toString(),
         messageType: action.meta?.arg?.request?.type,
         message: action.meta?.arg?.request?.message,

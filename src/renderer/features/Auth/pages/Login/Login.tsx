@@ -18,8 +18,8 @@ function Login() {
   const { dispatchWithLoading } = useLoading();
   const navigate = useNavigate();
   const isAuth = useAppSelector(selectIsAuth);
-  const [email, setEmail] = useState(isDev ? 'visiontester@gmail.com' : '');
-  const [password, setPassword] = useState(isDev ? '123456' : '');
+  const [email, setEmail] = useState(isDev ? 'hai2@gmail.com' : '');
+  const [password, setPassword] = useState(isDev ? '12345678' : '');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { error } = useAuth();
   useEffect(() => {

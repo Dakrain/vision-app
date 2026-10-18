@@ -29,46 +29,40 @@ export function CreateMeetingDialog({ open, onClose }: Props) {
   const [enableMic, setEnableMic] = useState(true);
   const [enableCamera, setEnableCamera] = useState(true);
   const [enableRecord, setEnableRecord] = useState(true);
+  const [enableChat, setEnableChat] = useState(true);
   const [allowRejoin, setAllowRejoin] = useState(true);
   const [allowShare, setAllowShare] = useState(true);
-  const [allowLivestream, setAllowLivestream] = useState(false);
-  const [livestreamFacebookKey, setLivestreamFacebookKey] = useState('');
-  const [livestreamYoutubeKey, setLivestreamYoutubeKey] = useState('');
+  const [allowLivestream, setAllowLivestream] = useState(true);
+  const [waitingRoom, setWaitingRoom] = useState(false);
   const [title, setTitle] = useState('');
   const [password, setPassword] = useState('');
   const [limitUser, setLimitUser] = useState(10);
   const { withLoading } = useLoading();
 
   const handleSubmit = async () => {
-    if (allowLivestream) {
-      if (!livestreamFacebookKey || !livestreamYoutubeKey) {
-        // eslint-disable-next-line no-new
-        new Notification('Lỗi', {
-          body: 'Vui lòng nhập key Facebook hoặc Youtube',
-        });
-        return;
-      }
-    }
-
     try {
       const result = await withLoading(
         MeetingService.createMeeting({
           title,
-          password: livestreamFacebookKey,
+          password,
           limitUser,
           description: '',
-          waitingRoom: 0,
-          muteAllVideo: enableCamera ? 0 : 1,
-          muteAllAudio: enableMic ? 0 : 1,
-          muteAllChat: 0,
-          isRecording: enableRecord ? 0 : 1,
-          multipleShareScreen: allowShare ? 0 : 1,
+          waitingRoom: waitingRoom ? 1 : 0,
+          // Despite the names, the backend reads these as "allowed" flags
+          // (1 = members may turn it on) — same as the mobile app sends.
+          muteAllVideo: enableCamera ? 1 : 0,
+          muteAllAudio: enableMic ? 1 : 0,
+          muteAllChat: enableChat ? 1 : 0,
+          isRecording: enableRecord ? 1 : 0,
+          multipleShareScreen: allowShare ? 1 : 0,
+          // Stream keys are chosen in the meeting (saved per user), not here.
+          allowLivestream: allowLivestream ? 1 : 0,
           invite: [],
         }),
       );
 
       if (result) {
-        navigate(`/meeting`, {
+        navigate(`/meeting/lobby`, {
           state: {
             meetingId: result.room?.id,
           },
@@ -195,6 +189,11 @@ export function CreateMeetingDialog({ open, onClose }: Props) {
             </div>
 
             <div className="setting-item">
+              <span>Được phép Chat</span>
+              <Switch checked={enableChat} onChange={setEnableChat} />
+            </div>
+
+            <div className="setting-item">
               <span>Được phép Ghi âm</span>
               <Switch
                 checked={enableRecord}
@@ -210,6 +209,20 @@ export function CreateMeetingDialog({ open, onClose }: Props) {
                 onChange={setAllowRejoin}
                 defaultChecked
               />
+            </div>
+
+            <div className="settings-group">
+              <div>
+                <Typography.Title level={5}>Phòng chờ</Typography.Title>
+                <Typography.Paragraph className="description">
+                  Người không được mời phải chờ Host hoặc Co-host duyệt mới vào
+                  được cuộc họp.
+                </Typography.Paragraph>
+                <div className="setting-item-2">
+                  <span>Bật phòng chờ</span>
+                  <Switch checked={waitingRoom} onChange={setWaitingRoom} />
+                </div>
+              </div>
             </div>
 
             <div className="settings-group">
@@ -232,12 +245,9 @@ export function CreateMeetingDialog({ open, onClose }: Props) {
                   Livestream cuộc họp
                 </Typography.Title>
                 <Typography.Paragraph className="description">
-                  Livestream cuộc họp cho phép Host phát trực tiếp cuộc họp trên
-                  Facebook và Youtube thông qua tài khoản của Host. Đối với
-                  Facebook, Host có thể phát trực tiếp trên dòng thời gian
-                  Facebook của mình hoặc một nhóm hoặc trang mà Host là quản trị
-                  viên. Đối với Youtube, Host phát trực tiếp lên Kênh Youtube
-                  của họ.
+                  Cho phép Host và Co-host phát trực tiếp cuộc họp lên kênh
+                  YouTube, Facebook hoặc nền tảng khác (RTMP) của chính họ. Khoá
+                  phát trực tiếp được chọn trong lúc họp và lưu theo tài khoản.
                 </Typography.Paragraph>
               </div>
 
@@ -247,24 +257,6 @@ export function CreateMeetingDialog({ open, onClose }: Props) {
                   checked={allowLivestream}
                   onChange={setAllowLivestream}
                 />
-              </div>
-              <div
-                className={`livestream-keys ${allowLivestream ? 'open' : ''}`}
-              >
-                <div className="setting-item-2">
-                  <Input
-                    placeholder="Nhập key Facebook"
-                    value={livestreamFacebookKey}
-                    onChange={(e) => setLivestreamFacebookKey(e.target.value)}
-                  />
-                </div>
-                <div className="setting-item-2">
-                  <Input
-                    placeholder="Nhập key Youtube"
-                    value={livestreamYoutubeKey}
-                    onChange={(e) => setLivestreamYoutubeKey(e.target.value)}
-                  />
-                </div>
               </div>
             </div>
           </div>

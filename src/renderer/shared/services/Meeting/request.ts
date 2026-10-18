@@ -21,6 +21,7 @@ export interface CreateMeetingRequest {
   muteAllChat?: number;
   isRecording?: number;
   multipleShareScreen?: number;
+  allowLivestream?: number;
   invite?: Invite[];
 }
 

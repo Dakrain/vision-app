@@ -11,4 +11,6 @@ export interface VideoViewProps {
   debug?: boolean;
   style?: CSSProperties;
   reaction?: string;
+  /** Local tile only: render the screen-capture source instead of the camera. */
+  isSharing?: boolean;
 }

@@ -6,12 +6,13 @@ import {
   MenuItem,
 } from '@/shared/components/';
 import { LogoutOutlined } from '@ant-design/icons';
-import { Divider, Layout, Popover, Typography } from 'antd';
+import { Badge, Divider, Layout, Popover, Typography } from 'antd';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { selectAuth } from '../../shared/store/auth/selector';
+import { useSocial } from '../../shared/social/SocialProvider';
 import { PAGE_TRANSITION, PAGE_VARIANTS } from './constants';
 import './Dashboard.scss';
 import Chat from './pages/Chat/Chat';
@@ -35,6 +36,7 @@ function Dashboard() {
   const [openJoinMeetingDialog, setOpenJoinMeetingDialog] = useState(false);
   const [openCreateMeetingDialog, setOpenCreateMeetingDialog] = useState(false);
   const [settingOpen, setSettingOpen] = useState(false);
+  const { unreadTotal } = useSocial();
   const renderPage = (page: string) => {
     const content = (() => {
       switch (page.toLowerCase()) {
@@ -82,19 +84,18 @@ function Dashboard() {
       <Sider width={80} className="home-layout__sider">
         <div className="home-layout__menu-container">
           <div className="home-layout__avatar">
-            
             <Popover
               content={
                 <div>
                   <Typography>Phiên bản 1.0.0</Typography>
-                  <div 
-                    style={{ 
-                      cursor: 'pointer', 
+                  <div
+                    style={{
+                      cursor: 'pointer',
                       marginTop: 8,
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
-                      color: '#ff4d4f'
+                      color: '#ff4d4f',
                     }}
                     onClick={() => {
                       dispatch(logout());
@@ -102,7 +103,9 @@ function Dashboard() {
                     }}
                   >
                     <LogoutOutlined />
-                    <Typography style={{ color: '#ff4d4f' }}>Đăng xuất</Typography>
+                    <Typography style={{ color: '#ff4d4f' }}>
+                      Đăng xuất
+                    </Typography>
                   </div>
                 </div>
               }
@@ -111,9 +114,9 @@ function Dashboard() {
               onOpenChange={(open) => {
                 setSettingOpen(open);
               }}
-              placement='rightBottom'
+              placement="rightBottom"
             >
-              <div >
+              <div>
                 <Avatar
                   url={userDetail.user?.avatarUrl || ''}
                   radius={24}
@@ -136,13 +139,15 @@ function Dashboard() {
             isActive={activeMenu.toLowerCase() === 'meeting'}
             onClick={(label: string) => setActiveMenu(label)}
           />
-          <MenuItem
-            label="Chat"
-            icon="homeChat"
-            activeIcon="homeChatActive"
-            isActive={activeMenu.toLowerCase() === 'chat'}
-            onClick={(label: string) => setActiveMenu(label)}
-          />
+          <Badge count={unreadTotal} size="small" offset={[-12, 12]}>
+            <MenuItem
+              label="Chat"
+              icon="homeChat"
+              activeIcon="homeChatActive"
+              isActive={activeMenu.toLowerCase() === 'chat'}
+              onClick={(label: string) => setActiveMenu(label)}
+            />
+          </Badge>
           <MenuItem
             label="Library"
             icon="homeLibrary"

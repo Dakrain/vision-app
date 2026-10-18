@@ -3,13 +3,14 @@ import AgoraEngineService from '@/shared/services/Agora/AgoraEngineService';
 import Icon from 'assets/svg/icons';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { VideoViewProps } from './types';
+import {
+  RenderModeType,
+  VideoMirrorModeType,
+  VideoSourceType,
+  VideoViewSetupMode,
+} from 'agora-electron-sdk';
 import './VideoView.scss';
 
-const { RenderModeType, VideoMirrorModeType, VideoSourceType, VideoViewSetupMode } = window.require('agora-electron-sdk');
-
-// const { RenderModeType, VideoSourceType, VideoViewSetupMode } =
-//   window.require('agora-electron-sdk');
-// import { RenderModeType, VideoMirrorModeType, VideoSourceType, VideoViewSetupMode } from 'agora-electron-sdk';
 export function VideoView({
   className,
   uid,
@@ -21,8 +22,12 @@ export function VideoView({
   debug = true,
   style,
   reaction,
+  isSharing = false,
 }: VideoViewProps) {
   const isSetup = useRef(false);
+  const localSource = isSharing
+    ? VideoSourceType.VideoSourceScreen
+    : VideoSourceType.VideoSourceCamera;
 
   useLayoutEffect(() => {
     if (debug || !enableVideo) {
@@ -36,7 +41,7 @@ export function VideoView({
 
     if (isLocal) {
       AgoraEngineService.setupLocalVideo({
-        sourceType: VideoSourceType.VideoSourceScreen,
+        sourceType: localSource,
         renderMode: RenderModeType.RenderModeFit,
         view,
         // mirrorMode: VideoMirrorModeType.VideoMirrorModeEnabled,
@@ -57,7 +62,7 @@ export function VideoView({
     return () => {
       if (isLocal) {
         AgoraEngineService.setupLocalVideo({
-          sourceType: VideoSourceType.VideoSourceScreen,
+          sourceType: localSource,
           renderMode: RenderModeType.RenderModeFit,
           view: null,
           mirrorMode: VideoMirrorModeType.VideoMirrorModeEnabled,
@@ -74,7 +79,7 @@ export function VideoView({
       }
       isSetup.current = false;
     };
-  }, [isLocal, uid, debug, enableVideo]);
+  }, [isLocal, uid, debug, enableVideo, localSource]);
 
   const renderReaction = useMemo(() => {
     if (reaction) {

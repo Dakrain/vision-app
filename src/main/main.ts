@@ -8,9 +8,19 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import fs from 'fs';
 import path from 'path';
 
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  shell,
+  ipcMain,
+  OpenDialogOptions,
+  SaveDialogOptions,
+  systemPreferences,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -37,6 +47,56 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
+// ---- Invite links: vision20://meetinginvite?meeting_id=…&password=…
+// (the "Launch Meeting" button of the web invite page opens these).
+const DEEP_LINK_SCHEME = 'vision20';
+let pendingDeepLink: string | null = null;
+
+const findDeepLink = (argv: string[]) =>
+  argv.find((arg) => arg.startsWith(`${DEEP_LINK_SCHEME}://`));
+
+const deliverDeepLink = (url: string) => {
+  pendingDeepLink = url;
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+    mainWindow.webContents.send('deep-link', url);
+  }
+};
+
+if (process.defaultApp && process.argv.length >= 2) {
+  // Dev (`electron .`): register the electron binary plus the app path.
+  app.setAsDefaultProtocolClient(DEEP_LINK_SCHEME, process.execPath, [
+    path.resolve(process.argv[1]),
+  ]);
+} else {
+  app.setAsDefaultProtocolClient(DEEP_LINK_SCHEME);
+}
+
+// macOS delivers links through open-url (also before the app is ready).
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  deliverDeepLink(url);
+});
+
+// Windows/Linux start a second instance with the link in argv; keep one.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', (_event, argv) => {
+    const url = findDeepLink(argv);
+    if (url) deliverDeepLink(url);
+  });
+  pendingDeepLink = findDeepLink(process.argv) ?? null;
+}
+
+// The renderer asks once it is mounted (a link may arrive before that).
+ipcMain.handle('take-pending-deep-link', () => {
+  const url = pendingDeepLink;
+  pendingDeepLink = null;
+  return url;
+});
+
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -52,6 +112,20 @@ ipcMain.on('resize-window', (_event, { width, height }) => {
   }
 });
 
+// macOS needs the Screen Recording permission for screen sharing; without
+// it capture silently sends nothing. Other platforms need no permission.
+ipcMain.handle('screen-capture-access', () =>
+  process.platform === 'darwin'
+    ? systemPreferences.getMediaAccessStatus('screen')
+    : 'granted',
+);
+
+ipcMain.handle('open-screen-capture-settings', () =>
+  shell.openExternal(
+    'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
+  ),
+);
+
 ipcMain.handle('get-virtual-background-path', (_, imageNumber: number) => {
   return process.env.NODE_ENV === 'development'
     ? path.resolve(
@@ -63,6 +137,123 @@ ipcMain.handle('get-virtual-background-path', (_, imageNumber: number) => {
         `assets/images/virtual_background/virtual_background_${imageNumber}.jpg`,
       );
 });
+
+// ---- Virtual backgrounds the user adds from their own photos. Copied into
+// the app's data folder so they survive restarts and the original can move.
+const customBackgroundDir = () =>
+  path.join(app.getPath('userData'), 'virtual_backgrounds');
+
+const isImage = (file: string) => /\.(jpe?g|png)$/i.test(file);
+
+ipcMain.handle('custom-backgrounds:list', async () => {
+  const dir = customBackgroundDir();
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir)
+    .filter(isImage)
+    .map((name) => path.join(dir, name))
+    .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+});
+
+ipcMain.handle('custom-backgrounds:add', async () => {
+  const window = BrowserWindow.getFocusedWindow();
+  const options: OpenDialogOptions = {
+    title: 'Chọn ảnh làm phông nền',
+    properties: ['openFile'],
+    filters: [{ name: 'Ảnh', extensions: ['jpg', 'jpeg', 'png'] }],
+  };
+  const result = window
+    ? await dialog.showOpenDialog(window, options)
+    : await dialog.showOpenDialog(options);
+  const source = result.filePaths[0];
+  if (result.canceled || !source || !isImage(source)) return null;
+  const dir = customBackgroundDir();
+  fs.mkdirSync(dir, { recursive: true });
+  const target = path.join(dir, `vb_${Date.now()}${path.extname(source)}`);
+  fs.copyFileSync(source, target);
+  return target;
+});
+
+ipcMain.handle('custom-backgrounds:remove', async (_, file: string) => {
+  // Only ever delete inside our own folder.
+  const dir = customBackgroundDir();
+  const target = path.resolve(file);
+  if (path.dirname(target) !== dir || !isImage(target)) return false;
+  if (fs.existsSync(target)) fs.unlinkSync(target);
+  return true;
+});
+
+// ---- Local meeting recording. The renderer encodes the app window plus
+// the call audio into an MP4 and streams the bytes here (with their offset in
+// the file); they go straight to a temp file so long meetings don't pile up in
+// memory. On finish the user picks where to keep it.
+const recordings = new Map<string, { file: string; fd: number }>();
+
+ipcMain.handle('recording:source-id', (event) =>
+  BrowserWindow.fromWebContents(event.sender)?.getMediaSourceId(),
+);
+
+ipcMain.handle('recording:open', (_, extension: string) => {
+  const id = `${Date.now()}`;
+  const ext = extension === 'mp4' ? 'mp4' : 'webm';
+  const file = path.join(
+    app.getPath('temp'),
+    `vision20-recording-${id}.${ext}`,
+  );
+  recordings.set(id, { file, fd: fs.openSync(file, 'w') });
+  return id;
+});
+
+ipcMain.handle(
+  'recording:chunk',
+  (_, id: string, chunk: Uint8Array, position: number) => {
+    const rec = recordings.get(id);
+    if (!rec) return;
+    fs.writeSync(rec.fd, chunk, 0, chunk.byteLength, position);
+  },
+);
+
+const closeRecording = async (id: string) => {
+  const rec = recordings.get(id);
+  recordings.delete(id);
+  if (!rec) return undefined;
+  fs.closeSync(rec.fd);
+  return rec.file;
+};
+
+ipcMain.handle('recording:finish', async (event, id: string, name: string) => {
+  const file = await closeRecording(id);
+  if (!file) return null;
+  const window = BrowserWindow.fromWebContents(event.sender);
+  const safeName = name.replace(/[\\/:*?"<>|]/g, '-');
+  const options: SaveDialogOptions = {
+    title: 'Lưu bản ghi cuộc họp',
+    defaultPath: path.join(
+      app.getPath('videos'),
+      `${safeName}${path.extname(file)}`,
+    ),
+  };
+  const result = window
+    ? await dialog.showSaveDialog(window, options)
+    : await dialog.showSaveDialog(options);
+  if (result.canceled || !result.filePath) {
+    fs.unlinkSync(file);
+    return null;
+  }
+  // copy + unlink: the temp dir may be on another volume (rename fails).
+  fs.copyFileSync(file, result.filePath);
+  fs.unlinkSync(file);
+  return result.filePath;
+});
+
+ipcMain.handle('recording:abort', async (_, id: string) => {
+  const file = await closeRecording(id);
+  if (file && fs.existsSync(file)) fs.unlinkSync(file);
+});
+
+ipcMain.handle('recording:reveal', (_, file: string) =>
+  shell.showItemInFolder(file),
+);
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');

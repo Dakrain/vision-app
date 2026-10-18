@@ -11,14 +11,14 @@ import { selectChats } from '../../store/selector';
 import './MeetingChat.scss';
 import { MeetingChatProps } from './types';
 
-export function MeetingChat({ sendMessage }: MeetingChatProps) {
+export function MeetingChat({ sendMessage, canSend = true }: MeetingChatProps) {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
   const { meetingId } = useLocation().state;
   const chats = useSelector(selectChats);
   const [message, setMessage] = useState('');
   const sendChatMessage = () => {
-    if (!message) return;
+    if (!message || !canSend) return;
 
     setMessage('');
     dispatch(
@@ -52,8 +52,13 @@ export function MeetingChat({ sendMessage }: MeetingChatProps) {
       </div>
       <div className="chat-input">
         <Input
-          placeholder="Nhập tin nhắn..."
-          suffix={<button className="send-icon" onClick={() => sendChatMessage()}><Icon name="send" /></button>}
+          placeholder={canSend ? 'Nhập tin nhắn...' : 'Chủ phòng đã tắt chat'}
+          disabled={!canSend}
+          suffix={
+            <button className="send-icon" onClick={() => sendChatMessage()}>
+              <Icon name="send" />
+            </button>
+          }
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onPressEnter={() => sendChatMessage()}

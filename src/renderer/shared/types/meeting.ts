@@ -47,6 +47,32 @@ export interface Room {
   isRecording?: number;
   multipleShareScreen?: number;
   ownerFullName?: string;
+  // Room permissions for plain members (1 = allowed). Despite the names,
+  // the mute_all_* flags mean "may turn on".
+  muteAllAudio?: number;
+  muteAllVideo?: number;
+  muteAllChat?: number;
+  allowLivestream?: number;
+}
+
+/** What plain members may do in a room; host/co-host may always. */
+export type RoomSettings = Pick<
+  Room,
+  | 'muteAllAudio'
+  | 'muteAllVideo'
+  | 'muteAllChat'
+  | 'isRecording'
+  | 'multipleShareScreen'
+  | 'allowLivestream'
+>;
+
+export interface RoomPermissions {
+  mic: boolean;
+  camera: boolean;
+  chat: boolean;
+  share: boolean;
+  record: boolean;
+  livestream: boolean;
 }
 /*
   1: Host

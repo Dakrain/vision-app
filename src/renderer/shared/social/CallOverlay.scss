@@ -1,0 +1,96 @@
+.call-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #141414;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+
+  &-peer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 600;
+    }
+  }
+
+  &-remote {
+    position: absolute;
+    inset: 0;
+  }
+
+  &-local {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 220px;
+    height: 140px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  &-status {
+    z-index: 2;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 16px;
+  }
+
+  &-banner {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #d46b08;
+  }
+
+  &-controls {
+    position: absolute;
+    bottom: 48px;
+    display: flex;
+    gap: 16px;
+    z-index: 3;
+  }
+}
+
+.call-btn {
+  min-width: 112px;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 22px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+
+  &.accept {
+    background: #20c997;
+  }
+
+  &.decline {
+    background: #ff4d4f;
+  }
+
+  &.toggle {
+    background: rgba(255, 255, 255, 0.18);
+
+    &.off {
+      background: #fff;
+      color: #ff4d4f;
+    }
+  }
+}

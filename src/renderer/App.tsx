@@ -1,3 +1,6 @@
+import { SocialProvider } from './shared/social/SocialProvider';
+import { CallProvider } from './shared/social/CallProvider';
+import { CallOverlay } from './shared/social/CallOverlay';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './global.css';
 import { Provider } from 'react-redux';
@@ -5,8 +8,10 @@ import { ConfigProvider } from 'antd';
 import { store } from '@/renderer/store/configureStore';
 import Login from './features/Auth/pages/Login/Login';
 import { LoadingOverlay } from './shared/components';
+import { DeepLinkHandler } from './shared/components/DeepLinkHandler';
 import Dashboard from './features/Home/Dashboard';
 import Meeting from './features/Meeting/Meeting';
+import MeetingLobby from './features/MeetingLobby/MeetingLobby';
 import SplashScreen from './features/Auth/pages/SplashScreen/SplashScreen';
 
 export default function App() {
@@ -71,12 +76,19 @@ export default function App() {
       <Provider store={store}>
         <LoadingOverlay />
         <Router>
-          <Routes>
-            <Route path="/" element={<SplashScreen />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/home" element={<Dashboard />} />
-            <Route path="/meeting" element={<Meeting />} />
-          </Routes>
+          <SocialProvider>
+            <CallProvider>
+              <DeepLinkHandler />
+              <Routes>
+                <Route path="/" element={<SplashScreen />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/home" element={<Dashboard />} />
+                <Route path="/meeting" element={<Meeting />} />
+                <Route path="/meeting/lobby" element={<MeetingLobby />} />
+              </Routes>
+              <CallOverlay />
+            </CallProvider>
+          </SocialProvider>
         </Router>
       </Provider>
     </ConfigProvider>

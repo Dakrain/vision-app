@@ -13,7 +13,8 @@ class BaseService {
     this.instance = axios.create({
       ...config,
       headers: {
-        appplatform: 'Windows',
+        // The API accepts iOS | Android | Windows | MacOs.
+        appplatform: navigator.userAgent.includes('Mac') ? 'MacOs' : 'Windows',
       },
     });
 
@@ -46,7 +47,16 @@ class BaseService {
         return response;
       },
       (error) => {
-        return Promise.reject(JSON.stringify(error));
+        // AxiosError.toJSON() drops the response body; keep it so callers
+        // can read the API error code (e.g. `e_livestream_capacity_full`).
+        return Promise.reject(
+          JSON.stringify({
+            ...(error?.toJSON?.() ?? {}),
+            response: error?.response
+              ? { status: error.response.status, data: error.response.data }
+              : undefined,
+          }),
+        );
       },
     );
   }

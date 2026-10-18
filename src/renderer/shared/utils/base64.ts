@@ -1,4 +1,4 @@
-const { ThumbImageBuffer } = window.require('agora-electron-sdk');
+import { ThumbImageBuffer } from 'agora-electron-sdk';
 
 // export default (input: any) => {
 //   const keyStr =
@@ -37,7 +37,7 @@ const { ThumbImageBuffer } = window.require('agora-electron-sdk');
 //   return output;
 // };
 
-export const thumbImageBufferToBase64 = (target?: typeof ThumbImageBuffer) => {
+export const thumbImageBufferToBase64 = (target?: ThumbImageBuffer) => {
   if (!target) {
     return '';
   }

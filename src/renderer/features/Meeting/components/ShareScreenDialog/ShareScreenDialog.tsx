@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import './ShareScreenDialog.scss';
 import { ShareScreenDialogProps } from './types';
 
-// const { ScreenCaptureSourceInfo } = window.require('agora-electron-sdk');
 import { ScreenCaptureSourceInfo } from 'agora-electron-sdk';
 export function ShareScreenDialog({
   open,

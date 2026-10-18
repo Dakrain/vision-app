@@ -103,7 +103,6 @@
   "dependencies": {
     "@electron/notarize": "^2.3.2",
     "@reduxjs/toolkit": "^1.9.0",
-    "agora-electron-sdk": "^4.5.0",
     "agora-rtm-react": "^1.1.2",
     "agora-rtm-sdk": "^2.2.1",
     "antd": "^5.22.5",
@@ -112,9 +111,11 @@
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
+    "firebase": "^11.10.0",
     "framer-motion": "^11.15.0",
     "humps": "^2.0.1",
     "lodash": "^4.17.21",
+    "mediabunny": "^1.61.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-loading-skeleton": "^3.5.0",
@@ -277,7 +278,15 @@
       "provider": "github",
       "owner": "electron-react-boilerplate",
       "repo": "electron-react-boilerplate"
-    }
+    },
+    "protocols": [
+      {
+        "name": "Vision 20 Meeting",
+        "schemes": [
+          "vision20"
+        ]
+      }
+    ]
   },
   "collective": {
     "url": "https://opencollective.com/electron-react-boilerplate-594"

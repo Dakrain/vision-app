@@ -1,11 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { Avatar, Button, Dropdown } from 'antd';
+import { Avatar, Button, Dropdown, Modal } from 'antd';
 import type { MenuProps } from 'antd';
-import {
-  AudioMutedOutlined,
-  VideoCameraOutlined,
-  MoreOutlined,
-} from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 import './MeetingUser.scss';
 import {
   MeetingUser as MeetingUserType,
@@ -51,26 +47,63 @@ function CameraIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export type MemberAction =
+  | 'muteAudio'
+  | 'muteVideo'
+  | 'makeCohost'
+  | 'removeCohost'
+  | 'kick'
+  | 'ban';
+
+const ACTION_LABEL: Record<MemberAction, string> = {
+  muteAudio: 'Tắt micro',
+  muteVideo: 'Tắt camera',
+  makeCohost: 'Trao quyền Co-host',
+  removeCohost: 'Thu hồi quyền Co-host',
+  kick: 'Mời ra khỏi phòng',
+  ban: 'Cấm tham gia cuộc họp',
+};
+
+// Destructive actions ask first.
+const CONFIRM: Partial<Record<MemberAction, (name: string) => string>> = {
+  kick: (name) => `Mời ${name} ra khỏi cuộc họp? Họ vẫn có thể tham gia lại.`,
+  ban: (name) =>
+    `Cấm ${name} tham gia? Họ sẽ bị đưa ra ngoài và không thể vào lại cuộc họp này.`,
+};
+
 interface MeetingUserProps {
   user: MeetingUserType;
-  onAction?: (user: MeetingUserType) => void;
+  /** Actions the current user may perform on `user` (empty = no menu). */
+  actions?: MemberAction[];
+  onAction?: (user: MeetingUserType, action: MemberAction) => void;
 }
 
-export function MeetingUser({ user, onAction }: MeetingUserProps) {
-  const items: MenuProps['items'] = [
-    {
-      key: 'muteVideo',
-      label: 'Tắt video',
-    },
-    {
-      key: 'promote',
-      label: 'Chuyển quyền thành Co-host',
-    },
-    {
-      key: 'kick',
-      label: 'Loại khỏi phòng',
-    },
-  ];
+export function MeetingUser({
+  user,
+  actions = [],
+  onAction,
+}: MeetingUserProps) {
+  const run = (action: MemberAction) => {
+    const confirm = CONFIRM[action];
+    if (!confirm) {
+      onAction?.(user, action);
+      return;
+    }
+    Modal.confirm({
+      title: ACTION_LABEL[action],
+      content: confirm(user.fullName ?? ''),
+      okText: ACTION_LABEL[action],
+      okButtonProps: { danger: true },
+      cancelText: 'Huỷ',
+      onOk: () => onAction?.(user, action),
+    });
+  };
+
+  const items: MenuProps['items'] = actions.map((action) => ({
+    key: action,
+    label: ACTION_LABEL[action],
+    danger: action === 'kick' || action === 'ban',
+  }));
 
   return (
     <div className="meeting-user">
@@ -101,6 +134,8 @@ export function MeetingUser({ user, onAction }: MeetingUserProps) {
             )
           }
           className={!user.enableAudio ? 'disabled' : ''}
+          title={actions.includes('muteAudio') ? 'Tắt micro' : undefined}
+          onClick={() => actions.includes('muteAudio') && run('muteAudio')}
         />
         <Button
           type="text"
@@ -112,10 +147,21 @@ export function MeetingUser({ user, onAction }: MeetingUserProps) {
             )
           }
           className={!user.enableVideo ? 'disabled' : ''}
+          title={actions.includes('muteVideo') ? 'Tắt camera' : undefined}
+          onClick={() => actions.includes('muteVideo') && run('muteVideo')}
         />
-        <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-          <Button type="text" icon={<MoreOutlined />} />
-        </Dropdown>
+        {items.length > 0 && (
+          <Dropdown
+            menu={{
+              items,
+              onClick: ({ key }) => run(key as MemberAction),
+            }}
+            trigger={['click']}
+            placement="bottomRight"
+          >
+            <Button type="text" icon={<MoreOutlined />} />
+          </Dropdown>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,8 @@
-import useLoading from '@/shared/hooks/useLoading';
-import { MeetingService } from '@/shared/services/Meeting';
+import { useJoinMeeting } from '@/shared/hooks/useJoinMeeting';
 import { selectAuth } from '@/shared/store/auth';
 import { Input, Modal, Typography } from 'antd';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '../Button';
 import './JoinMeetingDialog.scss';
 
@@ -15,12 +13,10 @@ interface Props {
 
 export function JoinMeetingDialog({ onClose, open }: Props) {
   const user = useSelector(selectAuth);
-  //ID: B71169, Password: F6670360
-  const [meetingId, setMeetingId] = useState('B71169');
-  const [passcode, setPasscode] = useState('F6670360');
+  const [meetingId, setMeetingId] = useState('');
+  const [passcode, setPasscode] = useState('');
   const [name] = useState(user.user?.fullName || '');
-  const navigate = useNavigate();
-  const { withLoading } = useLoading();
+  const joinMeeting = useJoinMeeting();
 
   const handleJoinMeeting = async () => {
     if (!meetingId || !passcode) {
@@ -31,37 +27,8 @@ export function JoinMeetingDialog({ onClose, open }: Props) {
       return;
     }
 
-    try {
-      const joinResult = await withLoading(
-        MeetingService.joinMeeting({
-          visionMeetingKey: meetingId,
-          visionMeetingPwd: passcode,
-        }),
-      );
-
-      if (joinResult && joinResult.status === 2) {
-        // Then navigate to join room
-        if (joinResult.id) {
-          const meetingResult = await withLoading(
-            MeetingService.fetchMeetingDetail(joinResult.id),
-          );
-
-          if (meetingResult) {
-            onClose();
-            // Then navigate to join room
-            navigate(`/meeting`, {
-              state: {
-                meetingId: meetingResult.room?.id,
-              },
-            });
-          }
-        }
-      }
-    } catch (_) {
-      // eslint-disable-next-line no-new
-      new Notification('Lỗi', {
-        body: 'Có lỗi xảy ra khi tham gia cuộc họp',
-      });
+    if (await joinMeeting(meetingId, passcode)) {
+      onClose();
     }
   };
 

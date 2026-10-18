@@ -1,6 +1,7 @@
 import BaseService from '@/shared/network/base.service';
 import { User } from '@/renderer/shared/types';
 import { LoginRequest } from './request';
+import { API_BASE_URL } from '../../config';
 
 class AuthService extends BaseService {
   async login(request: LoginRequest): Promise<User> {
@@ -13,7 +14,7 @@ class AuthService extends BaseService {
 }
 
 const authService = new AuthService({
-  baseURL: 'https://api.vision20.us/v1',
+  baseURL: API_BASE_URL,
 });
 
 export default authService;

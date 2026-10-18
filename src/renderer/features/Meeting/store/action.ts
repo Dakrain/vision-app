@@ -34,8 +34,6 @@ export const startShareScreen = createAsyncThunk(
     try {
       const response = await MeetingService.updateSetting(meetingId, {
         share_screen: 1,
-        enable_video: 1,
-        enable_audio: 1,
       });
       return response;
     } catch (error) {
@@ -51,8 +49,6 @@ export const stopShareScreen = createAsyncThunk(
     try {
       const response = await MeetingService.updateSetting(meetingId, {
         share_screen: 0,
-        enable_video: 0,
-        enable_audio: 1,
       });
       return response;
     } catch (error) {
