@@ -25,11 +25,10 @@ interface Form {
   religion: string;
   job: string;
   position: string;
-  hobby: string;
   forte: string;
 }
 
-const fromUser = (u: User & { hobby?: string }): Form => {
+const fromUser = (u: User): Form => {
   // Older accounts only have a full name.
   const [first = '', ...rest] = (u.fullName ?? '').split(' ');
   return {
@@ -45,7 +44,6 @@ const fromUser = (u: User & { hobby?: string }): Form => {
     religion: u.religion ?? '',
     job: u.job ?? '',
     position: u.position ?? '',
-    hobby: u.hobby ?? '',
     forte: u.forte ?? '',
   };
 };
@@ -143,10 +141,8 @@ export function PersonalInfo({ user }: Props) {
     setSaving(true);
     try {
       await putProfile();
-      await UserService.patchProfile(user.id, {
-        job: form.job.trim(),
-        hobby: form.hobby.trim(),
-      });
+      // Job only goes through PATCH (as on mobile).
+      await UserService.patchProfile(user.id, { job: form.job.trim() });
       toast.success('Đã lưu thông tin cá nhân');
       reload();
     } catch (e) {
@@ -310,7 +306,6 @@ export function PersonalInfo({ user }: Props) {
           <Field label="Tôn giáo của bạn">{text('religion')}</Field>
           <Field label="Nghề nghiệp của bạn">{text('job')}</Field>
           <Field label="Chức vụ của bạn">{text('position')}</Field>
-          <Field label="Sở thích của bạn">{text('hobby')}</Field>
           <Field label="Tài năng của bạn">{text('forte')}</Field>
         </section>
       </div>

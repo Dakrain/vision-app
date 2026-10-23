@@ -22,8 +22,6 @@ export type User = {
   forte?: string;
   religion?: string;
   job?: string;
-  /** "Sở thích" (kept in the profile metadata). */
-  hobby?: string;
   chat?: ChatChannels;
   drive?: Drive;
   countryName?: string;
