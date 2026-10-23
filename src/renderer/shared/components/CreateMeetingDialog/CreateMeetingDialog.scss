@@ -1,63 +1,412 @@
-.tab-content {
-  .form-group {
-    margin-bottom: 16px;
+// Meeting setup (new / scheduled meeting), Figma "Start the meeting / Setting".
+.meeting-setup {
+  .ant-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
-    .form-label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.85);
+  &-header {
+    position: relative;
+    padding: 24px 16px 0;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 600;
+      color: #333333;
+      text-align: center;
+    }
+  }
+
+  &-tabs {
+    display: flex;
+    margin: 24px 16px 0;
+
+    button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-bottom: 1px solid #e5e5e5;
+      background: none;
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 600;
+      color: #808080;
+      cursor: pointer;
+
+      &[aria-selected='true'] {
+        color: #333333;
+        border-bottom: 2px solid #ff3c3c;
+      }
+    }
+  }
+
+  &-body {
+    max-height: min(70vh, 1100px);
+    overflow-y: auto;
+    padding: 24px 16px;
+  }
+
+  &-footer {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .ant-switch {
+    min-width: 56px;
+    height: 32px;
+    background: #e5e5e5;
+
+    &:hover:not(.ant-switch-disabled) {
+      background: #d9d9d9;
+    }
+
+    .ant-switch-handle {
+      top: 2px;
+      inset-inline-start: 2px;
+      width: 28px;
+      height: 28px;
+
+      &::before {
+        border-radius: 14px;
+      }
+    }
+
+    &.ant-switch-checked {
+      background: #1ec88c;
+
+      &:hover:not(.ant-switch-disabled) {
+        background: #19b37d;
+      }
+
+      .ant-switch-handle {
+        inset-inline-start: calc(100% - 30px);
+      }
     }
   }
 }
 
-.settings-list {
-  .settings-group {
-    margin-top: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+.setup-close {
+  position: absolute;
+  right: 16px;
+  top: 26px;
+  display: flex;
+  padding: 4px;
+  border: none;
+  border-radius: 12px;
+  background: #e5e5e5;
+  cursor: pointer;
 
-  .setting-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-
-  }
-
-  .setting-item-2 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  &:hover {
+    background: #cccccc;
   }
 }
 
-.livestream-keys {
-  display: none;
+.setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-  &.open {
-    visibility: visible;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.setup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  > span {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    color: #333333;
   }
 }
 
+.setup-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  background: #f7f7f7;
+  font-size: 16px;
+  line-height: 24px;
+  color: #333333;
+  outline: none;
 
-// ANT-DESIGN OVERRIDE
-.datetime-picker {
+  &::placeholder {
+    color: #cccccc;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 1px #ff3c3c inset;
+  }
+
+  &:disabled {
+    color: #808080;
+  }
+}
+
+.setup-datetime {
   display: flex;
   gap: 8px;
 
   .ant-picker {
-    padding: 8px 16px;
+    flex: 1;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: #f7f7f7;
+
+    input {
+      font-size: 16px;
+    }
   }
 }
 
+.setup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &-head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 28px;
+      font-weight: 600;
+      color: #333333;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 20px;
+      color: #808080;
+    }
+  }
+}
+
+.setup-rows .setup-row + .setup-row {
+  border-top: 1px solid #f2f2f2;
+}
+
+.setup-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 48px;
+  padding: 8px 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: #333333;
+  cursor: pointer;
+
+  > span:first-child {
+    flex: 1;
+  }
+}
+
+.setup-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .ant-input-number {
+    width: 56px;
+
+    input {
+      padding: 0;
+      text-align: right;
+      font-size: 16px;
+      color: #808080;
+    }
+  }
+}
+
+.setup-folder {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  &-label {
+    display: flex;
+    flex-direction: column;
+    margin-right: 24px;
+    white-space: nowrap;
+
+    span {
+      font-size: 16px;
+      line-height: 24px;
+      color: #333333;
+    }
+
+    small {
+      font-size: 12px;
+      line-height: 16px;
+      color: #808080;
+    }
+  }
+
+  &-path {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+
+    svg {
+      flex: none;
+      width: 22px;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 16px;
+      color: #333333;
+    }
+  }
+}
+
+.setup-button {
+  padding: 8px 32px;
+  border: none;
+  border-radius: 8px;
+  background: #e5e5e5;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: #333333;
+  cursor: pointer;
+
+  &.small {
+    flex: none;
+    padding: 4px 12px;
+  }
+
+  &.primary {
+    background: #ff3c3c;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #e63636;
+    }
+  }
+
+  &:disabled {
+    background: #cccccc;
+    color: white;
+    cursor: default;
+  }
+}
+
+.user-picker {
+  position: relative;
+
+  &-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &-results {
+    position: absolute;
+    z-index: 10;
+    top: 48px;
+    left: 0;
+    right: 69px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0 0 16px 16px;
+    background: white;
+    box-shadow:
+      0 0 2px rgba(0, 0, 0, 0.05),
+      0 4px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  &-empty {
+    padding: 16px;
+    color: #808080;
+  }
+
+  &-picked {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  &-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px 2px 12px;
+    border-radius: 16px;
+    background: #ffecec;
+    color: #333333;
+    font-size: 14px;
+    line-height: 20px;
+
+    button {
+      padding: 0 6px;
+      border: none;
+      background: none;
+      color: #808080;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  }
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: #ffecec;
+  }
+
+  &-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    strong {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 600;
+      color: #333333;
+    }
+
+    small {
+      font-size: 12px;
+      line-height: 16px;
+      color: #808080;
+    }
+  }
+}
+
+// ---- App-wide antd overrides that used to live here (other dialogs rely on
+// them since this file is always loaded).
 .ant-modal-content {
   padding: 0;
 
@@ -79,22 +428,6 @@
   }
 }
 
-.meeting-tabs {
-  .ant-tabs-nav {
-    .ant-tabs-nav-list {
-      width: 100%;
-      justify-content: center;
-
-      .ant-tabs-tab {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        margin: 0;
-      }
-    }
-  }
-}
-
 .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   color: #333333 !important;
 }
@@ -102,4 +435,3 @@
 .ant-tabs-ink-bar {
   background: #FF3C3C !important;
 }
-

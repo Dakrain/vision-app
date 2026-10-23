@@ -1,9 +1,9 @@
+import Icon from '@/assets/svg/icons';
 import { useJoinMeeting } from '@/shared/hooks/useJoinMeeting';
 import { selectAuth } from '@/shared/store/auth';
-import { Input, Modal, Typography } from 'antd';
+import { Modal } from 'antd';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Button } from '../Button';
 import './JoinMeetingDialog.scss';
 
 interface Props {
@@ -11,23 +11,18 @@ interface Props {
   open: boolean;
 }
 
+/** Join by meeting ID + passcode (Figma "Join a meeting by Meeting ID"). */
 export function JoinMeetingDialog({ onClose, open }: Props) {
   const user = useSelector(selectAuth);
   const [meetingId, setMeetingId] = useState('');
   const [passcode, setPasscode] = useState('');
-  const [name] = useState(user.user?.fullName || '');
   const joinMeeting = useJoinMeeting();
 
-  const handleJoinMeeting = async () => {
-    if (!meetingId || !passcode) {
-      // eslint-disable-next-line no-new
-      new Notification('Lỗi', {
-        body: 'Vui lòng nhập mã cuộc họp và passcode',
-      });
-      return;
-    }
+  const canJoin = !!meetingId.trim() && !!passcode.trim();
 
-    if (await joinMeeting(meetingId, passcode)) {
+  const handleJoinMeeting = async () => {
+    if (!canJoin) return;
+    if (await joinMeeting(meetingId.trim(), passcode.trim())) {
       onClose();
     }
   };
@@ -37,49 +32,78 @@ export function JoinMeetingDialog({ onClose, open }: Props) {
       open={open}
       onCancel={onClose}
       centered
-      title="Tham gia cuộc họp"
       destroyOnClose
       afterClose={() => {
         setMeetingId('');
         setPasscode('');
       }}
-      footer={[
-        <Button
-          key="join"
-          variant="primary"
-          title="Tham gia cuộc họp"
-          onClick={handleJoinMeeting}
-        />,
-      ]}
-      width={400}
+      title={null}
+      footer={null}
+      closable={false}
+      width={446}
+      className="join-meeting"
     >
-      <div className="body top">
-        <Typography.Text className="label">Mã cuộc họp</Typography.Text>
-        <Input
-          className="input-field"
-          placeholder="Nhập mã cuộc họp"
-          value={meetingId}
-          onChange={(e) => setMeetingId(e.target.value)}
-        />
-        <Typography.Text className="label">Passcode</Typography.Text>
-        <Input
-          className="input-field"
-          placeholder="Passcode"
-          value={passcode}
-          onChange={(e) => setPasscode(e.target.value)}
-        />
-      </div>
-      <div className="body bottom">
-        <Typography.Text className="label">
-          Tên của bạn trong cuộc họp
-        </Typography.Text>
-        <Input
-          className="input-field"
-          placeholder="Tên của bạn"
-          disabled
-          value={name}
-        />
-      </div>
+      <form
+        className="join-meeting-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleJoinMeeting();
+        }}
+      >
+        <div className="join-meeting-header">
+          <h2>Tham gia cuộc họp</h2>
+          <button
+            type="button"
+            className="join-meeting-close"
+            aria-label="Đóng"
+            onClick={onClose}
+          >
+            <Icon name="meetingClose" />
+          </button>
+        </div>
+        <div className="join-meeting-cards">
+          <div className="join-meeting-card top">
+            <label className="join-meeting-field" htmlFor="join-meeting-id">
+              <span>Meeting ID</span>
+              <input
+                id="join-meeting-id"
+                placeholder="Meeting ID"
+                value={meetingId}
+                onChange={(e) => setMeetingId(e.target.value)}
+              />
+            </label>
+            <label
+              className="join-meeting-field"
+              htmlFor="join-meeting-passcode"
+            >
+              <span>Passcode</span>
+              <input
+                id="join-meeting-passcode"
+                placeholder="Passcode"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+              />
+            </label>
+          </div>
+          <div className="join-meeting-card bottom">
+            <label className="join-meeting-field" htmlFor="join-meeting-name">
+              <span className="regular">Your name in the meeting</span>
+              <input
+                id="join-meeting-name"
+                value={user.user?.fullName || ''}
+                disabled
+              />
+            </label>
+          </div>
+        </div>
+        <button
+          type="submit"
+          className="join-meeting-submit"
+          disabled={!canJoin}
+        >
+          Tham gia
+        </button>
+      </form>
     </Modal>
   );
 }

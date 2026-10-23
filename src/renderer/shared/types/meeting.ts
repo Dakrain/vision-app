@@ -115,6 +115,38 @@ export interface Meeting {
   host?: Host;
 }
 
+/** Room status: scheduled, running, finished. */
+export enum MeetingStatus {
+  NEW = 1,
+  GOING_ON = 2,
+  ENDED = 3,
+}
+
+/** A row of GET /meeting (the meetings I am a member of). */
+export interface MeetingListItem {
+  id: number;
+  title?: string;
+  /** Scheduled start, unix seconds; 0 when started right away. */
+  startTime?: number;
+  createdAt?: number;
+  joinUrl?: string;
+  visionMeetingKey?: string;
+  visionMeetingPwd?: string;
+  description?: string;
+  role?: number;
+  isHost?: number;
+  status?: number;
+  ownerId?: number;
+  ownerFullName?: string;
+}
+
+export interface MeetingListPage {
+  total: number;
+  pageSize: number;
+  pageNumber: number;
+  rows: MeetingListItem[];
+}
+
 export interface JoinMeetingStatus {
   id?: number;
   userId?: number;

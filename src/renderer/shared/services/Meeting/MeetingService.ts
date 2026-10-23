@@ -2,6 +2,7 @@ import {
   JoinMeetingStatus,
   Meeting,
   MeetingChat,
+  MeetingListPage,
   MeetingUser,
   RoomSettings,
 } from '@/renderer/shared/types/meeting';
@@ -35,26 +36,32 @@ class MeetingService extends BaseService {
     return this.post(`/meeting/${meetingId}/end`, {});
   }
 
-  async fetchMeetings(
-    pageNumber?: number,
-    limit?: number,
-    status?: number,
-    startTime?: number,
-    role?: string,
-    sort?: string,
-  ): Promise<any> {
-    const params = {
-      page_number: pageNumber,
-      limit,
-      status,
-      start_time: startTime,
-      role,
-      sort,
-    };
-
-    return this.get('/meeting/list', {
-      params,
+  /** My meetings (any role), newest first unless `sort` says otherwise. */
+  async fetchMeetings(params: {
+    status?: number;
+    pageNumber?: number;
+    sort?: string;
+  }): Promise<MeetingListPage> {
+    return this.get('/meeting', {
+      params: {
+        status: params.status,
+        page_number: params.pageNumber,
+        sort: params.sort,
+      },
     });
+  }
+
+  /** Host: open a scheduled meeting (status NEW → GOING_ON). */
+  async startMeeting(meetingId: number): Promise<Meeting> {
+    return this.post(`/meeting/${meetingId}/start`, {});
+  }
+
+  /** Host: rename / re-describe a meeting. */
+  async updateMeeting(
+    meetingId: number,
+    request: { title?: string; description?: string },
+  ): Promise<{ success: boolean }> {
+    return this.put(`/meeting/${meetingId}`, request);
   }
 
   async fetchMeetingUsers(
@@ -108,6 +115,16 @@ class MeetingService extends BaseService {
 
   async findUsers(email: string): Promise<PageResponse<User>> {
     return this.get('/user/find', { params: { email } });
+  }
+
+  /** Users whose email (or phone) starts with `query` — for type-ahead. */
+  async searchUsers(query: string): Promise<PageResponse<User>> {
+    return this.get('/user/find', { params: { query } });
+  }
+
+  /** Host: remove a meeting that isn't running (from everyone's list). */
+  async deleteMeeting(meetingId: number): Promise<{ success: boolean }> {
+    return this.delete(`/meeting/${meetingId}`);
   }
 
   async fetchMeetingDetail(meetingId: number): Promise<Meeting> {

@@ -35,6 +35,9 @@ function Dashboard() {
   const userDetail = useSelector(selectAuth);
   const [openJoinMeetingDialog, setOpenJoinMeetingDialog] = useState(false);
   const [openCreateMeetingDialog, setOpenCreateMeetingDialog] = useState(false);
+  const [scheduleMeeting, setScheduleMeeting] = useState(false);
+  // Bumped when a meeting gets scheduled, so the meeting list reloads.
+  const [meetingsVersion, setMeetingsVersion] = useState(0);
   const [settingOpen, setSettingOpen] = useState(false);
   const { unreadTotal } = useSocial();
   const renderPage = (page: string) => {
@@ -45,12 +48,26 @@ function Dashboard() {
             <Home
               openJoinMeetingDialog={() => setOpenJoinMeetingDialog(true)}
               openCreateMeetingDialog={() => {
+                setScheduleMeeting(false);
                 setOpenCreateMeetingDialog(true);
               }}
             />
           );
         case 'meeting':
-          return <Meeting />;
+          return (
+            <Meeting
+              openJoinMeetingDialog={() => setOpenJoinMeetingDialog(true)}
+              openCreateMeetingDialog={() => {
+                setScheduleMeeting(false);
+                setOpenCreateMeetingDialog(true);
+              }}
+              openScheduleMeetingDialog={() => {
+                setScheduleMeeting(true);
+                setOpenCreateMeetingDialog(true);
+              }}
+              refreshKey={meetingsVersion}
+            />
+          );
         case 'chat':
           return <Chat />;
         case 'library':
@@ -139,7 +156,12 @@ function Dashboard() {
             isActive={activeMenu.toLowerCase() === 'meeting'}
             onClick={(label: string) => setActiveMenu(label)}
           />
-          <Badge count={unreadTotal} size="small" offset={[-12, 12]}>
+          <Badge
+            count={unreadTotal}
+            size="small"
+            offset={[-12, 12]}
+            rootClassName="home-layout__menu-badge"
+          >
             <MenuItem
               label="Chat"
               icon="homeChat"
@@ -180,9 +202,11 @@ function Dashboard() {
       />
       <CreateMeetingDialog
         open={openCreateMeetingDialog}
+        schedule={scheduleMeeting}
         onClose={() => {
           setOpenCreateMeetingDialog(false);
         }}
+        onScheduled={() => setMeetingsVersion((v) => v + 1)}
       />
     </Layout>
   );
