@@ -37,6 +37,9 @@ class AgoraEngineService {
  */
 const lazyEngine = new Proxy({} as IRtcEngineEx, {
   get(_, prop) {
+    // Dev-time React Refresh inspects every export (`$$typeof`, symbols);
+    // that must not start the engine.
+    if (typeof prop === 'symbol' || prop === '$$typeof') return undefined;
     const engine = AgoraEngineService.getInstance().getEngine();
     const value = Reflect.get(engine, prop);
     return typeof value === 'function' ? value.bind(engine) : value;
