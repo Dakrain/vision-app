@@ -361,21 +361,21 @@ function Meeting() {
     const activeUsers = filterUsers(
       (user) => user.status === MemberStatus.APPROVED,
     );
-    const hosts = filterUsers((user) => user.role === MeetingRole.HOST);
-    const cohosts = activeUsers.filter(
-      (user) => user.role === MeetingRole.CO_HOST && user.isJoin === 1,
+    // Really in the room right now: joined per the API *and* connected to
+    // the call (remoteUsers never contains our own uid). `isJoin` alone
+    // stays 1 when someone drops without leaving properly.
+    const isOnline = (user: MeetingUserType) =>
+      user.isJoin === 1 &&
+      (user.agUid === myUid ||
+        remoteUsers.some((remoteUser) => remoteUser === user.agUid));
+    const online = activeUsers.filter(isOnline);
+    const hosts = online.filter((user) => user.role === MeetingRole.HOST);
+    const cohosts = online.filter((user) => user.role === MeetingRole.CO_HOST);
+    const joinedUsers = online.filter(
+      (user) => ![MeetingRole.HOST, MeetingRole.CO_HOST].includes(user.role!),
     );
-
-    const joinedUsers = activeUsers.filter(
-      (user) =>
-        user.isJoin === 1 &&
-        ![MeetingRole.HOST, MeetingRole.CO_HOST].includes(user.role!) &&
-        // remoteUsers never contains our own uid
-        (user.agUid === myUid ||
-          remoteUsers.some((remoteUser) => remoteUser === user.agUid)),
-    );
-
-    const notJoinedUsers = activeUsers.filter((user) => user.isJoin === 0);
+    // Everyone else who belongs to the meeting, host included when away.
+    const notJoinedUsers = activeUsers.filter((user) => !isOnline(user));
     const section = (title: string, users: MeetingUserType[]) =>
       users.length > 0 && (
         <UserSection

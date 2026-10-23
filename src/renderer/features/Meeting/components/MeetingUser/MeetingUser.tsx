@@ -47,6 +47,42 @@ function CameraIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/**
+ * A member's mic / camera state. Clickable only when I may switch it off
+ * ([onClick] given); otherwise a plain icon with no pointer or hover.
+ */
+function StatusControl({
+  on,
+  onIcon,
+  offIcon,
+  label,
+  onClick,
+}: {
+  on: boolean;
+  onIcon: React.ReactNode;
+  offIcon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+}) {
+  const icon = on ? onIcon : offIcon;
+  if (!onClick) {
+    return (
+      <span className={`meeting-user-status ${on ? '' : 'disabled'}`}>
+        {icon}
+      </span>
+    );
+  }
+  return (
+    <Button
+      type="text"
+      icon={icon}
+      className={on ? '' : 'disabled'}
+      title={label}
+      onClick={onClick}
+    />
+  );
+}
+
 export type MemberAction =
   | 'muteAudio'
   | 'muteVideo'
@@ -124,31 +160,23 @@ export function MeetingUser({
         </div>
       </div>
       <div className="meeting-user-controls">
-        <Button
-          type="text"
-          icon={
-            !user.enableAudio ? (
-              <Icon name="micOff" />
-            ) : (
-              <MicIcon width={24} height={24} />
-            )
+        <StatusControl
+          on={!!user.enableAudio}
+          offIcon={<Icon name="micOff" />}
+          onIcon={<MicIcon width={24} height={24} />}
+          label="Tắt micro"
+          onClick={
+            actions.includes('muteAudio') ? () => run('muteAudio') : undefined
           }
-          className={!user.enableAudio ? 'disabled' : ''}
-          title={actions.includes('muteAudio') ? 'Tắt micro' : undefined}
-          onClick={() => actions.includes('muteAudio') && run('muteAudio')}
         />
-        <Button
-          type="text"
-          icon={
-            !user.enableVideo ? (
-              <Icon name="cameraOff" />
-            ) : (
-              <CameraIcon width={24} height={24} />
-            )
+        <StatusControl
+          on={!!user.enableVideo}
+          offIcon={<Icon name="cameraOff" />}
+          onIcon={<CameraIcon width={24} height={24} />}
+          label="Tắt camera"
+          onClick={
+            actions.includes('muteVideo') ? () => run('muteVideo') : undefined
           }
-          className={!user.enableVideo ? 'disabled' : ''}
-          title={actions.includes('muteVideo') ? 'Tắt camera' : undefined}
-          onClick={() => actions.includes('muteVideo') && run('muteVideo')}
         />
         {items.length > 0 && (
           <Dropdown
