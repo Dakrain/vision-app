@@ -16,7 +16,6 @@ import { PAGE_TRANSITION, PAGE_VARIANTS } from './constants';
 import './Dashboard.scss';
 import Chat from './pages/Chat/Chat';
 import Home from './pages/Home/Home';
-import Library from './pages/Library/Library';
 import Meeting from './pages/Meeting/Meeting';
 import { LogoutDialog } from './pages/Setting/LogoutDialog';
 import Setting, { type SettingSection } from './pages/Setting/Setting';
@@ -93,8 +92,6 @@ function Dashboard() {
           );
         case 'chat':
           return <Chat />;
-        case 'library':
-          return <Library />;
         case 'setting':
           return (
             <Setting
@@ -194,13 +191,6 @@ function Dashboard() {
               onClick={(label: string) => setActiveMenu(label)}
             />
           </Badge>
-          <MenuItem
-            label="Library"
-            icon="homeLibrary"
-            activeIcon="homeLibraryActive"
-            isActive={activeMenu.toLowerCase() === 'library'}
-            onClick={(label: string) => setActiveMenu(label)}
-          />
         </div>
 
         <div className="home-layout__setting-container">
