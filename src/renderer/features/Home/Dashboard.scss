@@ -50,3 +50,29 @@
   display: block;
   width: 100%;
 }
+
+.home-layout__avatar-btn {
+  display: flex;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+
+.home-account-menu .ant-dropdown-menu {
+  min-width: 180px;
+  padding: 4px;
+  border-radius: 8px;
+
+  .ant-dropdown-menu-item {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .ant-dropdown-menu-item-disabled {
+    font-size: 12px;
+    color: #808080 !important;
+    cursor: default;
+  }
+}

@@ -23,6 +23,7 @@ import {
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import appPackage from '../../release/app/package.json';
 import MenuBuilder from './menu';
 import { disposeShareOverlay, registerShareOverlay } from './shareOverlay';
 import { resolveHtmlPath } from './util';
@@ -106,6 +107,13 @@ ipcMain.on('ipc-example', async (event, arg) => {
 
 registerShareOverlay(() => mainWindow);
 
+// "Phiên bản …" in Settings.
+// Packaged builds report release/app/package.json; in dev getVersion() would
+// give Electron's own version, so read the same file.
+ipcMain.handle('app:version', () =>
+  app.isPackaged ? app.getVersion() : appPackage.version,
+);
+
 // Clicked a system notification (incoming / missed call): bring the app up.
 ipcMain.on('app:focus', () => {
   if (!mainWindow) return;
@@ -120,8 +128,10 @@ ipcMain.on('app:attention', () => {
   else mainWindow?.flashFrame(true);
 });
 
-ipcMain.on('resize-window', (_event, { width, height }) => {
-  const win = BrowserWindow.getFocusedWindow();
+ipcMain.on('resize-window', (event, { width, height }) => {
+  // The window that asked, focused or not (an unfocused window used to keep
+  // the small login size after signing in).
+  const win = BrowserWindow.fromWebContents(event.sender);
   if (win) {
     // Resize window
     win.setSize(width, height);

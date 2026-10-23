@@ -25,13 +25,13 @@ import {
   useRef,
   useState,
 } from 'react';
+import { uploadAttachment } from '@/shared/utils/mediaUpload';
 import {
   dayDivider,
   isSameDay,
   messageDate,
   messageSummary,
 } from '../chatFormat';
-import { uploadAttachment } from '../chatUpload';
 import { useOnline } from '../hooks';
 import { ChatAvatar } from './ChatAvatar';
 import { Composer } from './Composer';

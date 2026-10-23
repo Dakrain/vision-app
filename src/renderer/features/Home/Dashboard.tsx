@@ -5,8 +5,7 @@ import {
   JoinMeetingDialog,
   MenuItem,
 } from '@/shared/components/';
-import { LogoutOutlined } from '@ant-design/icons';
-import { Badge, Divider, Layout, Popover, Typography } from 'antd';
+import { Badge, Divider, Dropdown, Layout } from 'antd';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,7 +18,9 @@ import Chat from './pages/Chat/Chat';
 import Home from './pages/Home/Home';
 import Library from './pages/Library/Library';
 import Meeting from './pages/Meeting/Meeting';
-import Setting from './pages/Setting/Setting';
+import { LogoutDialog } from './pages/Setting/LogoutDialog';
+import Setting, { type SettingSection } from './pages/Setting/Setting';
+import UserService from '../../shared/services/User/UserService';
 
 const { Sider } = Layout;
 const { ipcRenderer } = window.require('electron');
@@ -38,7 +39,29 @@ function Dashboard() {
   const [scheduleMeeting, setScheduleMeeting] = useState(false);
   // Bumped when a meeting gets scheduled, so the meeting list reloads.
   const [meetingsVersion, setMeetingsVersion] = useState(0);
-  const [settingOpen, setSettingOpen] = useState(false);
+  const [settingSection, setSettingSection] =
+    useState<SettingSection>('profile');
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [version, setVersion] = useState('');
+
+  useEffect(() => {
+    ipcRenderer
+      .invoke('app:version')
+      .then((v: string) => setVersion(v))
+      .catch(() => {});
+  }, []);
+
+  const doLogout = async () => {
+    // Drop this device server-side too; leave either way.
+    await UserService.logout().catch(() => {});
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  const openSettings = (section: SettingSection) => {
+    setSettingSection(section);
+    setActiveMenu('setting');
+  };
   const { unreadTotal } = useSocial();
   const renderPage = (page: string) => {
     const content = (() => {
@@ -73,7 +96,13 @@ function Dashboard() {
         case 'library':
           return <Library />;
         case 'setting':
-          return <Setting />;
+          return (
+            <Setting
+              section={settingSection}
+              onSectionChange={setSettingSection}
+              onLogout={doLogout}
+            />
+          );
         default:
           return null;
       }
@@ -101,46 +130,41 @@ function Dashboard() {
       <Sider width={80} className="home-layout__sider">
         <div className="home-layout__menu-container">
           <div className="home-layout__avatar">
-            <Popover
-              content={
-                <div>
-                  <Typography>Phiên bản 1.0.0</Typography>
-                  <div
-                    style={{
-                      cursor: 'pointer',
-                      marginTop: 8,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      color: '#ff4d4f',
-                    }}
-                    onClick={() => {
-                      dispatch(logout());
-                      navigate('/login');
-                    }}
-                  >
-                    <LogoutOutlined />
-                    <Typography style={{ color: '#ff4d4f' }}>
-                      Đăng xuất
-                    </Typography>
-                  </div>
-                </div>
-              }
-              trigger="hover"
-              open={settingOpen}
-              onOpenChange={(open) => {
-                setSettingOpen(open);
+            <Dropdown
+              trigger={['click']}
+              placement="bottomLeft"
+              overlayClassName="home-account-menu"
+              menu={{
+                items: [
+                  { key: 'account', label: 'Tài khoản' },
+                  { key: 'settings', label: 'Cài đặt' },
+                  { type: 'divider' },
+                  { key: 'logout', label: 'Đăng xuất', danger: true },
+                  ...(version
+                    ? [
+                        {
+                          key: 'version',
+                          label: `Phiên bản ${version}`,
+                          disabled: true,
+                        },
+                      ]
+                    : []),
+                ],
+                onClick: ({ key }) => {
+                  if (key === 'account') openSettings('profile');
+                  if (key === 'settings') openSettings('language');
+                  if (key === 'logout') setLogoutOpen(true);
+                },
               }}
-              placement="rightBottom"
             >
-              <div>
+              <button type="button" className="home-layout__avatar-btn">
                 <Avatar
                   url={userDetail.user?.avatarUrl || ''}
                   radius={24}
                   name={userDetail.user?.fullName || ''}
                 />
-              </div>
-            </Popover>
+              </button>
+            </Dropdown>
           </div>
           <MenuItem
             label="Home"
@@ -194,6 +218,14 @@ function Dashboard() {
         style={{ height: '100vh', width: '1px', padding: 0, margin: 0 }}
       />
       <Layout className="home-layout__content">{renderPage(activeMenu)}</Layout>
+      <LogoutDialog
+        open={logoutOpen}
+        onCancel={() => setLogoutOpen(false)}
+        onConfirm={() => {
+          setLogoutOpen(false);
+          doLogout();
+        }}
+      />
       <JoinMeetingDialog
         open={openJoinMeetingDialog}
         onClose={() => {
