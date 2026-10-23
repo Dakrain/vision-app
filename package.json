@@ -274,11 +274,7 @@
         ]
       }
     ],
-    "publish": {
-      "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
-    },
+    "publish": null,
     "protocols": [
       {
         "name": "Vision 20 Meeting",

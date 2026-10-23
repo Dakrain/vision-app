@@ -10,17 +10,17 @@ export default function SplashScreen() {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
 
+  // No artificial delay: the splash used to sit for a fixed 3s on every
+  // launch before the API was even called.
   useEffect(() => {
-    setTimeout(() => {
-      const token = localStorage.getItem('token');
-      const lastLoginUser = localStorage.getItem('last_login_user');
-      if (token && lastLoginUser) {
-        dispatch(fetchUserInfo(lastLoginUser));
-        navigate('/home');
-      } else {
-        navigate('/login');
-      }
-    }, 3000);
+    const token = localStorage.getItem('token');
+    const lastLoginUser = localStorage.getItem('last_login_user');
+    if (token && lastLoginUser) {
+      dispatch(fetchUserInfo(lastLoginUser));
+      navigate('/home');
+    } else {
+      navigate('/login');
+    }
   }, [dispatch, navigate]);
 
   useEffect(() => {

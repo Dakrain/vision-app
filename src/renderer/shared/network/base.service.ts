@@ -12,6 +12,9 @@ class BaseService {
 
   constructor(config?: CreateAxiosDefaults) {
     this.instance = axios.create({
+      // Without a timeout a stalled connection hung the screen forever
+      // (and axios-retry never got a chance to retry it).
+      timeout: 20000,
       ...config,
       headers: {
         // The API accepts iOS | Android | Windows | MacOs.

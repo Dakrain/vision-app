@@ -27,7 +27,20 @@ class AgoraEngineService {
   public getEngine(): IRtcEngineEx {
     return this.engine;
   }
-
 }
 
-export default AgoraEngineService.getInstance().getEngine();
+/**
+ * The engine, created on first use. Initializing it (and loading the
+ * segmentation extension) blocks the renderer, so doing it at import time
+ * delayed the first paint of every launch even when no call or meeting
+ * was started.
+ */
+const lazyEngine = new Proxy({} as IRtcEngineEx, {
+  get(_, prop) {
+    const engine = AgoraEngineService.getInstance().getEngine();
+    const value = Reflect.get(engine, prop);
+    return typeof value === 'function' ? value.bind(engine) : value;
+  },
+});
+
+export default lazyEngine;
