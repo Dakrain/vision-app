@@ -16,6 +16,10 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMeetingRecorder } from '@/renderer/shared/hooks/useMeetingRecorder';
 import { useLivestream } from '@/shared/hooks/useLivestream';
+import {
+  useRemoteVideoSubscriptions,
+  type VisibleStreams,
+} from '@/renderer/shared/hooks/useRemoteVideoSubscriptions';
 import { takeAutoRecord } from '@/shared/utils/recordingPrefs';
 import { ensureScreenCaptureAccess } from '@/shared/utils/screenCapturePermission';
 import { LivestreamDialog } from './components/LivestreamDialog/LivestreamDialog';
@@ -40,7 +44,11 @@ import { ShareScreenDialog } from './components/ShareScreenDialog/ShareScreenDia
 import { MEETING_USER_TABS } from './constants';
 import { RoomPermissions } from './components/RoomPermissions/RoomPermissions';
 import './Meeting.scss';
-import { ClientRoleType, ScreenCaptureSourceType } from 'agora-electron-sdk';
+import {
+  ClientRoleType,
+  ScreenCaptureSourceType,
+  VideoContentHint,
+} from 'agora-electron-sdk';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -113,6 +121,12 @@ function Meeting() {
     startSharingScreen,
     stopSharingScreen,
   } = useMeeting();
+  // Only on-screen videos are received (see MeetingStage).
+  const [visibleStreams, setVisibleStreams] = useState<VisibleStreams>({
+    high: [],
+    low: [],
+  });
+  useRemoteVideoSubscriptions(remoteUsers, visibleStreams);
   const livestream = useLivestream({
     meetingId: Number(meetingId) || undefined,
     canManage: canManageLivestream,
@@ -261,6 +275,8 @@ function Meeting() {
         self={self}
         heroUid={remoteSharingUid ?? lastSpeakerUid}
         activeSpeakerUid={activeSpeakerUid}
+        sharingUid={remoteSharingUid}
+        onVisibleStreamsChange={setVisibleStreams}
         renderTile={renderTile}
       />
     );
@@ -844,6 +860,10 @@ function Meeting() {
                     },
                   );
                 }
+                // Slides and code, not motion: keep text sharp over frame rate.
+                AgoraEngineService.setScreenCaptureContentHint(
+                  VideoContentHint.ContentHintDetails,
+                );
                 // Share on the main connection (same as mobile) so every client
                 // sees the screen in the presenter's own tile.
                 AgoraEngineService.updateChannelMediaOptions({

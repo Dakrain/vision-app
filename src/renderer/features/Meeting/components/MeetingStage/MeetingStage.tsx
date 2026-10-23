@@ -1,12 +1,16 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { MeetingUser } from '@/renderer/shared/types/meeting';
+import type { VisibleStreams } from '@/renderer/shared/hooks/useRemoteVideoSubscriptions';
 import './MeetingStage.scss';
 
 export type MeetingViewMode = 'speaker' | 'gallery';
 
 /** Gallery tiles per page (3x3), as on mobile. */
 const PAGE_SIZE = 9;
+
+/** Up to this many gallery tiles are big enough to want the full stream. */
+const HIGH_QUALITY_TILES = 4;
 
 type Props = {
   view: MeetingViewMode;
@@ -18,6 +22,10 @@ type Props = {
   heroUid?: number;
   /** Highlighted in the gallery while talking. */
   activeSpeakerUid?: number;
+  /** Presenter: always gets the full stream (text must stay readable). */
+  sharingUid?: number;
+  /** Called when the set of on-screen remote videos changes. */
+  onVisibleStreamsChange?: (streams: VisibleStreams) => void;
   renderTile: (user: MeetingUser) => ReactNode;
 };
 
@@ -41,6 +49,8 @@ export function MeetingStage({
   self,
   heroUid,
   activeSpeakerUid,
+  sharingUid,
+  onVisibleStreamsChange,
   renderTile,
 }: Props) {
   const [page, setPage] = useState(0);
@@ -48,6 +58,30 @@ export function MeetingStage({
   useEffect(() => {
     if (page > pages - 1) setPage(pages - 1);
   }, [page, pages]);
+
+  const current = Math.min(page, pages - 1);
+  const hero = others.find((u) => u.agUid === heroUid) ?? others[0];
+  const shown =
+    view === 'speaker'
+      ? others.filter((u) => u === hero)
+      : others.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
+
+  // Tell the parent which videos to receive, and at what quality.
+  const reported = useRef('');
+  useEffect(() => {
+    const uids = shown
+      .map((u) => u.agUid)
+      .filter((uid): uid is number => !!uid);
+    const allHigh = view === 'speaker' || uids.length <= HIGH_QUALITY_TILES;
+    const streams: VisibleStreams = {
+      high: uids.filter((uid) => allHigh || uid === sharingUid),
+      low: uids.filter((uid) => !allHigh && uid !== sharingUid),
+    };
+    const key = JSON.stringify(streams);
+    if (key === reported.current) return;
+    reported.current = key;
+    onVisibleStreamsChange?.(streams);
+  });
 
   if (others.length === 0) {
     return (
@@ -60,11 +94,8 @@ export function MeetingStage({
 
   let content: ReactNode;
   if (view === 'speaker') {
-    const hero = others.find((u) => u.agUid === heroUid) ?? others[0];
     content = <div className="meeting-stage-hero">{renderTile(hero)}</div>;
   } else {
-    const current = Math.min(page, pages - 1);
-    const shown = others.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
     const { cols, rows } = gridFor(shown.length);
     content = (
       <>

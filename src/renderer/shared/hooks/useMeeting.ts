@@ -41,6 +41,7 @@ import {
   ConnectionStateType,
   IRtcEngineEventHandler,
   ScreenCaptureSourceInfo,
+  SimulcastStreamMode,
 } from 'agora-electron-sdk';
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
 import {
@@ -905,6 +906,19 @@ export const useMeeting = () => {
       })
       .catch(() => {});
 
+    // Camera: 960x540@15 is plenty for a meeting tile and keeps uploads
+    // modest. The low simulcast stream (320x180) is only produced while
+    // someone asks for it (small gallery tiles), see
+    // useRemoteVideoSubscriptions.
+    AgoraEngineService.setVideoEncoderConfiguration({
+      dimensions: { width: 960, height: 540 },
+      frameRate: 15,
+      bitrate: 0,
+    });
+    AgoraEngineService.setDualStreamMode(
+      SimulcastStreamMode.AutoSimulcastStream,
+      { dimensions: { width: 320, height: 180 }, kBitrate: 200, framerate: 15 },
+    );
     const result = AgoraEngineService.joinChannel(
       meetingDetail?.user?.agRtcToken || '',
       meetingDetail?.room?.channelName || '',
