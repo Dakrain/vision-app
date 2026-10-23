@@ -39,6 +39,29 @@ const WINDOW_SIZE = {
 
 let mainWindow: BrowserWindow | null = null;
 
+// The app used to ship under the boilerplate's name, so its data (login
+// token, device id, preferences) lives in that folder. Carry it over once,
+// before the window starts writing to the new one. Electron may already have
+// created the new folder, so look for real data rather than the folder.
+const migrateLegacyUserData = () => {
+  const current = app.getPath('userData');
+  if (fs.existsSync(path.join(current, 'Local Storage'))) return;
+  const legacy = ['ElectronReact', 'electron-react-boilerplate']
+    .map((name) => path.join(app.getPath('appData'), name))
+    .find((dir) => fs.existsSync(dir));
+  if (!legacy) return;
+  try {
+    fs.cpSync(legacy, current, {
+      recursive: true,
+      // Lock files of a still-running old build must not come along.
+      filter: (src) => !path.basename(src).startsWith('Singleton'),
+    });
+  } catch (e) {
+    console.warn('userData migration failed', e);
+  }
+};
+migrateLegacyUserData();
+
 // ---- Invite links: vision20://meetinginvite?meeting_id=…&password=…
 // (the "Launch Meeting" button of the web invite page opens these).
 const DEEP_LINK_SCHEME = 'vision20';

@@ -1,12 +1,11 @@
 {
-  "name": "electron-react-boilerplate",
+  "name": "vision20",
   "version": "4.6.0",
-  "description": "A foundation for scalable desktop apps",
+  "description": "Vision20 — họp trực tuyến, nhắn tin và gọi điện",
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "name": "Vision20",
+    "url": "https://vision20.us"
   },
   "main": "./dist/main/main.js",
   "scripts": {
@@ -15,6 +14,6 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {
-    "agora-electron-sdk": "^4.5.0"  
+    "agora-electron-sdk": "^4.5.0"
   }
 }
