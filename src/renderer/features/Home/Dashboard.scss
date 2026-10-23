@@ -43,3 +43,10 @@
     position: absolute;
   }
 }
+
+// The Chat entry sits in a Badge (unread count), which shrinks to its
+// content: stretch it like the other menu entries so its icon lines up.
+.home-layout__menu-badge {
+  display: block;
+  width: 100%;
+}

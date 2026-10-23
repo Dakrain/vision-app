@@ -1,6 +1,8 @@
 import {
   Timestamp,
+  arrayUnion,
   collection,
+  deleteField,
   doc,
   getDoc,
   increment,
@@ -10,6 +12,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
@@ -43,6 +46,14 @@ export interface Conversation {
   lastReadAt: Record<string, Date>;
 }
 
+/** What a reply quotes (a snapshot: later edits/recalls don't change it). */
+export interface ReplyRef {
+  id: string;
+  senderName?: string;
+  type: MessageType;
+  text?: string;
+}
+
 export interface Message {
   id: string;
   senderId: string;
@@ -53,6 +64,15 @@ export interface Message {
   text?: string;
   attachmentUrl?: string;
   attachmentName?: string;
+  attachmentSize?: number;
+  attachmentMime?: string;
+  replyTo?: ReplyRef;
+  /** Sent through "Chuyển tiếp". */
+  forwarded?: boolean;
+  /** Taken back by the sender: content removed for everyone. */
+  recalled?: boolean;
+  /** Backend ids who removed it from their own view ("Gỡ phía bạn"). */
+  hiddenFor?: number[];
   callKind?: 'audio' | 'video';
   callOutcome?: CallOutcome;
   callDurationSec?: number;
@@ -99,6 +119,12 @@ const toMessage = (id: string, data: any): Message => ({
   text: data.text,
   attachmentUrl: data.attachmentUrl,
   attachmentName: data.attachmentName,
+  attachmentSize: data.attachmentSize,
+  attachmentMime: data.attachmentMime,
+  replyTo: data.replyTo,
+  forwarded: data.forwarded === true,
+  recalled: data.recalled === true,
+  hiddenFor: (data.hiddenFor ?? []).map(Number),
   callKind: data.callKind,
   callOutcome: data.callOutcome,
   callDurationSec: data.callDurationSec,
@@ -203,7 +229,17 @@ export async function sendMessage(
     Message,
     'type' | 'text' | 'attachmentUrl' | 'attachmentName' | 'callKind'
   > &
-    Partial<Pick<Message, 'callOutcome' | 'callDurationSec'>>,
+    Partial<
+      Pick<
+        Message,
+        | 'callOutcome'
+        | 'callDurationSec'
+        | 'attachmentSize'
+        | 'attachmentMime'
+        | 'replyTo'
+        | 'forwarded'
+      >
+    >,
 ) {
   const clientTimetoken = Date.now();
   const message: Omit<Message, 'id'> = {
@@ -219,9 +255,9 @@ export async function sendMessage(
   );
   const batch = writeBatch(firestore);
   batch.set(ref, {
-    ...Object.fromEntries(
-      Object.entries(message).filter(([, v]) => v !== undefined),
-    ),
+    // JSON round-trip drops undefined fields, nested ones (replyTo) included:
+    // Firestore rejects undefined values.
+    ...JSON.parse(JSON.stringify(message)),
     createdAt: serverTimestamp(),
     readBy: [],
     deliveredTo: [],
@@ -322,4 +358,97 @@ export function upsertUserMirror(me: Me) {
 export async function hasStableUid(backendId: number) {
   const snap = await getDoc(doc(firestore, 'users', uidFor(backendId)));
   return snap.exists();
+}
+
+export const RECALLED_TEXT = 'Tin nhắn đã được thu hồi';
+
+/**
+ * The sender takes a message back for everyone: its content is removed and
+ * clients show "Tin nhắn đã được thu hồi". [isNewest]: also fix the preview.
+ */
+export async function recallMessage(
+  conversationId: string,
+  messageId: string,
+  isNewest: boolean,
+) {
+  await updateDoc(
+    doc(firestore, 'conversations', conversationId, 'messages', messageId),
+    {
+      recalled: true,
+      // Older apps don't know `recalled`: they show this text instead of an
+      // empty bubble (or the picture/file).
+      type: 'text',
+      text: RECALLED_TEXT,
+      attachmentUrl: deleteField(),
+      attachmentName: deleteField(),
+      attachmentSize: deleteField(),
+      attachmentMime: deleteField(),
+      replyTo: deleteField(),
+    },
+  );
+  if (isNewest) {
+    await setDoc(
+      doc(firestore, 'conversations', conversationId),
+      { lastMessage: RECALLED_TEXT },
+      { merge: true },
+    );
+  }
+}
+
+/** "Gỡ tin nhắn phía bạn": hidden for me only. */
+export function hideMessageForMe(
+  conversationId: string,
+  messageId: string,
+  me: Me,
+) {
+  return updateDoc(
+    doc(firestore, 'conversations', conversationId, 'messages', messageId),
+    { hiddenFor: arrayUnion(me.backendId) },
+  );
+}
+
+/**
+ * New group conversation owned by [me] (same document as mobile's
+ * `createGroup`, vision/lib/data/providers/firebase_chat.impl.dart).
+ */
+export async function createGroupConversation(
+  me: Me,
+  name: string,
+  members: { backendId: number; displayName?: string; avatarUrl?: string }[],
+) {
+  const allBackendIds = Array.from(
+    new Set([me.backendId, ...members.map((m) => m.backendId)]),
+  ).sort((a, b) => a - b);
+  const id = `group_${crypto.randomUUID()}`;
+  await setDoc(doc(firestore, 'conversations', id), {
+    type: 'group',
+    members: [me.uid],
+    memberBackendIds: allBackendIds,
+    groupName: name,
+    createdBy: me.uid,
+    createdAt: serverTimestamp(),
+    lastMessageAt: serverTimestamp(),
+    unreadCounts: Object.fromEntries(
+      allBackendIds.map((bid) => [String(bid), 0]),
+    ),
+    memberProfiles: {
+      [me.uid]: {
+        uid: me.uid,
+        backendId: me.backendId,
+        displayName: me.displayName ?? null,
+        avatarUrl: me.avatarUrl ?? null,
+      },
+      ...Object.fromEntries(
+        members.map((m) => [
+          `backend_${m.backendId}`,
+          {
+            backendId: m.backendId,
+            displayName: m.displayName ?? null,
+            avatarUrl: m.avatarUrl ?? null,
+          },
+        ]),
+      ),
+    },
+  });
+  return id;
 }
