@@ -1,12 +1,6 @@
 import { useAppSelector } from '@/renderer/store/hooks';
 import { selectAuth } from '@/shared/store/auth/selector';
-import {
-  FileTextOutlined,
-  GlobalOutlined,
-  HddOutlined,
-  LogoutOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import Icon from '@/assets/svg/icons';
 import { type JSX, type ReactNode, useEffect, useState } from 'react';
 import { LogoutDialog } from './LogoutDialog';
 import { Language, currentLanguageLabel } from './panes/Language';
@@ -107,14 +101,14 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
         <h3>TÀI KHOẢN</h3>
         <div>
           <MenuRow
-            icon={<UserOutlined />}
+            icon={<Icon name="settingProfile" />}
             color="#0064ff"
             title="Thông tin cá nhân"
             active={section === 'profile'}
             onClick={() => onSectionChange('profile')}
           />
           <MenuRow
-            icon={<HddOutlined />}
+            icon={<Icon name="settingSdcard" />}
             color="#ff5a5a"
             title="Bộ nhớ"
             subtitle={`Đã sử dụng ${usedPercent}%`}
@@ -122,14 +116,14 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
             onClick={() => onSectionChange('storage')}
           />
           <MenuRow
-            icon={<FileTextOutlined />}
+            icon={<Icon name="settingNote" />}
             color="#1ec88c"
             title="Điều khoản và Điều kiện"
             active={section === 'terms'}
             onClick={() => onSectionChange('terms')}
           />
           <MenuRow
-            icon={<GlobalOutlined />}
+            icon={<Icon name="settingGlobe" />}
             color="#7850dc"
             title="Ngôn ngữ"
             subtitle={currentLanguageLabel}
@@ -139,7 +133,7 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
         </div>
         <hr />
         <MenuRow
-          icon={<LogoutOutlined />}
+          icon={<Icon name="settingSignout" />}
           color="#ff3c3c"
           title="Đăng xuất"
           onClick={() => setLogoutOpen(true)}

@@ -63,9 +63,8 @@
   color: white;
   font-size: 20px;
 
-  // The global `* { color: #333 }` reaches every svg node: force white.
-  * {
-    color: white;
+  svg {
+    flex: none;
   }
 }
 
@@ -128,6 +127,16 @@
 }
 
 // ---- Personal info
+.settings-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 40px;
+  background: #0064ff;
+}
+
 .settings-profile {
   display: flex;
   gap: 40px;

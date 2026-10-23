@@ -35,6 +35,12 @@ import { ReactComponent as MeetingScheduleIcon } from './ic_meeting_schedule.svg
 import { ReactComponent as MeetingCaretRightIcon } from './ic_meeting_caret_right.svg';
 import { ReactComponent as MeetingFolderIcon } from './ic_meeting_folder.svg';
 import { ReactComponent as MeetingCloseIcon } from './ic_meeting_close.svg';
+import { ReactComponent as SettingProfileIcon } from './ic_setting_profile.svg';
+import { ReactComponent as SettingSdcardIcon } from './ic_setting_sdcard.svg';
+import { ReactComponent as SettingNoteIcon } from './ic_setting_note.svg';
+import { ReactComponent as SettingGlobeIcon } from './ic_setting_globe.svg';
+import { ReactComponent as SettingSignoutIcon } from './ic_setting_signout.svg';
+import { ReactComponent as SettingProfileBigIcon } from './ic_setting_profile_big.svg';
 import { ReactComponent as ChatPhoneIcon } from './ic_chat_phone.svg';
 import { ReactComponent as ChatVideoIcon } from './ic_chat_video.svg';
 import { ReactComponent as ChatPdfIcon } from './ic_chat_pdf.svg';
@@ -139,6 +145,18 @@ export default function Icon({
       return <MeetingFolderIcon {...svgProps} />;
     case 'meetingClose':
       return <MeetingCloseIcon {...svgProps} />;
+    case 'settingProfile':
+      return <SettingProfileIcon {...svgProps} />;
+    case 'settingSdcard':
+      return <SettingSdcardIcon {...svgProps} />;
+    case 'settingNote':
+      return <SettingNoteIcon {...svgProps} />;
+    case 'settingGlobe':
+      return <SettingGlobeIcon {...svgProps} />;
+    case 'settingSignout':
+      return <SettingSignoutIcon {...svgProps} />;
+    case 'settingProfileBig':
+      return <SettingProfileBigIcon {...svgProps} />;
     case 'chatPhone':
       return <ChatPhoneIcon {...svgProps} />;
     case 'chatVideo':

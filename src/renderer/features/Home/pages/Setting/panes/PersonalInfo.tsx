@@ -1,3 +1,4 @@
+import Icon from '@/assets/svg/icons';
 import { Avatar } from '@/shared/components';
 import UserService, {
   type Country,
@@ -189,11 +190,14 @@ export function PersonalInfo({ user }: Props) {
   return (
     <div className="settings-profile">
       <div className="settings-avatar">
-        <Avatar
-          url={user.avatarUrl ?? ''}
-          radius={40}
-          name={user.fullName ?? ''}
-        />
+        {user.avatarUrl ? (
+          <Avatar url={user.avatarUrl} radius={40} name={user.fullName ?? ''} />
+        ) : (
+          // No photo yet: the design's blue profile placeholder.
+          <span className="settings-avatar-placeholder">
+            <Icon name="settingProfileBig" />
+          </span>
+        )}
         <input
           ref={fileRef}
           type="file"
