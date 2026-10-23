@@ -13,16 +13,16 @@ export function ChatBubble({ message, showSender, isMe }: ChatBubbleProps) {
   const renderMessageContent = () => {
     if (message.messageType === 'file') {
       return (
-        <div className="chat-bubble-file-container">
+        <div className="meeting-bubble-file-container">
           <img
-            className="chat-bubble-file"
+            className="meeting-bubble-file"
             src={message.file?.url}
             alt="file"
           />
         </div>
       );
     }
-    return <div className="chat-bubble-message">{message.message}</div>;
+    return <div className="meeting-bubble-message">{message.message}</div>;
   };
 
   const renderAvatar = () => {
@@ -33,25 +33,27 @@ export function ChatBubble({ message, showSender, isMe }: ChatBubbleProps) {
         url={message.avatar || ''}
         radius={12}
         name={message.userName ?? 'Vision20'}
-        className="chat-bubble-avatar"
+        className="meeting-bubble-avatar"
       />
     ) : (
-      <div className="chat-bubble-avatar-placeholder" />
+      <div className="meeting-bubble-avatar-placeholder" />
     );
   };
 
   return (
-    <div className={`chat-bubble ${isMe ? '-me' : ''}`}>
+    <div
+      className={`meeting-bubble${isMe ? ' -me' : ''}${showSender ? ' -first' : ''}`}
+    >
       {renderAvatar()}
-      <div className="chat-bubble-content">
+      <div className="meeting-bubble-content">
         {!isMe && showSender && (
-          <div className="chat-bubble-name">
+          <div className="meeting-bubble-name">
             {message.userName ?? 'Vision20'}
           </div>
         )}
-        <div className={`chat-bubble-container ${isMe ? '-me' : ''}`}>
+        <div className="meeting-bubble-container">
           {renderMessageContent()}
-          <div className="chat-bubble-time">{messageTime}</div>
+          <div className="meeting-bubble-time">{messageTime}</div>
         </div>
       </div>
     </div>

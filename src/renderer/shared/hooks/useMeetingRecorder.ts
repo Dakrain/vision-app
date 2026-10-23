@@ -11,6 +11,7 @@ import {
   VideoSampleSource,
 } from 'mediabunny';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getRecordingFolder } from '../utils/recordingPrefs';
 import { ensureScreenCaptureAccess } from '../utils/screenCapturePermission';
 
 /* global MediaStreamTrackProcessor -- typed by mediabunny */
@@ -224,6 +225,7 @@ export function useMeetingRecorder(meetingTitle?: string) {
       'recording:finish',
       s.id,
       `${meetingTitle || 'Cuoc hop'} ${date}`,
+      getRecordingFolder(),
     );
     if (saved) {
       const key = `recording-${s.id}`;

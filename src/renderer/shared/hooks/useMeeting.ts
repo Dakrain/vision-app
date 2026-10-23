@@ -58,6 +58,9 @@ const useClient = createClient(AGORA_APP_ID);
 
 const MEETING_STATUS_ENDED = 3;
 
+/** Volume (0-255) from which a remote user counts as speaking. */
+const SPEAKING_VOLUME = 30;
+
 export const useMeeting = () => {
   const location = useLocation();
   // `enableMic`/`enableCamera` come from the pre-join lobby.
@@ -200,11 +203,34 @@ export const useMeeting = () => {
 
  
   const [remoteUsers, setRemoteUsers] = useState<number[]>([]);
+  // Who's talking (remote users only, like mobile): `activeSpeakerUid` while
+  // they speak, `lastSpeakerUid` sticks to whoever spoke last so the speaker
+  // view doesn't jump back when the room goes quiet. Both only change when
+  // the speaker does: volume reports arrive several times a second.
+  const [activeSpeakerUid, setActiveSpeakerUid] = useState<number>();
+  const [lastSpeakerUid, setLastSpeakerUid] = useState<number>();
   const eventHandler = useMemo<IRtcEngineEventHandler>(
     () => ({
       onJoinChannelSuccess(connection: any) {
         console.log("🚀 ~ onJoinChannelSuccess ~ connection:", connection)
         setIsConnected(true);
+        // Report volumes every 300ms (smoothed) for speaker detection.
+        AgoraEngineService.enableAudioVolumeIndication(300, 3, true);
+      },
+
+      onAudioVolumeIndication(_connection: any, speakers: any[]) {
+        const remote = (speakers ?? []).filter((s) => s.uid);
+        // The local report comes separately (only uid 0): not a verdict on
+        // remote speakers.
+        if (remote.length === 0 && (speakers ?? []).length > 0) return;
+        const loudest = remote
+          .filter((s) => s.volume >= SPEAKING_VOLUME)
+          .sort((a, b) => b.volume - a.volume)[0];
+        const next: number | undefined = loudest?.uid;
+        setActiveSpeakerUid((prev) => (prev === next ? prev : next));
+        if (next !== undefined) {
+          setLastSpeakerUid((prev) => (prev === next ? prev : next));
+        }
       },
 
       onUserJoined(connection: any, remoteUid: any) {
@@ -223,6 +249,8 @@ export const useMeeting = () => {
         setRemoteUsers((prevUsers) =>
           prevUsers.filter((user) => user !== remoteUid),
         );
+        setActiveSpeakerUid((prev) => (prev === remoteUid ? undefined : prev));
+        setLastSpeakerUid((prev) => (prev === remoteUid ? undefined : prev));
         dispatch(removeMeetingUser(remoteUid));
       },
 
@@ -959,6 +987,8 @@ export const useMeeting = () => {
     myRole,
     announceScreenShare,
     remoteSharingUid,
+    activeSpeakerUid,
+    lastSpeakerUid,
     muteMember,
     muteAllMembers,
     kickMember,

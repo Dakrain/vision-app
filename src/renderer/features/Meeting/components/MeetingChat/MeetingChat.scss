@@ -1,58 +1,89 @@
-.chat {
-  &-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
+.meeting-chat {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
 
   &-header {
-    padding: 20px;
+    flex: none;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
     font-size: 16px;
+    line-height: 24px;
     font-weight: 600;
-    text-align: center;
-    border-bottom: 1px solid #f0f0f0;
+    color: #333333;
+  }
+
+  // Notice + messages scroll together and sit at the bottom, like the design.
+  &-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
   }
 
   &-notice {
-    padding: 12px;
-    background: #fff2f0;
-    font-size: 14px;
-    text-align: center;
-    margin: 24px 16px;
+    margin-top: auto;
+    margin-bottom: 24px;
+    padding: 16px;
+    // Primary +90 (white 90% over #FF3C3C).
+    background: #ffecec;
     border-radius: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: #333333;
+    text-align: center;
   }
 
   &-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
   &-input {
-    padding: 16px;
-    border-top: 1px solid #f0f0f0;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    background: white;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.05);
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      line-height: 24px;
+      color: #333333;
+
+      &::placeholder {
+        color: #cccccc;
+      }
+    }
   }
-}
 
-.send-icon {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  &-send {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
 
-  &:hover {
-    transform: scale(1.1);
-    color: #1890ff;
-  }
-
-  &:active {
-    transform: scale(0.95);
+    &:disabled {
+      cursor: default;
+      opacity: 0.3;
+    }
   }
 }

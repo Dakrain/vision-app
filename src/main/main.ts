@@ -24,6 +24,7 @@ import {
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+import { disposeShareOverlay, registerShareOverlay } from './shareOverlay';
 import { resolveHtmlPath } from './util';
 
 const WINDOW_SIZE = {
@@ -102,6 +103,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
+
+registerShareOverlay(() => mainWindow);
 
 ipcMain.on('resize-window', (_event, { width, height }) => {
   const win = BrowserWindow.getFocusedWindow();
@@ -221,30 +224,88 @@ const closeRecording = async (id: string) => {
   return rec.file;
 };
 
-ipcMain.handle('recording:finish', async (event, id: string, name: string) => {
-  const file = await closeRecording(id);
-  if (!file) return null;
+// Where recordings go when the user picked a folder in the meeting settings.
+const defaultRecordingFolder = () =>
+  path.join(app.getPath('videos'), 'Vision20');
+
+ipcMain.handle('recording:folder-info', (_, folder?: string) => {
+  const dir = folder || defaultRecordingFolder();
+  // statfs needs an existing path: walk up to the nearest one.
+  let probe = dir;
+  while (!fs.existsSync(probe) && path.dirname(probe) !== probe) {
+    probe = path.dirname(probe);
+  }
+  let freeBytes: number | null = null;
+  try {
+    const stats = fs.statfsSync(probe);
+    freeBytes = stats.bavail * stats.bsize;
+  } catch {
+    // Unknown free space: the UI just leaves it out.
+  }
+  return { folder: dir, freeBytes };
+});
+
+ipcMain.handle('recording:pick-folder', async (event, current?: string) => {
   const window = BrowserWindow.fromWebContents(event.sender);
-  const safeName = name.replace(/[\\/:*?"<>|]/g, '-');
-  const options: SaveDialogOptions = {
-    title: 'Lưu bản ghi cuộc họp',
-    defaultPath: path.join(
-      app.getPath('videos'),
-      `${safeName}${path.extname(file)}`,
-    ),
+  const options: OpenDialogOptions = {
+    title: 'Chọn thư mục lưu bản ghi',
+    defaultPath: current || defaultRecordingFolder(),
+    properties: ['openDirectory', 'createDirectory'],
   };
   const result = window
-    ? await dialog.showSaveDialog(window, options)
-    : await dialog.showSaveDialog(options);
-  if (result.canceled || !result.filePath) {
-    fs.unlinkSync(file);
-    return null;
-  }
-  // copy + unlink: the temp dir may be on another volume (rename fails).
-  fs.copyFileSync(file, result.filePath);
-  fs.unlinkSync(file);
-  return result.filePath;
+    ? await dialog.showOpenDialog(window, options)
+    : await dialog.showOpenDialog(options);
+  return result.canceled ? null : (result.filePaths[0] ?? null);
 });
+
+/** `name.ext`, or `name (2).ext`… if that file already exists. */
+const freeFileName = (dir: string, name: string, ext: string) => {
+  let candidate = path.join(dir, `${name}${ext}`);
+  for (let i = 2; fs.existsSync(candidate); i += 1) {
+    candidate = path.join(dir, `${name} (${i})${ext}`);
+  }
+  return candidate;
+};
+
+ipcMain.handle(
+  'recording:finish',
+  async (event, id: string, name: string, folder?: string) => {
+    const file = await closeRecording(id);
+    if (!file) return null;
+    const window = BrowserWindow.fromWebContents(event.sender);
+    const safeName = name.replace(/[\\/:*?"<>|]/g, '-');
+    // A folder chosen in the settings: save there without asking.
+    if (folder) {
+      try {
+        fs.mkdirSync(folder, { recursive: true });
+        const target = freeFileName(folder, safeName, path.extname(file));
+        fs.copyFileSync(file, target);
+        fs.unlinkSync(file);
+        return target;
+      } catch (err) {
+        console.warn('[recording] save to folder failed, asking instead', err);
+      }
+    }
+    const options: SaveDialogOptions = {
+      title: 'Lưu bản ghi cuộc họp',
+      defaultPath: path.join(
+        app.getPath('videos'),
+        `${safeName}${path.extname(file)}`,
+      ),
+    };
+    const result = window
+      ? await dialog.showSaveDialog(window, options)
+      : await dialog.showSaveDialog(options);
+    if (result.canceled || !result.filePath) {
+      fs.unlinkSync(file);
+      return null;
+    }
+    // copy + unlink: the temp dir may be on another volume (rename fails).
+    fs.copyFileSync(file, result.filePath);
+    fs.unlinkSync(file);
+    return result.filePath;
+  },
+);
 
 ipcMain.handle('recording:abort', async (_, id: string) => {
   const file = await closeRecording(id);
@@ -293,6 +354,12 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  // Packaged builds take the Dock icon from the bundle; in development
+  // it would be Electron's.
+  if (process.platform === 'darwin' && !app.isPackaged) {
+    app.dock.setIcon(getAssetPath('icon.png'));
+  }
+
   mainWindow = new BrowserWindow({
     show: false,
     ...WINDOW_SIZE.login,
@@ -334,6 +401,7 @@ const createWindow = async () => {
   });
 
   mainWindow.on('closed', () => {
+    disposeShareOverlay();
     mainWindow = null;
   });
 

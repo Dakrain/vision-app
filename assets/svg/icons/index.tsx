@@ -24,6 +24,28 @@ import { ReactComponent as HandEmojiIcon } from './ic_reaction_hand.svg';
 import { ReactComponent as HeartEmojiIcon } from './ic_reaction_heart.svg';
 import { ReactComponent as LikeEmojiIcon } from './ic_reaction_like.svg';
 import { ReactComponent as RecordIcon } from './ic_record.svg';
+import { ReactComponent as MeetingSettingIcon } from './ic_meeting_setting.svg';
+import { ReactComponent as MeetingDotsIcon } from './ic_meeting_dots.svg';
+import { ReactComponent as MeetingHostIcon } from './ic_meeting_host.svg';
+import { ReactComponent as MeetingClockIcon } from './ic_meeting_clock.svg';
+import { ReactComponent as MeetingIdIcon } from './ic_meeting_id.svg';
+import { ReactComponent as MeetingNewIcon } from './ic_meeting_new.svg';
+import { ReactComponent as MeetingJoinIcon } from './ic_meeting_join.svg';
+import { ReactComponent as MeetingScheduleIcon } from './ic_meeting_schedule.svg';
+import { ReactComponent as MeetingCaretRightIcon } from './ic_meeting_caret_right.svg';
+import { ReactComponent as MeetingFolderIcon } from './ic_meeting_folder.svg';
+import { ReactComponent as MeetingCloseIcon } from './ic_meeting_close.svg';
+import { ReactComponent as ChatPhoneIcon } from './ic_chat_phone.svg';
+import { ReactComponent as ChatVideoIcon } from './ic_chat_video.svg';
+import { ReactComponent as ChatPdfIcon } from './ic_chat_pdf.svg';
+import { ReactComponent as ChatNotePencilIcon } from './ic_chat_note_pencil.svg';
+import { ReactComponent as ChatSearchIcon } from './ic_chat_search.svg';
+import { ReactComponent as ChatBellSlashIcon } from './ic_chat_bell_slash.svg';
+import { ReactComponent as ChatCheckIcon } from './ic_chat_check.svg';
+import { ReactComponent as ChatPaperclipIcon } from './ic_chat_paperclip.svg';
+import { ReactComponent as ChatMicIcon } from './ic_chat_mic.svg';
+import { ReactComponent as ChatImageIcon } from './ic_chat_image.svg';
+import { ReactComponent as ChatSmileyIcon } from './ic_chat_smiley.svg';
 import { ReactComponent as SendIcon } from './ic_send.svg';
 import { ReactComponent as HomeSettingIcon } from './ic_setting.svg';
 import { ReactComponent as HomeSettingActiveIcon } from './ic_setting_selected.svg';
@@ -97,6 +119,50 @@ export default function Icon({
       return <UsersIcon {...svgProps} />;
     case 'setting':
       return <HomeSettingIcon {...svgProps} />;
+    case 'meetingDots':
+      return <MeetingDotsIcon {...svgProps} />;
+    case 'meetingHost':
+      return <MeetingHostIcon {...svgProps} />;
+    case 'meetingClock':
+      return <MeetingClockIcon {...svgProps} />;
+    case 'meetingId':
+      return <MeetingIdIcon {...svgProps} />;
+    case 'meetingNew':
+      return <MeetingNewIcon {...svgProps} />;
+    case 'meetingJoin':
+      return <MeetingJoinIcon {...svgProps} />;
+    case 'meetingSchedule':
+      return <MeetingScheduleIcon {...svgProps} />;
+    case 'meetingCaretRight':
+      return <MeetingCaretRightIcon {...svgProps} />;
+    case 'meetingFolder':
+      return <MeetingFolderIcon {...svgProps} />;
+    case 'meetingClose':
+      return <MeetingCloseIcon {...svgProps} />;
+    case 'chatPhone':
+      return <ChatPhoneIcon {...svgProps} />;
+    case 'chatVideo':
+      return <ChatVideoIcon {...svgProps} />;
+    case 'chatPdf':
+      return <ChatPdfIcon {...svgProps} />;
+    case 'chatNotePencil':
+      return <ChatNotePencilIcon {...svgProps} />;
+    case 'chatSearch':
+      return <ChatSearchIcon {...svgProps} />;
+    case 'chatBellSlash':
+      return <ChatBellSlashIcon {...svgProps} />;
+    case 'chatCheck':
+      return <ChatCheckIcon {...svgProps} />;
+    case 'chatPaperclip':
+      return <ChatPaperclipIcon {...svgProps} />;
+    case 'chatMic':
+      return <ChatMicIcon {...svgProps} />;
+    case 'chatImage':
+      return <ChatImageIcon {...svgProps} />;
+    case 'chatSmiley':
+      return <ChatSmileyIcon {...svgProps} />;
+    case 'meetingSetting':
+      return <MeetingSettingIcon {...svgProps} />;
     case 'record':
       return <RecordIcon {...svgProps} />;
     case 'chat':

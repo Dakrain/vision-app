@@ -15,6 +15,7 @@ export const MenuItem = memo(function MenuItem({
       type="button"
       className={`menu-item${locked ? ' locked' : ''}`}
       aria-disabled={locked}
+      title={name}
     >
       {typeof icon === 'string' ? <Icon name={icon} /> : icon}
       <span>{name}</span>

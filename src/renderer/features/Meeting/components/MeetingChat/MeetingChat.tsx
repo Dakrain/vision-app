@@ -2,8 +2,7 @@ import Icon from '@/assets/svg/icons';
 import { ChatBubble } from '@/renderer/shared/components';
 import { useAppDispatch } from '@/renderer/store';
 import { useAuth } from '@/shared/hooks';
-import { Input } from 'antd';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { sendChat } from '../../store/action';
@@ -18,7 +17,7 @@ export function MeetingChat({ sendMessage, canSend = true }: MeetingChatProps) {
   const chats = useSelector(selectChats);
   const [message, setMessage] = useState('');
   const sendChatMessage = () => {
-    if (!message || !canSend) return;
+    if (!message.trim() || !canSend) return;
 
     setMessage('');
     dispatch(
@@ -33,36 +32,55 @@ export function MeetingChat({ sendMessage, canSend = true }: MeetingChatProps) {
     );
   };
 
+  // Keep the newest message in view.
+  const bottomRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ block: 'end' });
+  }, [chats.length]);
+
   return (
-    <div className="chat-container">
-      <div className="chat-header">Tin nhắn trong cuộc họp</div>
-      <div className="chat-notice">
-        Tin nhắn chỉ hiển thị với những người tham gia cuộc họp và sẽ bị xóa khi
-        cuộc họp kết thúc
+    <div className="meeting-chat">
+      <div className="meeting-chat-header">Tin nhắn trong cuộc họp</div>
+      <div className="meeting-chat-body">
+        <div className="meeting-chat-notice">
+          Tin nhắn chỉ hiển thị với những người tham gia cuộc họp và sẽ bị xoá
+          khi cuộc họp kết thúc
+        </div>
+        <div className="meeting-chat-messages">
+          {chats.map((chat, index) => (
+            <ChatBubble
+              key={chat.id}
+              message={chat}
+              showSender={
+                index === 0 || chats[index - 1].userId !== chat.userId
+              }
+              isMe={chat.userId === user?.id}
+            />
+          ))}
+        </div>
+        <div ref={bottomRef} />
       </div>
-      <div className="chat-messages">
-        {chats.map((chat, index) => (
-          <ChatBubble
-            key={chat.id}
-            message={chat}
-            showSender={index === 0 || chats[index - 1].userId !== chat.userId}
-            isMe={chat.userId === user?.id}
-          />
-        ))}
-      </div>
-      <div className="chat-input">
-        <Input
+      <div className="meeting-chat-input">
+        <input
           placeholder={canSend ? 'Nhập tin nhắn...' : 'Chủ phòng đã tắt chat'}
           disabled={!canSend}
-          suffix={
-            <button className="send-icon" onClick={() => sendChatMessage()}>
-              <Icon name="send" />
-            </button>
-          }
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onPressEnter={() => sendChatMessage()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+              sendChatMessage();
+            }
+          }}
         />
+        <button
+          type="button"
+          className="meeting-chat-send"
+          disabled={!canSend || !message.trim()}
+          onClick={() => sendChatMessage()}
+          aria-label="Gửi"
+        >
+          <Icon name="send" />
+        </button>
       </div>
     </div>
   );

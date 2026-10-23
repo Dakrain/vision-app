@@ -16,7 +16,7 @@
 
     &.visible {
       display: block;
-      flex: 3;
+      flex: 0 0 352px;
     }
   }
 
@@ -29,6 +29,7 @@
     top: 0;
     left: 0;
     flex: 7;
+    min-width: 0;
   }
 
   &-header {
@@ -85,12 +86,8 @@
     &-grid {
       display: flex;
       overflow-y: auto;
-      width: 100%;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &.visible {
-        width: 70%;
-      }
+      flex: 1;
+      min-width: 0;
     }
 
 
@@ -130,59 +127,45 @@
     height: 64px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 16px;
+    padding: 0 24px;
     background-color: #1A1A1A;
-    margin: 0 16px 8px;
     position: relative;
     z-index: 1;
-  }
-}
+    // Items shrink with the footer and drop their labels when it gets narrow
+    // (small window, or chat / participants sidebar open).
+    container-type: inline-size;
 
-.meeting-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 16px;
-  box-sizing: border-box;
+    &-group {
+      display: flex;
+      align-items: center;
+      min-width: 0;
 
-  // Khi chỉ có 1 người
-  &.single-user {
-    .video-item {
-      width: 100%;
-      height: 100%;
+      &.center {
+        flex: 1;
+        justify-content: center;
+      }
     }
-  }
 
-  // Khi có 2 người
-  &.two-users {
-    .video-item {
-      width: calc(50% - 4px); // 50% trừ đi nửa gap
-      height: 100%;
+    &-dropdown {
+      display: flex;
+      flex: 0 1 120px;
+      min-width: 0;
+
+      .menu-item {
+        width: 100%;
+      }
     }
-  }
 
-  // Khi có 3-4 người
-  &.three-to-four-users {
-    .video-item {
-      width: calc(50% - 4px);
-      height: calc(50% - 4px); // 50% trừ đi nửa gap
-      aspect-ratio: 16/9; // Width sẽ tự động tính theo tỷ lệ 16:9
-    }
-  }
-
-  // Khi có nhiều hơn 4 người
-  &.many-users {
-    .video-item {
-      width: 30%;
-      height: 50%;
+    .custom-button.meeting-footer-end {
+      flex: none;
+      width: auto;
+      padding: 4px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
     }
   }
 }
-
 
 .meeting-live-badge {
   padding: 2px 8px;
@@ -277,6 +260,16 @@
   border-top-color: #fff;
   border-radius: 50%;
   animation: meeting-spin 0.8s linear infinite;
+}
+
+@container (max-width: 1000px) {
+  .meeting-footer .menu-item {
+    min-width: 48px;
+
+    > span:last-child {
+      display: none;
+    }
+  }
 }
 
 @keyframes meeting-spin {

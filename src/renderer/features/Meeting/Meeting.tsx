@@ -7,6 +7,7 @@ import { useMeeting } from '@/shared/hooks/index';
 import { CaretDownOutlined } from '@ant-design/icons';
 import {
   Button as AntButton,
+  Dropdown,
   Modal,
   Segmented,
   Typography,
@@ -15,9 +16,15 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMeetingRecorder } from '@/renderer/shared/hooks/useMeetingRecorder';
 import { useLivestream } from '@/shared/hooks/useLivestream';
+import { takeAutoRecord } from '@/shared/utils/recordingPrefs';
 import { ensureScreenCaptureAccess } from '@/shared/utils/screenCapturePermission';
 import { LivestreamDialog } from './components/LivestreamDialog/LivestreamDialog';
 import { AddMemberDialog } from './components/AddMemberDialog/AddMemberDialog';
+import { RecordingClock } from './components/RecordingClock/RecordingClock';
+import {
+  MeetingStage,
+  MeetingViewMode,
+} from './components/MeetingStage/MeetingStage';
 import type { MemberAction } from './components/MeetingUser/MeetingUser';
 import {
   EmojiPicker,
@@ -34,6 +41,12 @@ import { MEETING_USER_TABS } from './constants';
 import { RoomPermissions } from './components/RoomPermissions/RoomPermissions';
 import './Meeting.scss';
 import { ClientRoleType, ScreenCaptureSourceType } from 'agora-electron-sdk';
+
+const { ipcRenderer } = window.require('electron');
+
+/** localStorage key for the chosen meeting layout. */
+const VIEW_MODE_KEY = 'meeting.viewMode';
+
 function Meeting() {
   const [openShareScreenDialog, setOpenShareScreenDialog] = useState(false);
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
@@ -77,6 +90,8 @@ function Meeting() {
     myRole,
     announceScreenShare,
     remoteSharingUid,
+    activeSpeakerUid,
+    lastSpeakerUid,
     muteMember,
     muteAllMembers,
     kickMember,
@@ -192,54 +207,73 @@ function Meeting() {
     });
   }, [waitingUsers, canManageMembers]);
 
-  const getGridClass = (totalParticipants: number) => {
-    if (totalParticipants === 1) return 'single-user';
-    if (totalParticipants <= 2) return 'two-users';
-    if (totalParticipants <= 4) return 'three-to-four-users';
-    return 'many-users';
+  // Speaker / Gallery, like mobile (default speaker). Remembered per
+  // device; storage may be unavailable, which only loses the preference.
+  const [viewMode, setViewMode] = useState<MeetingViewMode>(() => {
+    try {
+      return localStorage.getItem(VIEW_MODE_KEY) === 'gallery'
+        ? 'gallery'
+        : 'speaker';
+    } catch (_) {
+      return 'speaker';
+    }
+  });
+  const changeViewMode = (mode: MeetingViewMode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem(VIEW_MODE_KEY, mode);
+    } catch (_) {
+      // not persisted
+    }
   };
 
   const renderUsers = useMemo(() => {
-    const mockUser = {
-      agUid: 1,
-      enableAudio: 1,
-      enableVideo: 1,
-      avatarUrl: 'https://via.placeholder.com/150',
-      fullName: 'Vision20User',
-    };
-
-    const mockUsers = Array.from({ length: 8 }, () => mockUser);
-
-    // Filter meetingUsers to only include those present in remoteUsers
-    const activeUsers = meetingUsers.filter(
+    const selfUid = meetingDetail?.user?.agUid;
+    const self = meetingUsers.find((user) => user.agUid === selfUid);
+    // Others actually in the RTC channel.
+    const others = meetingUsers.filter(
       (user) =>
-        // Include local user or users present in remoteUsers
-        user.agUid === meetingDetail?.user?.agUid ||
+        user.agUid !== selfUid &&
         remoteUsers.some((remoteUser) => remoteUser === user.agUid),
     );
+    const renderTile = (user: MeetingUserType) => {
+      const isLocal = user.agUid === selfUid;
+      return (
+        <VideoView
+          key={user.agUid}
+          uid={user.agUid ?? 0}
+          isLocal={isLocal}
+          debug={false}
+          enableAudio={user.enableAudio === 1}
+          enableVideo={user.enableVideo === 1 || (isSharing && isLocal)}
+          isSharing={isSharing && isLocal}
+          avatar={user.avatarUrl ?? ''}
+          label={user.fullName ?? 'Vision20User'}
+          reaction={user.reaction}
+          className="video-item"
+        />
+      );
+    };
     return (
-      <div className={`meeting-grid ${getGridClass(activeUsers.length)}`}>
-        {activeUsers.map((user) => (
-          <VideoView
-            key={user.agUid}
-            uid={user.agUid ?? 0}
-            isLocal={user.agUid === meetingDetail?.user?.agUid}
-            debug={false}
-            enableAudio={user.enableAudio === 1}
-            enableVideo={
-              user.enableVideo === 1 ||
-              (isSharing && user.agUid === meetingDetail?.user?.agUid)
-            }
-            isSharing={isSharing && user.agUid === meetingDetail?.user?.agUid}
-            avatar={user.avatarUrl ?? ''}
-            label={user.fullName ?? 'Vision20User'}
-            reaction={user.reaction}
-            className="video-item"
-          />
-        ))}
-      </div>
+      <MeetingStage
+        view={viewMode}
+        others={others}
+        self={self}
+        heroUid={remoteSharingUid ?? lastSpeakerUid}
+        activeSpeakerUid={activeSpeakerUid}
+        renderTile={renderTile}
+      />
     );
-  }, [meetingDetail?.user?.agUid, meetingUsers, remoteUsers, isSharing]);
+  }, [
+    meetingDetail?.user?.agUid,
+    meetingUsers,
+    remoteUsers,
+    isSharing,
+    viewMode,
+    remoteSharingUid,
+    lastSpeakerUid,
+    activeSpeakerUid,
+  ]);
 
   const myUid = meetingDetail?.user?.agUid;
 
@@ -450,36 +484,46 @@ function Meeting() {
 
   const recorder = useMeetingRecorder(meetingDetail?.room?.title);
 
+  const stopShare = () => {
+    AgoraEngineService.stopScreenCapture();
+    stopSharingScreen();
+    setIsSharing(false);
+    announceScreenShare(false);
+  };
+
   // Permission taken away mid-meeting: stop sharing / recording (the hook
   // already tells the user what changed).
   useEffect(() => {
-    if (!permissions.share && isSharing) {
-      AgoraEngineService.stopScreenCapture();
-      stopSharingScreen();
-      setIsSharing(false);
-      announceScreenShare(false);
-    }
+    if (!permissions.share && isSharing) stopShare();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissions.share]);
+
+  // While sharing, the app minimises behind a floating "Dừng chia sẻ" bar
+  // (main process, shareOverlay.ts) — like Google Meet.
+  useEffect(() => {
+    ipcRenderer.send(isSharing ? 'share-overlay:show' : 'share-overlay:hide');
+  }, [isSharing]);
+  useEffect(() => () => ipcRenderer.send('share-overlay:hide'), []);
+  const stopShareRef = useRef(stopShare);
+  stopShareRef.current = stopShare;
+  useEffect(() => {
+    const onStop = () => stopShareRef.current();
+    ipcRenderer.on('share-overlay:stop', onStop);
+    return () => {
+      ipcRenderer.removeListener('share-overlay:stop', onStop);
+    };
+  }, []);
+  // "Tự động ghi âm khi cuộc họp bắt đầu", chosen when the meeting was set up.
+  useEffect(() => {
+    if (isConnected && isHost && takeAutoRecord(Number(meetingId))) {
+      recorder.start();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, isHost, meetingId]);
   useEffect(() => {
     if (!permissions.record && recorder.isRecording) recorder.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permissions.record]);
-  const [clockNow, setClockNow] = useState(Date.now());
-  useEffect(() => {
-    if (!recorder.isRecording) return undefined;
-    const timer = setInterval(() => setClockNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, [recorder.isRecording]);
-  const recordingClock = (() => {
-    const s = Math.max(
-      0,
-      Math.floor((clockNow - (recorder.startedAt ?? clockNow)) / 1000),
-    );
-    return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(
-      s % 60,
-    ).padStart(2, '0')}`;
-  })();
 
   return (
     <div className="root">
@@ -505,14 +549,30 @@ function Meeting() {
             )}
             {recorder.isRecording && (
               <span className="meeting-rec-badge" title="Đang ghi cuộc họp">
-                ● REC {recordingClock}
+                ● REC <RecordingClock startedAt={recorder.startedAt} />
               </span>
             )}
             <p>{meetingDetail?.room?.title}</p>
             <CaretDownOutlined style={{ color: 'white' }} />
           </div>
           <div className="meeting-header-controls">
-            <MenuItem icon="viewLayout" name="View layout" onClick={() => {}} />
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
+              menu={{
+                selectable: true,
+                selectedKeys: [viewMode],
+                items: [
+                  { key: 'speaker', label: 'Speaker View' },
+                  { key: 'gallery', label: 'Gallery View' },
+                ],
+                onClick: ({ key }) => changeViewMode(key as MeetingViewMode),
+              }}
+            >
+              <span>
+                <MenuItem icon="viewLayout" name="Bố cục" />
+              </span>
+            </Dropdown>
             <MenuItem
               icon="fullScreen"
               name="Full screen"
@@ -563,13 +623,7 @@ function Meeting() {
           </div>
         </div>
         <div className="meeting-footer">
-          <div
-            style={{
-              alignItems: 'flex-start',
-              justifyContent: 'center',
-              display: 'flex',
-            }}
-          >
+          <div className="meeting-footer-group">
             <MenuItem
               icon={enableCamera ? 'cameraOn' : 'cameraOff'}
               name="Camera"
@@ -583,14 +637,7 @@ function Meeting() {
               locked={!enableMic && !permissions.mic}
             />
           </div>
-          <div
-            style={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              display: 'flex',
-            }}
-          >
+          <div className="meeting-footer-group center">
             {/* Local recording: host/co-host, or members if the room allows. */}
             <MenuItem
               icon="record"
@@ -622,10 +669,7 @@ function Meeting() {
                   return;
                 }
                 if (isSharing) {
-                  AgoraEngineService.stopScreenCapture();
-                  stopSharingScreen();
-                  setIsSharing(false);
-                  announceScreenShare(false);
+                  stopShare();
                 } else {
                   if (!(await ensureScreenCaptureAccess())) return;
                   const res = AgoraEngineService.getScreenCaptureSources(
@@ -683,20 +727,28 @@ function Meeting() {
               onClick={toggleShowMeetingUser}
             />
             <MenuItem icon="chat" name="Chat" onClick={toggleShowChat} />
-            <MenuItem icon="setting" name="Cài đặt" onClick={() => {}} />
-            <MenuItem
-              icon="setting"
-              name="Phong nền"
-              onClick={() => {
-                setOpenVirtualBackgroundDialog(true);
+            <Dropdown
+              trigger={['click']}
+              placement="top"
+              menu={{
+                items: [{ key: 'virtualBackground', label: 'Phông nền' }],
+                onClick: ({ key }) => {
+                  if (key === 'virtualBackground') {
+                    setOpenVirtualBackgroundDialog(true);
+                  }
+                },
               }}
-            />
+            >
+              <span className="meeting-footer-dropdown">
+                <MenuItem icon="meetingSetting" name="Cài đặt" />
+              </span>
+            </Dropdown>
           </div>
           <Button
             variant="primary"
             title="Kết thúc"
+            className="meeting-footer-end"
             onClick={() => (isHost ? setOpenLeaveDialog(true) : leaveMeeting())}
-            style={{ marginLeft: 'auto', width: '120px' }}
           />
         </div>
         <Modal
