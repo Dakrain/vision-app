@@ -1,5 +1,6 @@
 import { Call, CallEventName } from '@/renderer/shared/types/call';
 import { camelizeKeys } from 'humps';
+import { appDeviceId } from '../../utils/deviceId';
 import { API_BASE_URL } from '../../config';
 
 export interface CallEventsHandlers {
@@ -89,6 +90,7 @@ export class CallEvents {
       const res = await fetch(`${API_BASE_URL}/call/events`, {
         headers: {
           appplatform: appPlatform(),
+          appdeviceid: appDeviceId(),
           Authorization: `Bearer ${this.token}`,
           Accept: 'text/event-stream',
         },

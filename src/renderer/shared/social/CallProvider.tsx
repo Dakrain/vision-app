@@ -639,11 +639,9 @@ export function CallProvider({ children }: { children: ReactNode }) {
       await ensureJoined(res.call, res.media);
     } catch (e) {
       const err = parseCallError(e);
-      if (err.call?.status === 'accepted') {
-        // A retried accept of ours that already won: fetch our media.
-        toConnected(err.call);
-        await ensureJoined(err.call);
-      } else if (err.call) {
+      // With appdeviceid sent, our own retried accept gets a 200; a 409
+      // "accepted" means another of my devices answered first.
+      if (err.call) {
         acceptingRef.current = false;
         apply(err.call);
       } else {

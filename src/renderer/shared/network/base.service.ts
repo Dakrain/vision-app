@@ -5,6 +5,7 @@ import axios, {
 } from 'axios';
 import axiosRetry from 'axios-retry';
 import { camelizeKeys, decamelizeKeys } from 'humps';
+import { appDeviceId } from '../utils/deviceId';
 
 class BaseService {
   private instance: AxiosInstance;
@@ -15,6 +16,7 @@ class BaseService {
       headers: {
         // The API accepts iOS | Android | Windows | MacOs.
         appplatform: navigator.userAgent.includes('Mac') ? 'MacOs' : 'Windows',
+        appdeviceid: appDeviceId(),
       },
     });
 
