@@ -202,7 +202,11 @@
     font-size: 14px;
     line-height: 20px;
     font-weight: 500;
-    color: #808080;
+
+    // Set on the span itself: the global `* { color }` would win otherwise.
+    span {
+      color: #808080;
+    }
   }
 
   &-control {

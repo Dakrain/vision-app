@@ -49,6 +49,17 @@ const fromUser = (u: User): Form => {
   };
 };
 
+/** Accent-insensitive search for the country / city pickers ("viet"). */
+const fold = (text: string) =>
+  text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase();
+const searchLabel = (input: string, option?: { label?: unknown }) =>
+  fold(String(option?.label ?? '')).includes(fold(input));
+
 function Field({
   label,
   children,
@@ -169,7 +180,13 @@ export function PersonalInfo({ user }: Props) {
     const hide = toast.loading('Đang tải ảnh lên…');
     try {
       const media = await uploadMedia(file);
-      await putProfile({ avatar: media.id });
+      const saved = await putProfile({ avatar: media.id });
+      // A server without avatar support ignores the field: say so instead
+      // of claiming success.
+      if (Number(saved?.avatar) !== media.id) {
+        toast.error('Máy chủ chưa hỗ trợ đổi ảnh đại diện');
+        return;
+      }
       toast.success('Đã đổi ảnh đại diện');
       reload();
     } catch (_) {
@@ -255,7 +272,7 @@ export function PersonalInfo({ user }: Props) {
             <Select
               variant="borderless"
               showSearch
-              optionFilterProp="label"
+              filterOption={searchLabel}
               placeholder="Chọn quốc gia"
               value={form.countryId || undefined}
               onChange={(v: number) => {
@@ -277,7 +294,7 @@ export function PersonalInfo({ user }: Props) {
             <Select
               variant="borderless"
               showSearch
-              optionFilterProp="label"
+              filterOption={searchLabel}
               placeholder="Chọn thành phố"
               disabled={!cities.length}
               value={form.prefectureId || undefined}
