@@ -33,6 +33,7 @@ import {
   isTerminalCall,
 } from '../types/call';
 import { CallOutcome, directId, sendMessage } from '../services/Firebase/chat';
+import { osNotify } from '../utils/osNotify';
 import { useSocial } from './SocialProvider';
 
 export type { CallType } from '../types/call';
@@ -43,7 +44,17 @@ export interface CallPeer {
   avatar?: string;
 }
 
-type Phase = 'idle' | 'placing' | 'outgoing' | 'incoming' | 'connected';
+type Phase =
+  | 'idle'
+  | 'placing'
+  | 'outgoing'
+  | 'incoming'
+  | 'connected'
+  /** My outgoing call wasn't answered: "Gọi lại" / "Huỷ". */
+  | 'ended';
+
+/** Free for a new call (an 'ended' screen is just waiting to be closed). */
+const isFree = (phase: Phase) => phase === 'idle' || phase === 'ended';
 
 /** What the overlay reads about the call (`callType` kept for the UI). */
 export type CallInfo = Call & { callType: CallType };
@@ -62,6 +73,8 @@ interface CallUiState {
   reconnecting: boolean;
   /** The other side's connection dropped. */
   peerLost: boolean;
+  /** Why the 'ended' screen is up ("Người nhận từ chối cuộc gọi"…). */
+  endMessage?: string;
 }
 
 interface CallApi extends CallUiState {
@@ -71,6 +84,8 @@ interface CallApi extends CallUiState {
   hangUp: () => Promise<void>;
   toggleMic: () => void;
   toggleCamera: () => void;
+  /** Closes the 'ended' screen. */
+  dismiss: () => void;
 }
 
 const IDLE: CallUiState = {
@@ -90,6 +105,7 @@ const CallContext = createContext<CallApi>({
   hangUp: async () => {},
   toggleMic: () => {},
   toggleCamera: () => {},
+  dismiss: () => {},
 });
 
 export const useCall = () => useContext(CallContext);
@@ -99,10 +115,10 @@ const endText = (call: Call, isCaller: boolean) => {
     case 'rejected':
       return call.endReason === 'busy'
         ? 'Người nhận đang bận'
-        : 'Người được gọi đã từ chối';
+        : 'Người nhận từ chối cuộc gọi';
     case 'missed':
       // The callee gets the "Cuộc gọi nhỡ" notification from call:missed.
-      return isCaller ? 'Không có ai bắt máy' : undefined;
+      return isCaller ? 'Không thể nhận cuộc gọi' : undefined;
     case 'cancelled':
       return isCaller ? undefined : 'Cuộc gọi đã huỷ';
     default:
@@ -117,7 +133,7 @@ type EndKind = 'end' | 'cancel' | 'reject';
 const sendEndIntent = (id: string, kind: EndKind, reason?: string) => {
   if (kind === 'cancel') return CallService.cancel(id);
   if (kind === 'reject') return CallService.reject(id, reason);
-  return CallService.end(id);
+  return CallService.end(id, reason);
 };
 
 /**
@@ -139,6 +155,16 @@ export function CallProvider({ children }: { children: ReactNode }) {
   const [ui, setUi] = useState<CallUiState>(IDLE);
   const uiRef = useRef(ui);
   uiRef.current = ui;
+
+  /** System notification of the call ringing now (closed once answered). */
+  const incomingNoticeRef = useRef<Notification>();
+  // Answered, declined or gone: drop the "đang gọi" system notification.
+  useEffect(() => {
+    if (ui.phase !== 'incoming') {
+      incomingNoticeRef.current?.close();
+      incomingNoticeRef.current = undefined;
+    }
+  }, [ui.phase]);
   const inMeetingRef = useRef(false);
   inMeetingRef.current = location.pathname.startsWith('/meeting');
 
@@ -217,15 +243,33 @@ export function CallProvider({ children }: { children: ReactNode }) {
       if (finishedRef.current.has(call.id)) return;
       finishedRef.current.add(call.id);
       if (uiRef.current.call?.id !== call.id) return;
-      const { isCaller } = uiRef.current;
+      const { isCaller, phase, peer } = uiRef.current;
       clearTimeout(peerLostTimerRef.current);
       acceptingRef.current = false;
       leaveAgora();
-      setUi(IDLE);
       const selfEnded = selfEndedRef.current === call.id;
       const text =
         message === undefined && !selfEnded ? endText(call, isCaller) : message;
-      if (text) notification.info({ message: text, placement: 'top' });
+      // Not answered (declined, busy, nobody picked up): offer "Gọi lại",
+      // like mobile.
+      const unanswered =
+        isCaller &&
+        !selfEnded &&
+        phase === 'outgoing' &&
+        (call.status === 'rejected' || call.status === 'missed');
+      if (unanswered && text) {
+        setUi({
+          ...IDLE,
+          phase: 'ended',
+          call: withType(call),
+          peer,
+          isCaller: true,
+          endMessage: text,
+        });
+      } else {
+        setUi(IDLE);
+        if (text) notification.info({ message: text, placement: 'top' });
+      }
       if (isCaller) logToChat(call);
     },
     [leaveAgora, logToChat],
@@ -309,7 +353,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
                 message: 'Mất kết nối với người kia',
                 placement: 'top',
               });
-              sendEnd('end');
+              sendEnd('end', 'peer_lost');
             },
             reason === UserOfflineReasonType.UserOfflineQuit ? 5000 : 20000,
           );
@@ -321,7 +365,10 @@ export function CallProvider({ children }: { children: ReactNode }) {
             setUi((s) => ({ ...s, reconnecting: false }));
           } else if (state === ConnectionStateType.ConnectionStateFailed) {
             notification.info({ message: 'Mất kết nối', placement: 'top' });
-            sendEnd(uiRef.current.phase === 'outgoing' ? 'cancel' : 'end');
+            sendEnd(
+              uiRef.current.phase === 'outgoing' ? 'cancel' : 'end',
+              'connection_lost',
+            );
           }
         },
         onTokenPrivilegeWillExpire: () => renewToken(call.id),
@@ -372,14 +419,16 @@ export function CallProvider({ children }: { children: ReactNode }) {
     if (missedShownRef.current.has(call.id)) return;
     missedShownRef.current.add(call.id);
     const name = call.caller.fullName || 'Một người';
+    const description = `${name} đã gọi cho bạn${
+      call.endReason === 'busy' ? ' lúc bạn đang bận' : ''
+    }`;
     notification.info({
       message: 'Cuộc gọi nhỡ',
-      description: `${name} đã gọi cho bạn${
-        call.endReason === 'busy' ? ' lúc bạn đang bận' : ''
-      }`,
+      description,
       placement: 'topRight',
       duration: 8,
     });
+    osNotify('Cuộc gọi nhỡ', description);
   }, []);
 
   const toConnected = useCallback(
@@ -414,13 +463,19 @@ export function CallProvider({ children }: { children: ReactNode }) {
 
       if (!isMine) {
         if (call.status === 'ringing' && !isCaller) {
-          if (cur.phase !== 'idle' || inMeetingRef.current) {
+          if (!isFree(cur.phase) || inMeetingRef.current) {
             // Busy (another call, or a meeting): decline without ringing.
             finishedRef.current.add(call.id);
             CallService.reject(call.id, 'busy').catch(() => {});
             showMissed({ ...call, endReason: 'busy' });
             return;
           }
+          incomingNoticeRef.current?.close();
+          incomingNoticeRef.current = osNotify(
+            call.type === 'video' ? 'Cuộc gọi video đến' : 'Cuộc gọi thoại đến',
+            `${call.caller.fullName || 'Một người'} đang gọi cho bạn`,
+            { attention: true },
+          );
           setUi({
             ...IDLE,
             phase: 'incoming',
@@ -436,7 +491,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
           return;
         }
         // My own placement: the POST answer will follow.
-        if (cur.phase !== 'idle') return;
+        if (!isFree(cur.phase)) return;
         // Restoring a live call of mine (app start, stream reconnect).
         const other = isCaller ? call.callee : call.caller;
         const base: CallUiState = {
@@ -538,7 +593,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
       // Logged out mid-call: hang up with the token we still have.
       const { call, phase, isCaller } = uiRef.current;
       const loggedOut = localStorage.getItem('token') !== token;
-      if (loggedOut && call && phase !== 'idle') {
+      if (loggedOut && call && !isFree(phase)) {
         let intent = 'end';
         if (phase === 'incoming') intent = 'reject';
         else if (phase === 'outgoing' && isCaller) intent = 'cancel';
@@ -564,7 +619,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
   const startCall = useCallback(
     async (peer: CallPeer, type: CallType) => {
       if (!myId) return;
-      if (uiRef.current.phase !== 'idle') return;
+      if (!isFree(uiRef.current.phase)) return;
       if (inMeetingRef.current) {
         notification.warning({ message: 'Hãy rời cuộc họp trước khi gọi' });
         return;
@@ -679,6 +734,10 @@ export function CallProvider({ children }: { children: ReactNode }) {
     setUi((s) => ({ ...s, cameraOn: next }));
   }, []);
 
+  const dismiss = useCallback(() => {
+    if (uiRef.current.phase === 'ended') setUi(IDLE);
+  }, []);
+
   const value = useMemo(
     () => ({
       ...ui,
@@ -688,8 +747,9 @@ export function CallProvider({ children }: { children: ReactNode }) {
       hangUp,
       toggleMic,
       toggleCamera,
+      dismiss,
     }),
-    [ui, startCall, accept, decline, hangUp, toggleMic, toggleCamera],
+    [ui, startCall, accept, decline, hangUp, toggleMic, toggleCamera, dismiss],
   );
 
   // Test hook for driving calls over the DevTools protocol (dev builds only).

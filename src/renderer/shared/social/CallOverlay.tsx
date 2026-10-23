@@ -64,6 +64,9 @@ export function CallOverlay() {
     case 'incoming':
       status = isVideo ? 'Cuộc gọi video đến' : 'Cuộc gọi thoại đến';
       break;
+    case 'ended':
+      status = call.endMessage ?? '';
+      break;
     default:
       status = call.acceptedAt ? fmt(now - call.acceptedAt) : '';
   }
@@ -115,52 +118,74 @@ export function CallOverlay() {
       )}
 
       <div className="call-overlay-controls">
-        {call.phase === 'incoming' ? (
+        {call.phase === 'ended' && (
           <>
             <button
               type="button"
-              className="call-btn decline"
-              onClick={call.decline}
+              className="call-btn toggle"
+              onClick={call.dismiss}
             >
-              Từ chối
+              Huỷ
             </button>
             <button
               type="button"
               className="call-btn accept"
-              onClick={call.accept}
+              onClick={() =>
+                call.peer &&
+                call.startCall(call.peer, isVideo ? 'video' : 'audio')
+              }
             >
-              Trả lời
-            </button>
-          </>
-        ) : (
-          <>
-            {call.phase === 'connected' && (
-              <button
-                type="button"
-                className={`call-btn toggle ${call.micOn ? '' : 'off'}`}
-                onClick={call.toggleMic}
-              >
-                {call.micOn ? 'Tắt mic' : 'Bật mic'}
-              </button>
-            )}
-            {call.phase === 'connected' && isVideo && (
-              <button
-                type="button"
-                className={`call-btn toggle ${call.cameraOn ? '' : 'off'}`}
-                onClick={call.toggleCamera}
-              >
-                {call.cameraOn ? 'Tắt camera' : 'Bật camera'}
-              </button>
-            )}
-            <button
-              type="button"
-              className="call-btn decline"
-              onClick={call.hangUp}
-            >
-              {call.phase === 'connected' ? 'Kết thúc' : 'Huỷ'}
+              Gọi lại
             </button>
           </>
         )}
+        {call.phase !== 'ended' &&
+          (call.phase === 'incoming' ? (
+            <>
+              <button
+                type="button"
+                className="call-btn decline"
+                onClick={call.decline}
+              >
+                Từ chối
+              </button>
+              <button
+                type="button"
+                className="call-btn accept"
+                onClick={call.accept}
+              >
+                Trả lời
+              </button>
+            </>
+          ) : (
+            <>
+              {call.phase === 'connected' && (
+                <button
+                  type="button"
+                  className={`call-btn toggle ${call.micOn ? '' : 'off'}`}
+                  onClick={call.toggleMic}
+                >
+                  {call.micOn ? 'Tắt mic' : 'Bật mic'}
+                </button>
+              )}
+              {call.phase === 'connected' && isVideo && (
+                <button
+                  type="button"
+                  className={`call-btn toggle ${call.cameraOn ? '' : 'off'}`}
+                  onClick={call.toggleCamera}
+                >
+                  {call.cameraOn ? 'Tắt camera' : 'Bật camera'}
+                </button>
+              )}
+              <button
+                type="button"
+                className="call-btn decline"
+                onClick={call.hangUp}
+              >
+                {call.phase === 'connected' ? 'Kết thúc' : 'Huỷ'}
+              </button>
+            </>
+          ))}
       </div>
     </div>
   );

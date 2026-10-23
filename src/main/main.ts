@@ -106,6 +106,20 @@ ipcMain.on('ipc-example', async (event, arg) => {
 
 registerShareOverlay(() => mainWindow);
 
+// Clicked a system notification (incoming / missed call): bring the app up.
+ipcMain.on('app:focus', () => {
+  if (!mainWindow) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+});
+
+// Incoming call while the app is in the background.
+ipcMain.on('app:attention', () => {
+  if (process.platform === 'darwin') app.dock?.bounce('critical');
+  else mainWindow?.flashFrame(true);
+});
+
 ipcMain.on('resize-window', (_event, { width, height }) => {
   const win = BrowserWindow.getFocusedWindow();
   if (win) {

@@ -49,9 +49,12 @@ class CallService extends BaseService {
     return this.post(`/call/${id}/cancel`, {});
   }
 
-  /** Either side, any live state. */
-  async end(id: string): Promise<CallWithMedia> {
-    return this.post(`/call/${id}/end`, {});
+  /**
+   * Either side, any live state. [reason] is a short code shared with
+   * mobile: 'peer_lost' (the other side dropped) or 'connection_lost'.
+   */
+  async end(id: string, reason?: string): Promise<CallWithMedia> {
+    return this.post(`/call/${id}/end`, reason ? { reason } : {});
   }
 
   /** `media` is included while accepted: rejoin or renew the Agora token. */
