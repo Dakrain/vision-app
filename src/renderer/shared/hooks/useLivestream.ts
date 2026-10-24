@@ -53,13 +53,21 @@ export const useLivestream = ({
   const [streams, setStreams] = useState<MeetingLivestream[]>([]);
   // A backend without the livestream API answers 404: stop polling it.
   const [unsupported, setUnsupported] = useState(false);
+  // Not (or no longer) an approved member of the meeting: the API answers
+  // 400 e_meeting_not_found to every poll. Wait for the next RTM signal.
+  const [notMember, setNotMember] = useState(false);
+  useEffect(() => setNotMember(false), [signal]);
 
   const refresh = useCallback(async () => {
-    if (!meetingId || unsupported) return;
+    if (!meetingId || unsupported || notMember) return;
     try {
       const res = await LivestreamService.fetchStatus(meetingId);
       setStreams(res.rows ?? []);
     } catch (error) {
+      if (livestreamErrorCode(error) === 'e_meeting_not_found') {
+        setNotMember(true);
+        return;
+      }
       try {
         const parsed = JSON.parse(String(error));
         if (parsed?.response?.status === 404) setUnsupported(true);
@@ -67,7 +75,7 @@ export const useLivestream = ({
         // Keep the last known state; the next poll will retry.
       }
     }
-  }, [meetingId, unsupported]);
+  }, [meetingId, unsupported, notMember]);
 
   // Poll + refresh immediately on RTM signals.
   useEffect(() => {

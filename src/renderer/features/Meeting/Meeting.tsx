@@ -128,7 +128,8 @@ function Meeting() {
   });
   useRemoteVideoSubscriptions(remoteUsers, visibleStreams);
   const livestream = useLivestream({
-    meetingId: Number(meetingId) || undefined,
+    // Only once in the room: before that the API has no member to answer for.
+    meetingId: isConnected ? Number(meetingId) || undefined : undefined,
     canManage: canManageLivestream,
     signal: livestreamSignal,
     announce: sendLivestreamState,
