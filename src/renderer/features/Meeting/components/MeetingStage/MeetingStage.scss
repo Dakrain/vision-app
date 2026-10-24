@@ -23,7 +23,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 28px;
+  // Top: the tile's name tag sits at the bottom.
+  top: 32px;
   margin: 0;
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
@@ -101,10 +102,12 @@
 }
 
 // My own video, floating bottom-right over the stage.
+// Top right: the main video's name tag sits bottom left and the self tile
+// used to cover it.
 .meeting-stage-self {
   position: absolute;
   right: 28px;
-  bottom: 28px;
+  top: 28px;
   width: 240px;
   aspect-ratio: 16 / 9;
   border-radius: 8px;
@@ -112,4 +115,23 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 2;
+
+  // A compact name tag for the small tile.
+  .surface-view .surface-view-info {
+    bottom: 8px;
+    left: 8px;
+    max-width: calc(100% - 16px);
+    gap: 4px;
+    padding: 4px 8px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .surface-view-info-label {
+      font-size: 12px;
+      line-height: 16px;
+    }
+  }
 }

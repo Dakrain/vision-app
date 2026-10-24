@@ -7,4 +7,6 @@ export interface MenuItemProps {
   onClick?: () => void;
   /** Not allowed right now: shown dimmed (the click still explains why). */
   locked?: boolean;
+  /** A small caret next to the icon: this opens a menu. */
+  caret?: 'up' | 'down';
 }

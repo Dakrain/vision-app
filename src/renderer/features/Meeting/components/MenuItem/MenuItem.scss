@@ -11,20 +11,33 @@
   padding: 8px;
   gap: 8px;
   border: none;
-  border: 1px solid transparent;
+  border-radius: 8px;
 
-  span {
+  &-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &-icon {
+    display: flex;
+  }
+
+  &-label {
     margin: 0;
     font-size: 12px;
+    line-height: 16px;
     color: #CCCCCC;
     font-weight: 500;
     white-space: nowrap;
   }
 
   &:hover {
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid #FF4D4F;
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 1px solid #FF3C3C;
   }
 }
 

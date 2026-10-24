@@ -1,87 +1,12 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import { Avatar, Button, Dropdown, Modal } from 'antd';
+import { Avatar, Dropdown, Modal } from 'antd';
 import type { MenuProps } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { useState } from 'react';
 import './MeetingUser.scss';
 import {
   MeetingUser as MeetingUserType,
   MeetingRole,
 } from '@/renderer/shared/types/meeting';
 import Icon from '@/assets/svg/icons';
-
-import * as React from 'react';
-import { SVGProps } from 'react';
-
-function MicIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" {...props}>
-      <path
-        stroke="#808080"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M12.2 2.25h0A3.75 3.75 0 0 1 15.95 6v6a3.75 3.75 0 0 1-3.75 3.75h0A3.75 3.75 0 0 1 8.45 12V6a3.75 3.75 0 0 1 3.75-3.75v0ZM12.2 18.75v3"
-      />
-      <path
-        stroke="#808080"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M18.909 12.75a6.75 6.75 0 0 1-13.418 0"
-      />
-    </svg>
-  );
-}
-
-function CameraIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" {...props}>
-      <path
-        stroke="#808080"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M2.65 5.625h12a3 3 0 0 1 3 3v9a.75.75 0 0 1-.75.75h-12a3 3 0 0 1-3-3v-9a.75.75 0 0 1 .75-.75v0ZM17.65 10.5l5.25-3v9l-5.25-3"
-      />
-    </svg>
-  );
-}
-
-/**
- * A member's mic / camera state. Clickable only when I may switch it off
- * ([onClick] given); otherwise a plain icon with no pointer or hover.
- */
-function StatusControl({
-  on,
-  onIcon,
-  offIcon,
-  label,
-  onClick,
-}: {
-  on: boolean;
-  onIcon: React.ReactNode;
-  offIcon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-}) {
-  const icon = on ? onIcon : offIcon;
-  if (!onClick) {
-    return (
-      <span className={`meeting-user-status ${on ? '' : 'disabled'}`}>
-        {icon}
-      </span>
-    );
-  }
-  return (
-    <Button
-      type="text"
-      icon={icon}
-      className={on ? '' : 'disabled'}
-      title={label}
-      onClick={onClick}
-    />
-  );
-}
 
 export type MemberAction =
   | 'muteAudio'
@@ -93,10 +18,10 @@ export type MemberAction =
 
 const ACTION_LABEL: Record<MemberAction, string> = {
   muteAudio: 'Tắt micro',
-  muteVideo: 'Tắt camera',
-  makeCohost: 'Trao quyền Co-host',
+  muteVideo: 'Tắt video',
+  makeCohost: 'Chuyển quyền thành Co-host',
   removeCohost: 'Thu hồi quyền Co-host',
-  kick: 'Mời ra khỏi phòng',
+  kick: 'Loại khỏi phòng',
   ban: 'Cấm tham gia cuộc họp',
 };
 
@@ -109,16 +34,31 @@ const CONFIRM: Partial<Record<MemberAction, (name: string) => string>> = {
 
 interface MeetingUserProps {
   user: MeetingUserType;
+  /** This is me: shown as "(…, tôi)". */
+  isMe?: boolean;
+  /** Talking right now: green mic. */
+  speaking?: boolean;
+  /**
+   * Added to the room but not in it: plain mic + camera icons instead of
+   * the live mic state and menu.
+   */
+  away?: boolean;
   /** Actions the current user may perform on `user` (empty = no menu). */
   actions?: MemberAction[];
   onAction?: (user: MeetingUserType, action: MemberAction) => void;
 }
 
+/** One row of the participants panel. */
 export function MeetingUser({
   user,
+  isMe = false,
+  speaking = false,
+  away = false,
   actions = [],
   onAction,
 }: MeetingUserProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const run = (action: MemberAction) => {
     const confirm = CONFIRM[action];
     if (!confirm) {
@@ -135,50 +75,64 @@ export function MeetingUser({
     });
   };
 
-  const items: MenuProps['items'] = actions.map((action) => ({
-    key: action,
-    label: ACTION_LABEL[action],
-    danger: action === 'kick' || action === 'ban',
-  }));
+  // Muting is on the mic icon itself; the menu has the rest.
+  const menuActions = actions.filter((action) => action !== 'muteAudio');
+  const items: MenuProps['items'] = menuActions.flatMap((action, i) => [
+    ...(i > 0 ? [{ type: 'divider' as const, key: `d-${action}` }] : []),
+    {
+      key: action,
+      label: ACTION_LABEL[action],
+      danger: action === 'kick' || action === 'ban',
+    },
+  ]);
+
+  const roles = [
+    user.role === MeetingRole.HOST && 'Người chủ trì',
+    user.role === MeetingRole.CO_HOST && 'Co-host',
+    isMe && 'tôi',
+  ].filter(Boolean);
+
+  let micIcon = 'memberMicOff';
+  if (away) micIcon = 'memberMic';
+  else if (user.enableAudio)
+    micIcon = speaking ? 'memberMicSpeaking' : 'memberMic';
+  // Muting someone is offered on the mic itself when allowed.
+  const canMute = !away && !!user.enableAudio && actions.includes('muteAudio');
 
   return (
-    <div className="meeting-user">
+    <div
+      className={`meeting-user${away ? ' away' : ''}${menuOpen ? ' active' : ''}`}
+    >
       <div className="meeting-user-info">
-        <Avatar src={user.avatarUrl} size={36}>
+        <Avatar src={user.avatarUrl || undefined} size={24}>
           {user.fullName?.[0]}
         </Avatar>
-        <div className="meeting-user-name">
-          <div className="name">
-            {user.fullName}
-            {user.role === MeetingRole.HOST && (
-              <span className="role">(Người chủ trì)</span>
-            )}
-            {user.role === MeetingRole.CO_HOST && (
-              <span className="role">(Co-host)</span>
-            )}
-          </div>
-        </div>
+        <span className="meeting-user-name">
+          {user.fullName}
+          {roles.length > 0 && ` (${roles.join(', ')})`}
+        </span>
       </div>
       <div className="meeting-user-controls">
-        <StatusControl
-          on={!!user.enableAudio}
-          offIcon={<Icon name="micOff" />}
-          onIcon={<MicIcon width={24} height={24} />}
-          label="Tắt micro"
-          onClick={
-            actions.includes('muteAudio') ? () => run('muteAudio') : undefined
-          }
-        />
-        <StatusControl
-          on={!!user.enableVideo}
-          offIcon={<Icon name="cameraOff" />}
-          onIcon={<CameraIcon width={24} height={24} />}
-          label="Tắt camera"
-          onClick={
-            actions.includes('muteVideo') ? () => run('muteVideo') : undefined
-          }
-        />
-        {items.length > 0 && (
+        {canMute ? (
+          <button
+            type="button"
+            className="meeting-user-icon clickable"
+            title="Tắt micro"
+            onClick={() => run('muteAudio')}
+          >
+            <Icon name={micIcon} />
+          </button>
+        ) : (
+          <span className="meeting-user-icon">
+            <Icon name={micIcon} />
+          </span>
+        )}
+        {away && (
+          <span className="meeting-user-icon">
+            <Icon name="memberVideo" />
+          </span>
+        )}
+        {!away && items.length > 0 && (
           <Dropdown
             menu={{
               items,
@@ -186,8 +140,16 @@ export function MeetingUser({
             }}
             trigger={['click']}
             placement="bottomRight"
+            overlayClassName="meeting-user-menu"
+            onOpenChange={setMenuOpen}
           >
-            <Button type="text" icon={<MoreOutlined />} />
+            <button
+              type="button"
+              className="meeting-user-icon clickable"
+              title="Tuỳ chọn"
+            >
+              <Icon name="memberDots" />
+            </button>
           </Dropdown>
         )}
       </div>

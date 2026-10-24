@@ -279,10 +279,17 @@ function MeetingLobby() {
     <div className="lobby">
       <div className="lobby-preview">
         <div className="lobby-preview-video">
+          {/* Separate keys: Agora puts its mirror transform straight on the
+              surface element, which React would otherwise reuse for the
+              placeholder (mirrored "Camera đang tắt"). */}
           {enableCamera ? (
-            <div ref={previewRef} className="lobby-preview-surface" />
+            <div
+              key="surface"
+              ref={previewRef}
+              className="lobby-preview-surface"
+            />
           ) : (
-            <div className="lobby-preview-off">
+            <div key="off" className="lobby-preview-off">
               <Avatar
                 url={user?.avatarUrl ?? ''}
                 radius={48}

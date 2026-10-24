@@ -8,6 +8,7 @@ export const MenuItem = memo(function MenuItem({
   name,
   onClick,
   locked = false,
+  caret,
 }: MenuItemProps) {
   return (
     <button
@@ -17,8 +18,15 @@ export const MenuItem = memo(function MenuItem({
       aria-disabled={locked}
       title={name}
     >
-      {typeof icon === 'string' ? <Icon name={icon} /> : icon}
-      <span>{name}</span>
+      <span className="menu-item-icon-row">
+        <span className="menu-item-icon">
+          {typeof icon === 'string' ? <Icon name={icon} /> : icon}
+        </span>
+        {caret && (
+          <Icon name={caret === 'up' ? 'meetingCaretUp' : 'meetingCaretDown'} />
+        )}
+      </span>
+      <span className="menu-item-label">{name}</span>
     </button>
   );
 });

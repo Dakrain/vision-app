@@ -35,6 +35,18 @@ import { ReactComponent as MeetingScheduleIcon } from './ic_meeting_schedule.svg
 import { ReactComponent as MeetingCaretRightIcon } from './ic_meeting_caret_right.svg';
 import { ReactComponent as MeetingFolderIcon } from './ic_meeting_folder.svg';
 import { ReactComponent as MeetingCloseIcon } from './ic_meeting_close.svg';
+import { ReactComponent as MeetingUserPlusIcon } from './ic_meeting_user_plus.svg';
+import { ReactComponent as MeetingLinkIcon } from './ic_meeting_link.svg';
+import { ReactComponent as MemberMicIcon } from './ic_member_mic.svg';
+import { ReactComponent as MemberMicSpeakingIcon } from './ic_member_mic_speaking.svg';
+import { ReactComponent as MemberMicOffIcon } from './ic_member_mic_off.svg';
+import { ReactComponent as MemberVideoIcon } from './ic_member_video.svg';
+import { ReactComponent as MemberDotsIcon } from './ic_member_dots.svg';
+import { ReactComponent as MeetingCaretUpIcon } from './ic_meeting_caret_up.svg';
+import { ReactComponent as MeetingCaretDownIcon } from './ic_meeting_caret_down.svg';
+import { ReactComponent as MeetingTitleCaretIcon } from './ic_meeting_title_caret.svg';
+import { ReactComponent as TileMicIcon } from './ic_tile_mic.svg';
+import { ReactComponent as TileMicOffIcon } from './ic_tile_mic_off.svg';
 import { ReactComponent as SettingProfileIcon } from './ic_setting_profile.svg';
 import { ReactComponent as SettingSdcardIcon } from './ic_setting_sdcard.svg';
 import { ReactComponent as SettingNoteIcon } from './ic_setting_note.svg';
@@ -195,6 +207,30 @@ export default function Icon({
       return <ThankEmojiIcon {...svgProps} />;
     case 'send':
       return <SendIcon {...svgProps} />;
+    case 'meetingUserPlus':
+      return <MeetingUserPlusIcon {...svgProps} />;
+    case 'meetingLink':
+      return <MeetingLinkIcon {...svgProps} />;
+    case 'memberMic':
+      return <MemberMicIcon {...svgProps} />;
+    case 'memberMicSpeaking':
+      return <MemberMicSpeakingIcon {...svgProps} />;
+    case 'memberMicOff':
+      return <MemberMicOffIcon {...svgProps} />;
+    case 'memberVideo':
+      return <MemberVideoIcon {...svgProps} />;
+    case 'memberDots':
+      return <MemberDotsIcon {...svgProps} />;
+    case 'meetingCaretUp':
+      return <MeetingCaretUpIcon {...svgProps} />;
+    case 'meetingCaretDown':
+      return <MeetingCaretDownIcon {...svgProps} />;
+    case 'meetingTitleCaret':
+      return <MeetingTitleCaretIcon {...svgProps} />;
+    case 'tileMic':
+      return <TileMicIcon {...svgProps} />;
+    case 'tileMicOff':
+      return <TileMicOffIcon {...svgProps} />;
     default:
       return null;
   }

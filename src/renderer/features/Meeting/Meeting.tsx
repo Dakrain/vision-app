@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import Icon from '@/assets/svg/icons';
 import AgoraEngineService from '@/renderer/shared/services/Agora/AgoraEngineService';
 import type { MeetingUser as MeetingUserType } from '@/renderer/shared/types/meeting';
 import { MeetingRole, MemberStatus } from '@/renderer/shared/types/meeting';
 import { Button } from '@/shared/components/Button';
 import { useMeeting } from '@/shared/hooks/index';
-import { CaretDownOutlined } from '@ant-design/icons';
 import {
   Button as AntButton,
   Dropdown,
@@ -393,42 +393,86 @@ function Meeting() {
     );
     // Everyone else who belongs to the meeting, host included when away.
     const notJoinedUsers = activeUsers.filter((user) => !isOnline(user));
-    const section = (title: string, users: MeetingUserType[]) =>
+    const section = (title: string, users: MeetingUserType[], away = false) =>
       users.length > 0 && (
         <UserSection
           title={title}
           users={users}
           onAction={onAction}
           actionsFor={actionsFor}
+          myUid={myUid}
+          speakingUid={activeSpeakerUid}
+          away={away}
         />
       );
 
+    const copyInviteLink = () => {
+      const link = meetingDetail?.room?.joinUrl;
+      if (!link) {
+        notification.warning({
+          message: 'Cuộc họp chưa có link mời',
+          placement: 'top',
+        });
+        return;
+      }
+      navigator.clipboard
+        .writeText(link)
+        .then(() =>
+          notification.success({
+            message: 'Đã sao chép link mời',
+            placement: 'top',
+          }),
+        )
+        .catch(() => {});
+    };
+
     const inRoomTab = (
-      <div>
-        {canManageMembers && (
-          <div className="meeting-users-actions">
-            <Button
-              variant="outline"
-              title="Tắt micro tất cả"
-              onClick={onMuteAll}
-            />
-            <Button
-              variant="primary"
-              title="+ Thêm người"
-              onClick={() => setOpenAddMember(true)}
-            />
-            <RoomPermissions
-              settings={roomSettings}
-              onChange={updateRoomSettings}
+      <div className="meeting-users-list">
+        <div className="meeting-users-actions">
+          <div className="meeting-users-actions-group">
+            {canManageMembers && (
+              <button
+                type="button"
+                className="meeting-users-round primary"
+                title="Thêm người"
+                onClick={() => setOpenAddMember(true)}
+              >
+                <Icon name="meetingUserPlus" />
+              </button>
+            )}
+            <button
+              type="button"
+              className="meeting-users-round"
+              title="Sao chép link mời"
+              onClick={copyInviteLink}
             >
-              <Button variant="outline" title="Quyền" />
-            </RoomPermissions>
+              <Icon name="meetingLink" />
+            </button>
           </div>
-        )}
+          {canManageMembers && (
+            <div className="meeting-users-actions-group">
+              <RoomPermissions
+                settings={roomSettings}
+                onChange={updateRoomSettings}
+              >
+                <button type="button" className="meeting-users-pill">
+                  Quyền
+                </button>
+              </RoomPermissions>
+              <button
+                type="button"
+                className="meeting-users-pill"
+                onClick={onMuteAll}
+              >
+                Mute all
+              </button>
+            </div>
+          )}
+        </div>
         {section('HOST', hosts)}
         {section('CO-HOST', cohosts)}
         {section('NGƯỜI THAM DỰ', joinedUsers)}
-        {section('ĐƯỢC THÊM VÀO PHÒNG', notJoinedUsers)}
+        {section('ĐÃ THÊM VÀO PHÒNG', notJoinedUsers, true)}
       </div>
     );
 
@@ -468,22 +512,24 @@ function Meeting() {
 
     return (
       <div className="meeting-users-container">
-        <Typography.Text className="meeting-users-container-title">
-          Người tham dự
-        </Typography.Text>
-        <Segmented
-          options={MEETING_USER_TABS.map((tab) =>
-            tab.value === 'pending' && waitingUsers.length > 0
-              ? { ...tab, label: `${tab.label} (${waitingUsers.length})` }
-              : tab,
-          )}
-          className="meeting-users-container-segmented"
-          size="large"
-          defaultValue={MEETING_USER_TABS[0].value}
-          value={activeTab}
-          onChange={setActiveTab}
-        />
-        {activeTab === MEETING_USER_TABS[0].value ? inRoomTab : pendingTab}
+        <h3 className="meeting-users-container-title">Người tham dự</h3>
+        <div className="meeting-users-container-tabs">
+          <Segmented
+            block
+            options={MEETING_USER_TABS.map((tab) => ({
+              ...tab,
+              label: `${tab.label} (${
+                tab.value === 'pending' ? waitingUsers.length : online.length
+              })`,
+            }))}
+            className="meeting-users-container-segmented"
+            value={activeTab}
+            onChange={setActiveTab}
+          />
+        </div>
+        <div className="meeting-users-container-body">
+          {activeTab === MEETING_USER_TABS[0].value ? inRoomTab : pendingTab}
+        </div>
       </div>
     );
   }, [
@@ -495,6 +541,8 @@ function Meeting() {
     myRole,
     myUid,
     meetingDetail?.room?.waitingRoom,
+    meetingDetail?.room?.joinUrl,
+    activeSpeakerUid,
     roomSettings,
     updateRoomSettings,
   ]);
@@ -570,7 +618,7 @@ function Meeting() {
               </span>
             )}
             <p>{meetingDetail?.room?.title}</p>
-            <CaretDownOutlined style={{ color: 'white' }} />
+            <Icon name="meetingTitleCaret" />
           </div>
           <div className="meeting-header-controls">
             <Dropdown
@@ -587,7 +635,7 @@ function Meeting() {
               }}
             >
               <span>
-                <MenuItem icon="viewLayout" name="Bố cục" />
+                <MenuItem icon="viewLayout" name="Bố cục" caret="down" />
               </span>
             </Dropdown>
             <MenuItem
@@ -727,6 +775,7 @@ function Meeting() {
             >
               <MenuItem
                 icon="emoji"
+                caret="up"
                 name={reaction ? 'Dừng thả cảm xúc' : 'Thả cảm xúc'}
                 onClick={() => {
                   if (reaction) {

@@ -104,21 +104,63 @@
       }
     }
 
+    // Participants panel (Figma "Meeting / Messenger / Chating").
     .meeting-users-container {
       width: 100%;
+      height: 100%;
       background-color: #F7F7F7;
       display: flex;
       flex-direction: column;
 
       &-title {
+        flex: none;
+        margin: 0;
+        height: 64px;
+        padding: 20px;
+        box-sizing: border-box;
+        background-color: #fff;
+        text-align: center;
         font-size: 16px;
         font-weight: 600;
-        padding: 20px;
-        align-self: center;
+        line-height: 24px;
+        color: #333;
       }
 
-      &-segmented {
-        align-self: center;
+      &-tabs {
+        flex: none;
+        padding: 16px;
+        background-color: #fff;
+      }
+
+      &-segmented.ant-segmented {
+        padding: 2px;
+        border-radius: 8px;
+        background-color: #E5E5E5;
+
+        .ant-segmented-item {
+          border-radius: 6px;
+          color: #808080;
+        }
+
+        .ant-segmented-item-label {
+          min-height: 28px;
+          padding: 6px 16px;
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 16px;
+          color: inherit;
+        }
+
+        .ant-segmented-item-selected {
+          color: #333;
+          box-shadow: 0 0 4px rgba(0, 0, 0, 0.05), 0 4px 2px rgba(0, 0, 0, 0.05);
+        }
+      }
+
+      &-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
       }
     }
   }
@@ -206,15 +248,61 @@
   }
 }
 
+.meeting-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 0;
+}
+
 .meeting-users-actions {
   display: flex;
-  gap: 8px;
-  margin: 8px 0 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
 
-  .custom-button {
-    padding: 8px 12px;
-    font-size: 13px;
+  &-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
+}
+
+// Round icon buttons: add member (primary) and copy invite link.
+.meeting-users-round {
+  display: flex;
+  padding: 8px;
+  border: none;
+  border-radius: 24px;
+  background-color: #fff;
+  box-shadow: 0 4px 2px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+
+  &.primary {
+    background-color: #FF3C3C;
+    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.1),
+      inset 0 4px 4px rgba(255, 255, 255, 0.25);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+// "Mute all" / "Quyền".
+.meeting-users-pill {
+  padding: 2px 12px;
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 2px rgba(0, 0, 0, 0.1);
+  color: #FF3C3C !important;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .meeting-reconnecting {
@@ -262,13 +350,39 @@
   animation: meeting-spin 0.8s linear infinite;
 }
 
-@container (max-width: 1000px) {
-  .meeting-footer .menu-item {
-    min-width: 48px;
+// Footer (Figma "Tab bars / Join meeting"): icon-only round buttons, the
+// name stays as the tooltip.
+.meeting-footer .menu-item {
+  flex: 0 1 80px;
+  min-width: 56px;
+  gap: 4px;
 
-    > span:last-child {
-      display: none;
+  &:hover {
+    background-color: transparent;
+
+    .menu-item-icon {
+      background-color: rgba(255, 255, 255, 0.2);
     }
+  }
+
+  .menu-item-icon-row {
+    gap: 8px;
+  }
+
+  .menu-item-icon {
+    padding: 8px;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.15s;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .menu-item-label {
+    display: none;
   }
 }
 

@@ -127,7 +127,7 @@ export function VideoView({
         <Avatar url={avatar} radius={32} name={label} />
       )}
       <div className="surface-view-info">
-        <Icon name={enableAudio ? 'micOn' : 'micOff'} />
+        <Icon name={enableAudio ? 'tileMic' : 'tileMicOff'} />
         <span className="surface-view-info-label">{label}</span>
       </div>
       {renderReaction}
