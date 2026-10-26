@@ -9,4 +9,6 @@ export interface MenuItemProps {
   locked?: boolean;
   /** A small caret next to the icon: this opens a menu. */
   caret?: 'up' | 'down';
+  /** Unread count on the icon (hidden at 0). */
+  badge?: number;
 }

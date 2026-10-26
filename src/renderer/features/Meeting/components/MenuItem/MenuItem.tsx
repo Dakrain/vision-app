@@ -9,6 +9,7 @@ export const MenuItem = memo(function MenuItem({
   onClick,
   locked = false,
   caret,
+  badge = 0,
 }: MenuItemProps) {
   return (
     <button
@@ -21,6 +22,11 @@ export const MenuItem = memo(function MenuItem({
       <span className="menu-item-icon-row">
         <span className="menu-item-icon">
           {typeof icon === 'string' ? <Icon name={icon} /> : icon}
+          {badge > 0 && (
+            <span className="menu-item-badge" aria-label={`${badge} mới`}>
+              {badge > 99 ? '99+' : badge}
+            </span>
+          )}
         </span>
         {caret && (
           <Icon name={caret === 'up' ? 'meetingCaretUp' : 'meetingCaretDown'} />

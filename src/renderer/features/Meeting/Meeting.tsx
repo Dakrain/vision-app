@@ -4,7 +4,7 @@ import AgoraEngineService from '@/renderer/shared/services/Agora/AgoraEngineServ
 import type { MeetingUser as MeetingUserType } from '@/renderer/shared/types/meeting';
 import { MeetingRole, MemberStatus } from '@/renderer/shared/types/meeting';
 import { Button } from '@/shared/components/Button';
-import { useMeeting } from '@/shared/hooks/index';
+import { useAuth, useMeeting } from '@/shared/hooks/index';
 import {
   Button as AntButton,
   Dropdown,
@@ -14,6 +14,7 @@ import {
   notification,
 } from 'antd';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useMeetingRecorder } from '@/renderer/shared/hooks/useMeetingRecorder';
 import { useLivestream } from '@/shared/hooks/useLivestream';
 import {
@@ -43,6 +44,7 @@ import {
 import { ShareScreenDialog } from './components/ShareScreenDialog/ShareScreenDialog';
 import { MEETING_USER_TABS } from './constants';
 import { RoomPermissions } from './components/RoomPermissions/RoomPermissions';
+import { selectChats } from './store/selector';
 import './Meeting.scss';
 import {
   ClientRoleType,
@@ -122,6 +124,24 @@ function Meeting() {
     startSharingScreen,
     stopSharingScreen,
   } = useMeeting();
+  // Unread chat: others' messages that arrived while the chat panel was
+  // closed. What was already there when the meeting loaded counts as read.
+  const { user: me } = useAuth();
+  const chats = useSelector(selectChats);
+  const [chatSeen, setChatSeen] = useState<number>();
+  useEffect(() => {
+    if (chatSeen === undefined && meetingDetail?.room) {
+      setChatSeen(chats.length);
+    }
+  }, [chatSeen, meetingDetail?.room, chats.length]);
+  useEffect(() => {
+    if (showChat) setChatSeen(chats.length);
+  }, [showChat, chats.length]);
+  const unreadChat =
+    chatSeen === undefined
+      ? 0
+      : chats.slice(chatSeen).filter((chat) => chat.userId !== me?.id).length;
+
   // Me talking: highlighted like everyone else (only while my mic is on).
   const selfSpeaking = localSpeaking && enableMic;
   // Only on-screen videos are received (see MeetingStage).
@@ -799,7 +819,12 @@ function Meeting() {
               name="Người tham dự"
               onClick={toggleShowMeetingUser}
             />
-            <MenuItem icon="chat" name="Chat" onClick={toggleShowChat} />
+            <MenuItem
+              icon="chat"
+              name={unreadChat > 0 ? `Chat (${unreadChat} tin mới)` : 'Chat'}
+              badge={unreadChat}
+              onClick={toggleShowChat}
+            />
             <Dropdown
               trigger={['click']}
               placement="top"
