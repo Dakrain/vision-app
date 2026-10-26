@@ -326,7 +326,13 @@ function Meeting() {
           isLocal={isLocal}
           debug={false}
           enableAudio={user.enableAudio === 1}
-          enableVideo={user.enableVideo === 1 || (isSharing && isLocal)}
+          // A presenter's main connection carries their screen, camera
+          // on or not.
+          enableVideo={
+            user.enableVideo === 1 ||
+            (isSharing && isLocal) ||
+            (!isLocal && user.agUid === remoteSharingUid)
+          }
           isSharing={isSharing && isLocal}
           avatar={user.avatarUrl ?? ''}
           label={user.fullName ?? 'Vision20User'}

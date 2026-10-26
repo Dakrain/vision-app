@@ -943,6 +943,7 @@ export const useMeeting = () => {
           setIsReconnecting(false);
           switch (reason) {
             case ConnectionChangedReasonType.ConnectionChangedSameUidLogin:
+              // Same uid in this very channel: the meeting moved there.
               leaveWithMessage('Cuộc họp đã được chuyển sang thiết bị khác');
               break;
             case ConnectionChangedReasonType.ConnectionChangedBannedByServer:
@@ -978,7 +979,11 @@ export const useMeeting = () => {
     }
     if (state !== 'ABORTED' && state !== 'DISCONNECTED') return;
     if (reason === 'REMOTE_LOGIN') {
-      leaveWithMessage('Cuộc họp đã được chuyển sang thiết bị khác');
+      // RTM logins are per account, not per meeting: this account joined a
+      // meeting on another device — this one (a transfer) or another.
+      leaveWithMessage(
+        'Tài khoản của bạn vừa tham gia cuộc họp trên thiết bị khác',
+      );
       return;
     }
     // Anything else leaves chat silently dead: log in and join again (the
