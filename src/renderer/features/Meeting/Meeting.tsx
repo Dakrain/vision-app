@@ -28,8 +28,10 @@ import { LivestreamDialog } from './components/LivestreamDialog/LivestreamDialog
 import { AddMemberDialog } from './components/AddMemberDialog/AddMemberDialog';
 import { RecordingClock } from './components/RecordingClock/RecordingClock';
 import {
+  MEETING_VIEW_MODES,
   MeetingStage,
   MeetingViewMode,
+  TileMenuAction,
 } from './components/MeetingStage/MeetingStage';
 import type { MemberAction } from './components/MeetingUser/MeetingUser';
 import {
@@ -57,6 +59,7 @@ const { ipcRenderer } = window.require('electron');
 
 /** localStorage key for the chosen meeting layout. */
 const VIEW_MODE_KEY = 'meeting.viewMode';
+const HIDE_SELF_KEY = 'meeting.hideSelf';
 
 function Meeting() {
   const [openShareScreenDialog, setOpenShareScreenDialog] = useState(false);
@@ -101,6 +104,8 @@ function Meeting() {
     myRole,
     announceScreenShare,
     remoteSharingUid,
+    spotlightUid,
+    spotlight,
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,
@@ -255,9 +260,8 @@ function Meeting() {
   // device; storage may be unavailable, which only loses the preference.
   const [viewMode, setViewMode] = useState<MeetingViewMode>(() => {
     try {
-      return localStorage.getItem(VIEW_MODE_KEY) === 'gallery'
-        ? 'gallery'
-        : 'speaker';
+      const saved = localStorage.getItem(VIEW_MODE_KEY) as MeetingViewMode;
+      return MEETING_VIEW_MODES.includes(saved) ? saved : 'speaker';
     } catch (_) {
       return 'speaker';
     }
@@ -266,6 +270,25 @@ function Meeting() {
     setViewMode(mode);
     try {
       localStorage.setItem(VIEW_MODE_KEY, mode);
+    } catch (_) {
+      // not persisted
+    }
+  };
+
+  // Pinned for me only (Teams' "Pin for me"); a spotlight beats it.
+  const [pinnedUid, setPinnedUid] = useState<number>();
+  // My own floating tile hidden (Teams' "Hide for me"), kept per device.
+  const [hideSelf, setHideSelf] = useState(() => {
+    try {
+      return localStorage.getItem(HIDE_SELF_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  });
+  const toggleHideSelf = () => {
+    setHideSelf(!hideSelf);
+    try {
+      localStorage.setItem(HIDE_SELF_KEY, hideSelf ? '0' : '1');
     } catch (_) {
       // not persisted
     }
@@ -341,12 +364,47 @@ function Meeting() {
         />
       );
     };
+    // Main tile: a shared screen, else the spotlight, my pin, the last
+    // speaker; skipping anyone no longer in the call.
+    const heroUid = [
+      remoteSharingUid,
+      spotlightUid,
+      pinnedUid,
+      lastSpeakerUid,
+    ].find((uid) => uid !== undefined && others.some((u) => u.agUid === uid));
+    const tileActions = (user: MeetingUserType): TileMenuAction[] => {
+      const actions: TileMenuAction[] = [
+        user.agUid === pinnedUid ? 'unpin' : 'pin',
+      ];
+      // Spotlight names a member: their main connection only.
+      if (
+        canManageMembers &&
+        user.agUid &&
+        parseAgUid(user.agUid).kind === 'main'
+      ) {
+        actions.push(
+          user.agUid === spotlightUid ? 'unspotlight' : 'spotlight',
+        );
+      }
+      return actions;
+    };
+    const onTileAction = (user: MeetingUserType, action: TileMenuAction) => {
+      if (action === 'pin') setPinnedUid(user.agUid);
+      if (action === 'unpin') setPinnedUid(undefined);
+      if (action === 'spotlight') spotlight(user.agUid);
+      if (action === 'unspotlight') spotlight(undefined);
+    };
     return (
       <MeetingStage
         view={viewMode}
         others={others}
         self={self}
-        heroUid={remoteSharingUid ?? lastSpeakerUid}
+        hideSelf={hideSelf}
+        heroUid={heroUid}
+        pinnedUid={pinnedUid}
+        spotlightUid={spotlightUid}
+        tileActions={tileActions}
+        onTileAction={onTileAction}
         activeSpeakerUid={activeSpeakerUid}
         selfSpeaking={selfSpeaking}
         selfSharing={isSharing}
@@ -365,6 +423,11 @@ function Meeting() {
     remoteSharingUid,
     lastSpeakerUid,
     activeSpeakerUid,
+    spotlightUid,
+    spotlight,
+    pinnedUid,
+    hideSelf,
+    canManageMembers,
     selfSpeaking,
     companion,
     enableMic,
@@ -723,8 +786,18 @@ function Meeting() {
                 items: [
                   { key: 'speaker', label: 'Speaker View' },
                   { key: 'gallery', label: 'Gallery View' },
+                  { key: 'large', label: 'Large Gallery (7x7)' },
+                  { key: 'focus', label: 'Focus (chỉ nội dung chia sẻ)' },
+                  { type: 'divider' },
+                  {
+                    key: 'self',
+                    label: hideSelf ? 'Hiện ô của tôi' : 'Ẩn ô của tôi',
+                  },
                 ],
-                onClick: ({ key }) => changeViewMode(key as MeetingViewMode),
+                onClick: ({ key }) => {
+                  if (key === 'self') toggleHideSelf();
+                  else changeViewMode(key as MeetingViewMode);
+                },
               }}
             >
               <span>

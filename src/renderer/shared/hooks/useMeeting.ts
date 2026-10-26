@@ -533,6 +533,27 @@ export const useMeeting = () => {
     [sendAction, meetingDetail?.user?.agUid],
   );
 
+  // Spotlight (Teams): a host/co-host puts one participant (main uid) on
+  // everyone's stage. RTM only, nothing on the server: a manager repeats it
+  // whenever someone joins so late joiners get it too.
+  const [spotlightUid, setSpotlightUid] = useState<number>();
+  const spotlight = useCallback(
+    (agUid: number | undefined) => {
+      setSpotlightUid(agUid);
+      sendAction('SPOTLIGHT', { ag_uid: agUid ?? 0 });
+    },
+    [sendAction],
+  );
+  useEffect(() => {
+    if (!canManageMembers || spotlightUid === undefined) return undefined;
+    // After the newcomer's RTM login, which follows their RTC join.
+    const timer = setTimeout(
+      () => sendAction('SPOTLIGHT', { ag_uid: spotlightUid }),
+      3000,
+    );
+    return () => clearTimeout(timer);
+  }, [remoteUsers.length, canManageMembers, spotlightUid, sendAction]);
+
   const refreshUsers = useCallback(() => {
     dispatch(debouncedFetchMeetingUsers(Number(meetingId)));
   }, [dispatch, meetingId]);
@@ -748,6 +769,19 @@ export const useMeeting = () => {
     }
     const fromManager =
       sender?.role === MeetingRole.HOST || sender?.role === MeetingRole.CO_HOST;
+    if (subType === 'SPOTLIGHT') {
+      if (!fromManager || senderUid === myUid) return;
+      const uid = Number(content?.ag_uid) || undefined;
+      if (uid === spotlightUid) return;
+      setSpotlightUid(uid);
+      const target = meetingUsers.find((u) => u.agUid === uid);
+      let message = `${sender?.fullName ?? 'Chủ phòng'} đã tắt spotlight`;
+      if (uid === myUid) message = 'Bạn đang được spotlight cho mọi người';
+      else if (uid)
+        message = `Spotlight: ${target?.fullName ?? 'một người tham dự'}`;
+      notification.info({ message, placement: 'top', duration: 3 });
+      return;
+    }
     refreshUsers();
     if (!fromManager || senderUid === myUid) return;
 
@@ -1066,6 +1100,7 @@ export const useMeeting = () => {
                 case 'ROLE_CHANGED':
                 case 'MEMBERS_CHANGED':
                 case 'SETTINGS_CHANGED':
+                case 'SPOTLIGHT':
                   handleHostCommand.current(
                     rtmMessage.message_sub_type,
                     rtmMessage.message_content,
@@ -1190,6 +1225,8 @@ export const useMeeting = () => {
     myRole,
     announceScreenShare,
     remoteSharingUid,
+    spotlightUid,
+    spotlight,
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,
