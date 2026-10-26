@@ -64,6 +64,11 @@ const MEETING_STATUS_ENDED = 3;
 
 /** Volume (0-255) from which a remote user counts as speaking. */
 const SPEAKING_VOLUME = 30;
+/**
+ * Reports in a row (300ms each) someone must be the loudest before the
+ * speaker view switches to them: about a second, like Zoom.
+ */
+const SPEAKER_SWITCH_REPORTS = 3;
 
 export const useMeeting = () => {
   const location = useLocation();
@@ -269,6 +274,8 @@ export const useMeeting = () => {
   // the speaker does: volume reports arrive several times a second.
   const [activeSpeakerUid, setActiveSpeakerUid] = useState<number>();
   const [lastSpeakerUid, setLastSpeakerUid] = useState<number>();
+  // Who is loudest right now, and for how many reports in a row.
+  const speakerStreak = useRef<{ uid?: number; count: number }>({ count: 0 });
   // My own mic level (Agora reports it as uid 0). Still measured while I am
   // muted, so callers combine it with the mic state.
   const [localSpeaking, setLocalSpeaking] = useState(false);
@@ -304,7 +311,14 @@ export const useMeeting = () => {
           .sort((a, b) => b.volume - a.volume)[0];
         const next: number | undefined = loudest?.uid;
         setActiveSpeakerUid((prev) => (prev === next ? prev : next));
-        if (next !== undefined) {
+        // The speaker view only moves to someone who keeps talking: a cough,
+        // a keyboard or an echo on another mic used to grab the stage for a
+        // moment and leave it there.
+        const streak = speakerStreak.current;
+        streak.count =
+          next !== undefined && next === streak.uid ? streak.count + 1 : 1;
+        streak.uid = next;
+        if (next !== undefined && streak.count >= SPEAKER_SWITCH_REPORTS) {
           setLastSpeakerUid((prev) => (prev === next ? prev : next));
         }
       },
