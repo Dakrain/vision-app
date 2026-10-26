@@ -71,6 +71,8 @@ import { ReactComponent as HomeSettingActiveIcon } from './ic_setting_selected.s
 import { ReactComponent as ShareScreenIcon } from './ic_share_screen.svg';
 import { ReactComponent as WhiteboardIcon } from './ic_whiteboard.svg';
 import { ReactComponent as UsersIcon } from './ic_users.svg';
+import { ReactComponent as EyeSlashIcon } from './ic_eye_slash.svg';
+
 export interface IconProps {
   name: string;
   style?: React.CSSProperties;
@@ -237,6 +239,8 @@ export default function Icon({
       return <TileMicOffIcon {...svgProps} />;
     case 'lobbyBackground':
       return <LobbyBackgroundIcon {...svgProps} />;
+    case 'eyeSlash':
+      return <EyeSlashIcon {...svgProps} />;
     default:
       return null;
   }

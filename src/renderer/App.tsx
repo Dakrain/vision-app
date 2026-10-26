@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { ConfigProvider } from 'antd';
 import { store } from '@/renderer/store/configureStore';
 import Login from './features/Auth/pages/Login/Login';
+import Register from './features/Auth/pages/Register/Register';
 import { LoadingOverlay } from './shared/components';
 import { DeepLinkHandler } from './shared/components/DeepLinkHandler';
 import Dashboard from './features/Home/Dashboard';
@@ -82,6 +83,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<SplashScreen />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/home" element={<Dashboard />} />
                 <Route path="/meeting" element={<Meeting />} />
                 <Route path="/meeting/lobby" element={<MeetingLobby />} />

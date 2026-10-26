@@ -100,7 +100,13 @@ function Login() {
 
         <div className="register-prompt">
           Bạn không có tài khoản?{' '}
-          <a href="https://vision20.us/register">Đăng ký</a>
+          <button
+            type="button"
+            className="link-button"
+            onClick={() => navigate('/register')}
+          >
+            Đăng ký
+          </button>
         </div>
       </div>
     </div>
