@@ -17,6 +17,7 @@ import {
   debouncedFetchMeetingUsers,
   debouncedUpdateUserConfig,
   fetchAllMeetingData,
+  fetchChats,
   startShareScreen,
   stopShareScreen
 } from '@/renderer/features/Meeting/store/action';
@@ -114,6 +115,11 @@ export const useMeeting = () => {
   // Video muted per uid, for connections that are not a member row (a
   // second device, a presenter's camera).
   const [uidVideoOff, setUidVideoOff] = useState<Record<number, boolean>>({});
+  // Meeting chat runs over RTM: whether it is up right now. Messages are
+  // saved on the server first, so whatever RTM missed is fetched again
+  // once it is back.
+  const [chatOnline, setChatOnline] = useState(false);
+  const chatDropped = useRef(false);
   const { withLoading } = useLoading();
   const client = useClient();
   const channel = useRef<RtmChannel | null>(null);
@@ -883,6 +889,41 @@ export const useMeeting = () => {
   }, [meetingId, refreshUsers, leaveWithMessage]);
 
   const wasReconnecting = useRef(false);
+  function chatDown() {
+    chatDropped.current = true;
+    setChatOnline(false);
+  }
+
+  /** Chat is up (again): pick up what RTM missed meanwhile. */
+  function chatBack() {
+    setChatOnline(true);
+    if (chatDropped.current && meetingId) {
+      chatDropped.current = false;
+      dispatch(fetchChats(Number(meetingId)));
+    }
+  }
+
+  // Log in and join the chat channel again, retrying until it works.
+  const chatRetry = useRef<ReturnType<typeof setTimeout>>();
+  function rejoinChat() {
+    clearTimeout(chatRetry.current);
+    client
+      .login({
+        uid: meetingDetail?.user?.agUid?.toString() || '',
+        token: meetingDetail?.user?.agRtmToken || '',
+      })
+      .catch(() => {
+        // Already logged in: just (re)join the channel.
+      })
+      .then(() => channel.current?.join())
+      .then(() => chatBack())
+      .catch(() => {
+        chatDown();
+        chatRetry.current = setTimeout(() => rejoinChat(), 5000);
+      });
+  }
+  useEffect(() => () => clearTimeout(chatRetry.current), []);
+
   connectionHandler.current = (source, state, reason) => {
     if (source === 'rtc') {
       switch (state) {
@@ -925,20 +966,36 @@ export const useMeeting = () => {
       return;
     }
     // RTM (chat, reactions, host commands, END_MEETING).
-    if (state !== 'ABORTED') return;
+    if (state === 'CONNECTED') {
+      // The SDK reconnected (and rejoins its channels) by itself.
+      if (channel.current) chatBack();
+      return;
+    }
+    if (state === 'RECONNECTING') {
+      // The SDK retries by itself.
+      chatDown();
+      return;
+    }
+    if (state !== 'ABORTED' && state !== 'DISCONNECTED') return;
     if (reason === 'REMOTE_LOGIN') {
       leaveWithMessage('Cuộc họp đã được chuyển sang thiết bị khác');
       return;
     }
-    // Any other abort leaves chat silently dead: log in and join again.
-    client
-      .login({
-        uid: meetingDetail?.user?.agUid?.toString() || '',
-        token: meetingDetail?.user?.agRtmToken || '',
-      })
-      .then(() => channel.current?.join())
-      .catch(() => {});
+    // Anything else leaves chat silently dead: log in and join again (the
+    // handler is detached before our own logout when leaving).
+    chatDown();
+    rejoinChat();
   };
+
+  // Safety net: RTM can also drop single messages while "connected".
+  useEffect(() => {
+    if (!isConnected || !meetingId) return undefined;
+    const timer = setInterval(
+      () => dispatch(fetchChats(Number(meetingId))),
+      20000,
+    );
+    return () => clearInterval(timer);
+  }, [isConnected, meetingId, dispatch]);
 
   useEffect(() => {
     if (!meetingDetail) {
@@ -1009,7 +1066,12 @@ export const useMeeting = () => {
         });
         return channel.current?.join();
       })
-      .catch(() => {});
+      .then(() => setChatOnline(true))
+      .catch(() => {
+        // Used to fail silently: chat stayed dead for the whole meeting.
+        chatDown();
+        rejoinChat();
+      });
 
     // Camera: 960x540@15 is plenty for a meeting tile and keeps uploads
     // modest. The low simulcast stream (320x180) is only produced while
@@ -1112,6 +1174,7 @@ export const useMeeting = () => {
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,
+    chatOnline,
     companion,
     deviceAudio,
     toggleDeviceAudio,

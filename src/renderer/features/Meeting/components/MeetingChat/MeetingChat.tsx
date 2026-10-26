@@ -10,7 +10,11 @@ import { selectChats } from '../../store/selector';
 import './MeetingChat.scss';
 import { MeetingChatProps } from './types';
 
-export function MeetingChat({ sendMessage, canSend = true }: MeetingChatProps) {
+export function MeetingChat({
+  sendMessage,
+  canSend = true,
+  online = true,
+}: MeetingChatProps) {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
   const { meetingId } = useLocation().state;
@@ -41,6 +45,13 @@ export function MeetingChat({ sendMessage, canSend = true }: MeetingChatProps) {
   return (
     <div className="meeting-chat">
       <div className="meeting-chat-header">Tin nhắn trong cuộc họp</div>
+      {!online && (
+        <div className="meeting-chat-offline" role="status">
+          <span className="meeting-chat-offline-spinner" />
+          Mất kết nối chat. Đang kết nối lại… Tin nhắn mới sẽ hiện khi kết
+          nối lại.
+        </div>
+      )}
       <div className="meeting-chat-body">
         <div className="meeting-chat-notice">
           Tin nhắn chỉ hiển thị với những người tham gia cuộc họp và sẽ bị xoá

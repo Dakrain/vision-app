@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { MeetingChat } from '@/renderer/shared/types/meeting';
 import { createSlice } from '@reduxjs/toolkit';
-import { random } from 'lodash';
 import {
   fetchAllMeetingData,
   fetchChats,
@@ -11,6 +10,20 @@ import {
   updateUserConfig,
 } from './action';
 import INITIAL_STATE from './constants';
+
+/** Id of my message until the server returns the saved one. */
+const localChatId = (requestId: string) => `local-${requestId}`;
+
+/** Union by id (later wins), oldest first. */
+const mergeById = (current: MeetingChat[], incoming: MeetingChat[]) => {
+  const byId = new Map<string, MeetingChat>();
+  [...current, ...incoming].forEach((chat) => {
+    byId.set(String(chat.id ?? `${chat.userId}-${chat.createdAt}`), chat);
+  });
+  return [...byId.values()].sort(
+    (a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0),
+  );
+};
 
 export const NS_MEETING = 'meeting';
 
@@ -125,7 +138,9 @@ export const meetingSlice = createSlice({
       const message: MeetingChat = {
         avatar: action.meta?.arg?.user?.avatarUrl,
         createdAt: Math.floor(Date.now() / 1000),
-        id: random(10000).toString(),
+        // Swapped for the saved message once the server answers, so a
+        // later history merge does not show it twice.
+        id: localChatId(action.meta.requestId),
         messageType: action.meta?.arg?.request?.type,
         message: action.meta?.arg?.request?.message,
         userName: action.meta?.arg?.user?.fullName,
@@ -136,18 +151,26 @@ export const meetingSlice = createSlice({
 
     builder.addCase(sendChat.fulfilled, (state, action) => {
       const { callback } = action.meta.arg;
+      const localId = localChatId(action.meta.requestId);
+      if (action.payload?.id) {
+        state.chats = mergeById(
+          state.chats.filter((chat) => chat.id !== localId),
+          [action.payload],
+        );
+      }
       callback(action.payload);
     });
 
     builder.addCase(fetchChats.fulfilled, (state, action) => {
-      state.chats = action.payload;
+      state.chats = mergeById(state.chats, action.payload ?? []);
     });
 
     builder
       .addCase(fetchAllMeetingData.fulfilled, (state, action) => {
         state.meetingDetail = action.payload.meetingDetail;
         state.meetingUsers = action.payload.meetingUsers.rows ?? [];
-        state.chats = action.payload.chats;
+        // The API answers newest first; the panel reads top to bottom.
+        state.chats = mergeById([], action.payload.chats ?? []);
       })
      ;
   },

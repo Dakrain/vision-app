@@ -104,6 +104,7 @@ function Meeting() {
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,
+    chatOnline,
     companion,
     deviceAudio,
     toggleDeviceAudio,
@@ -441,8 +442,14 @@ function Meeting() {
   };
 
   const renderChat = useMemo(() => {
-    return <MeetingChat sendMessage={sendMessage} canSend={permissions.chat} />;
-  }, [sendMessage, permissions.chat]);
+    return (
+      <MeetingChat
+        sendMessage={sendMessage}
+        canSend={permissions.chat}
+        online={chatOnline || !isConnected}
+      />
+    );
+  }, [sendMessage, permissions.chat, chatOnline, isConnected]);
 
   const renderMeetingUsers = useMemo(() => {
     const filterUsers = (condition: (user: MeetingUserType) => boolean) =>
