@@ -210,6 +210,9 @@ export const useMeeting = () => {
   // the speaker does: volume reports arrive several times a second.
   const [activeSpeakerUid, setActiveSpeakerUid] = useState<number>();
   const [lastSpeakerUid, setLastSpeakerUid] = useState<number>();
+  // My own mic level (Agora reports it as uid 0). Still measured while I am
+  // muted, so callers combine it with the mic state.
+  const [localSpeaking, setLocalSpeaking] = useState(false);
   const eventHandler = useMemo<IRtcEngineEventHandler>(
     () => ({
       onJoinChannelSuccess(connection: any) {
@@ -220,6 +223,11 @@ export const useMeeting = () => {
       },
 
       onAudioVolumeIndication(_connection: any, speakers: any[]) {
+        const local = (speakers ?? []).find((s) => s.uid === 0);
+        if (local) {
+          const on = local.volume >= SPEAKING_VOLUME && local.vad !== 0;
+          setLocalSpeaking((prev) => (prev === on ? prev : on));
+        }
         const remote = (speakers ?? []).filter((s) => s.uid);
         // The local report comes separately (only uid 0): not a verdict on
         // remote speakers.
@@ -1003,6 +1011,7 @@ export const useMeeting = () => {
     remoteSharingUid,
     activeSpeakerUid,
     lastSpeakerUid,
+    localSpeaking,
     muteMember,
     muteAllMembers,
     kickMember,

@@ -100,6 +100,7 @@ function Meeting() {
     remoteSharingUid,
     activeSpeakerUid,
     lastSpeakerUid,
+    localSpeaking,
     muteMember,
     muteAllMembers,
     kickMember,
@@ -121,6 +122,8 @@ function Meeting() {
     startSharingScreen,
     stopSharingScreen,
   } = useMeeting();
+  // Me talking: highlighted like everyone else (only while my mic is on).
+  const selfSpeaking = localSpeaking && enableMic;
   // Only on-screen videos are received (see MeetingStage).
   const [visibleStreams, setVisibleStreams] = useState<VisibleStreams>({
     high: [],
@@ -276,6 +279,7 @@ function Meeting() {
         self={self}
         heroUid={remoteSharingUid ?? lastSpeakerUid}
         activeSpeakerUid={activeSpeakerUid}
+        selfSpeaking={selfSpeaking}
         sharingUid={remoteSharingUid}
         onVisibleStreamsChange={setVisibleStreams}
         renderTile={renderTile}
@@ -290,6 +294,7 @@ function Meeting() {
     remoteSharingUid,
     lastSpeakerUid,
     activeSpeakerUid,
+    selfSpeaking,
   ]);
 
   const myUid = meetingDetail?.user?.agUid;
@@ -402,6 +407,7 @@ function Meeting() {
           actionsFor={actionsFor}
           myUid={myUid}
           speakingUid={activeSpeakerUid}
+          selfSpeaking={selfSpeaking}
           away={away}
         />
       );
@@ -543,6 +549,7 @@ function Meeting() {
     meetingDetail?.room?.waitingRoom,
     meetingDetail?.room?.joinUrl,
     activeSpeakerUid,
+    selfSpeaking,
     roomSettings,
     updateRoomSettings,
   ]);

@@ -9,6 +9,7 @@ export function UserSection({
   actionsFor,
   myUid,
   speakingUid,
+  selfSpeaking = false,
   away = false,
 }: {
   title: string;
@@ -17,6 +18,8 @@ export function UserSection({
   actionsFor: (user: MeetingUserType) => MemberAction[];
   myUid?: number;
   speakingUid?: number;
+  /** I am talking (my own level is reported apart from the others). */
+  selfSpeaking?: boolean;
   /** Members added to the room who are not in it right now. */
   away?: boolean;
 }) {
@@ -29,7 +32,9 @@ export function UserSection({
             key={user.agUid ?? user.userId}
             user={user}
             isMe={user.agUid === myUid}
-            speaking={user.agUid === speakingUid}
+            speaking={
+              user.agUid === myUid ? selfSpeaking : user.agUid === speakingUid
+            }
             away={away}
             actions={away ? [] : actionsFor(user)}
             onAction={onAction}

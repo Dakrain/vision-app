@@ -22,6 +22,8 @@ type Props = {
   heroUid?: number;
   /** Highlighted in the gallery while talking. */
   activeSpeakerUid?: number;
+  /** I am talking: my own tile is highlighted too. */
+  selfSpeaking?: boolean;
   /** Presenter: always gets the full stream (text must stay readable). */
   sharingUid?: number;
   /** Called when the set of on-screen remote videos changes. */
@@ -49,6 +51,7 @@ export function MeetingStage({
   self,
   heroUid,
   activeSpeakerUid,
+  selfSpeaking = false,
   sharingUid,
   onVisibleStreamsChange,
   renderTile,
@@ -86,7 +89,13 @@ export function MeetingStage({
   if (others.length === 0) {
     return (
       <div className="meeting-stage">
-        {self && <div className="meeting-stage-solo">{renderTile(self)}</div>}
+        {self && (
+          <div
+            className={`meeting-stage-solo${selfSpeaking ? ' speaking' : ''}`}
+          >
+            {renderTile(self)}
+          </div>
+        )}
         <p className="meeting-stage-hint">Đang chờ mọi người tham gia…</p>
       </div>
     );
@@ -150,7 +159,11 @@ export function MeetingStage({
   return (
     <div className="meeting-stage">
       {content}
-      {self && <div className="meeting-stage-self">{renderTile(self)}</div>}
+      {self && (
+        <div className={`meeting-stage-self${selfSpeaking ? ' speaking' : ''}`}>
+          {renderTile(self)}
+        </div>
+      )}
     </div>
   );
 }
