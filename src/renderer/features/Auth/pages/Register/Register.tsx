@@ -132,8 +132,10 @@ function Register() {
             />
             <button
               type="button"
-              className="toggle-password"
-              aria-label="Hiện/ẩn mật khẩu"
+              // Figma only has the slashed eye: lit up while the text shows.
+              className={`toggle-password${isPasswordVisible ? ' visible' : ''}`}
+              aria-label={isPasswordVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-pressed={isPasswordVisible}
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             >
               <Icon name="eyeSlash" />
@@ -156,8 +158,10 @@ function Register() {
             />
             <button
               type="button"
-              className="toggle-password"
-              aria-label="Hiện/ẩn mật khẩu"
+              // Figma only has the slashed eye: lit up while the text shows.
+              className={`toggle-password${isConfirmVisible ? ' visible' : ''}`}
+              aria-label={isConfirmVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-pressed={isConfirmVisible}
               onClick={() => setIsConfirmVisible(!isConfirmVisible)}
             >
               <Icon name="eyeSlash" />

@@ -81,6 +81,11 @@
       .password-input {
         position: relative;
 
+        // Room for the eye button: placeholders ran under it.
+        input {
+          padding-right: 48px;
+        }
+
         .toggle-password {
           position: absolute;
           right: 12px;
@@ -92,6 +97,15 @@
           padding: 0;
           display: flex;
           align-items: center;
+          opacity: 0.6;
+
+          &.visible {
+            opacity: 1;
+
+            svg path {
+              stroke: #FF3C3C;
+            }
+          }
         }
       }
     }
