@@ -47,6 +47,7 @@ import {
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
 import { restoreVirtualBackground } from '../utils/virtualBackground';
 import { ownerOfAgUid } from '../utils/agoraUid';
+import { WhiteboardSync } from '../utils/whiteboardSync';
 import {
   AgoraRtmMessage,
   MeetingChat,
@@ -553,6 +554,134 @@ export const useMeeting = () => {
     );
     return () => clearTimeout(timer);
   }, [remoteUsers.length, canManageMembers, spotlightUid, sendAction]);
+
+  // ---- Whiteboard (Excalidraw over RTM, no server; see whiteboardSync).
+  // One board at a time, opened by anyone allowed to share; its owner (and
+  // hosts/co-hosts) can lock it to view-only or close it.
+  const [whiteboard, setWhiteboard] = useState<{
+    id: string;
+    owner: number;
+    locked: boolean;
+  }>();
+  const sendActionRef = useRef(sendAction);
+  sendActionRef.current = sendAction;
+  const whiteboardSync = useMemo(
+    () =>
+      new WhiteboardSync((subType, content) =>
+        sendActionRef.current(subType, content),
+      ),
+    [],
+  );
+  const announceWhiteboard = useCallback(
+    (board?: { id: string; owner: number; locked: boolean }) =>
+      sendAction(
+        'WHITEBOARD',
+        board
+          ? {
+              open: 1,
+              id: board.id,
+              owner: board.owner,
+              locked: board.locked ? 1 : 0,
+            }
+          : { open: 0 },
+      ),
+    [sendAction],
+  );
+  const myAgUid = meetingDetail?.user?.agUid;
+  const ownsWhiteboard = !!whiteboard && whiteboard.owner === myAgUid;
+  const canControlWhiteboard = ownsWhiteboard || canManageMembers;
+  const openWhiteboard = useCallback(() => {
+    if (!myAgUid || whiteboard) return;
+    const board = {
+      id: `${myAgUid}-${Date.now().toString(36)}`,
+      owner: myAgUid,
+      locked: false,
+    };
+    whiteboardSync.open(board.id);
+    setWhiteboard(board);
+    announceWhiteboard(board);
+  }, [myAgUid, whiteboard, whiteboardSync, announceWhiteboard]);
+  const closeWhiteboard = useCallback(() => {
+    if (!whiteboard || !canControlWhiteboard) return;
+    whiteboardSync.close();
+    setWhiteboard(undefined);
+    announceWhiteboard(undefined);
+  }, [whiteboard, canControlWhiteboard, whiteboardSync, announceWhiteboard]);
+  const setWhiteboardLocked = useCallback(
+    (locked: boolean) => {
+      if (!whiteboard || !canControlWhiteboard) return;
+      const board = { ...whiteboard, locked };
+      setWhiteboard(board);
+      announceWhiteboard(board);
+    },
+    [whiteboard, canControlWhiteboard, announceWhiteboard],
+  );
+  // RTM only: the owner repeats the board for late joiners (or, once the
+  // owner has left, the hosts do).
+  const ownerPresent = !!whiteboard && remoteUsers.includes(whiteboard.owner);
+  const repeatsWhiteboard =
+    ownsWhiteboard || (!!whiteboard && !ownerPresent && canManageMembers);
+  useEffect(() => {
+    if (!whiteboard || !repeatsWhiteboard) return undefined;
+    const timer = setTimeout(() => announceWhiteboard(whiteboard), 3000);
+    return () => clearTimeout(timer);
+  }, [remoteUsers.length, whiteboard, repeatsWhiteboard, announceWhiteboard]);
+
+  // Back from an RTM drop: catch up on what was drawn meanwhile.
+  const whiteboardOpen = !!whiteboard;
+  useEffect(() => {
+    if (chatOnline && whiteboardOpen) whiteboardSync.requestAll();
+  }, [chatOnline, whiteboardOpen, whiteboardSync]);
+
+  // Whiteboard messages; reassigned every render (the RTM handler is not).
+  const handleWhiteboardMessage = useRef<
+    (subType: string, content: any, senderUid: number) => void
+  >(() => {});
+  handleWhiteboardMessage.current = (subType, content, senderUid) => {
+    if (senderUid === myAgUid) return;
+    if (subType === 'WB_ELEMENTS') {
+      whiteboardSync.remote(String(content?.id), content?.els);
+      return;
+    }
+    if (subType === 'WB_SYNC') {
+      if (whiteboard && content?.id === whiteboard.id && repeatsWhiteboard) {
+        whiteboardSync.sendAll();
+      }
+      return;
+    }
+    // WHITEBOARD: opened/updated by its owner, or by a host/co-host.
+    const sender = meetingUsers.find(
+      (u) => u.userId === ownerOfAgUid(senderUid),
+    );
+    const fromManager =
+      sender?.role === MeetingRole.HOST || sender?.role === MeetingRole.CO_HOST;
+    if (!content?.open) {
+      if (!whiteboard) return;
+      if (!fromManager && senderUid !== whiteboard.owner) return;
+      whiteboardSync.close();
+      setWhiteboard(undefined);
+      return;
+    }
+    const board = {
+      id: String(content.id),
+      owner: Number(content.owner),
+      locked: !!content.locked,
+    };
+    if (!fromManager && senderUid !== board.owner) return;
+    if (whiteboard?.id !== board.id) {
+      whiteboardSync.open(board.id);
+      if (!whiteboard) {
+        notification.info({
+          message: `${sender?.fullName ?? 'Một người tham dự'} đã mở bảng trắng`,
+          placement: 'top',
+          duration: 3,
+        });
+      }
+      // Whatever was drawn before I arrived.
+      setTimeout(() => whiteboardSync.requestAll(), 300);
+    }
+    setWhiteboard(board);
+  };
 
   const refreshUsers = useCallback(() => {
     dispatch(debouncedFetchMeetingUsers(Number(meetingId)));
@@ -1108,6 +1237,16 @@ export const useMeeting = () => {
                   );
                   break;
 
+                case 'WHITEBOARD':
+                case 'WB_ELEMENTS':
+                case 'WB_SYNC':
+                  handleWhiteboardMessage.current(
+                    rtmMessage.message_sub_type,
+                    rtmMessage.message_content,
+                    Number(memberId),
+                  );
+                  break;
+
                 case 'ROOM_REACTION':
                   dispatch(setReaction({ agUid: Number(memberId), reaction: rtmMessage.message_content }));
                   break;
@@ -1227,6 +1366,12 @@ export const useMeeting = () => {
     remoteSharingUid,
     spotlightUid,
     spotlight,
+    whiteboard,
+    whiteboardSync,
+    canControlWhiteboard,
+    openWhiteboard,
+    closeWhiteboard,
+    setWhiteboardLocked,
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,

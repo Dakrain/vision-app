@@ -13,7 +13,7 @@ import {
   Typography,
   notification,
 } from 'antd';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useMeetingRecorder } from '@/renderer/shared/hooks/useMeetingRecorder';
 import { useLivestream } from '@/shared/hooks/useLivestream';
@@ -61,6 +61,9 @@ const { ipcRenderer } = window.require('electron');
 const VIEW_MODE_KEY = 'meeting.viewMode';
 const HIDE_SELF_KEY = 'meeting.hideSelf';
 
+// Excalidraw is large: loaded the first time a board opens.
+const Whiteboard = lazy(() => import('./components/Whiteboard/Whiteboard'));
+
 function Meeting() {
   const [openShareScreenDialog, setOpenShareScreenDialog] = useState(false);
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
@@ -106,6 +109,12 @@ function Meeting() {
     remoteSharingUid,
     spotlightUid,
     spotlight,
+    whiteboard,
+    whiteboardSync,
+    canControlWhiteboard,
+    openWhiteboard,
+    closeWhiteboard,
+    setWhiteboardLocked,
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,
@@ -405,6 +414,29 @@ function Meeting() {
         spotlightUid={spotlightUid}
         tileActions={tileActions}
         onTileAction={onTileAction}
+        content={
+          whiteboard && (
+            <Suspense
+              fallback={
+                <p className="meeting-stage-hint">Đang mở bảng trắng…</p>
+              }
+            >
+              <Whiteboard
+                sync={whiteboardSync}
+                ownerName={
+                  meetingUsers.find(
+                    (u) => u.userId === ownerOfAgUid(whiteboard.owner),
+                  )?.fullName ?? ''
+                }
+                canEdit={!whiteboard.locked || canControlWhiteboard}
+                locked={whiteboard.locked}
+                canControl={canControlWhiteboard}
+                onToggleLock={() => setWhiteboardLocked(!whiteboard.locked)}
+                onClose={closeWhiteboard}
+              />
+            </Suspense>
+          )
+        }
         activeSpeakerUid={activeSpeakerUid}
         selfSpeaking={selfSpeaking}
         selfSharing={isSharing}
@@ -425,6 +457,11 @@ function Meeting() {
     activeSpeakerUid,
     spotlightUid,
     spotlight,
+    whiteboard,
+    whiteboardSync,
+    canControlWhiteboard,
+    setWhiteboardLocked,
+    closeWhiteboard,
     pinnedUid,
     hideSelf,
     canManageMembers,
@@ -913,6 +950,14 @@ function Meeting() {
                 if (isSharing) {
                   stopShare();
                 } else {
+                  if (whiteboard) {
+                    notification.warning({
+                      message:
+                        'Đang mở bảng trắng: đóng bảng trước khi chia sẻ màn hình',
+                      placement: 'top',
+                    });
+                    return;
+                  }
                   if (!(await ensureScreenCaptureAccess())) return;
                   const res = AgoraEngineService.getScreenCaptureSources(
                     { width: 600, height: 400 },
@@ -922,6 +967,39 @@ function Meeting() {
                   setSources(res);
                   setOpenShareScreenDialog(true);
                 }
+              }}
+            />
+            <MenuItem
+              icon="whiteboard"
+              name={whiteboard ? 'Đóng bảng trắng' : 'Bảng trắng'}
+              locked={!whiteboard && !permissions.share}
+              onClick={() => {
+                if (whiteboard) {
+                  if (canControlWhiteboard) closeWhiteboard();
+                  else {
+                    notification.info({
+                      message:
+                        'Chỉ người mở bảng hoặc chủ phòng mới đóng được bảng trắng',
+                      placement: 'top',
+                    });
+                  }
+                  return;
+                }
+                if (!permissions.share) {
+                  notification.warning({
+                    message: 'Chủ phòng chưa cho phép chia sẻ nội dung',
+                    placement: 'top',
+                  });
+                  return;
+                }
+                if (isSharing || remoteSharingUid !== undefined) {
+                  notification.warning({
+                    message: 'Đang có người chia sẻ màn hình',
+                    placement: 'top',
+                  });
+                  return;
+                }
+                openWhiteboard();
               }}
             />
             {canManageLivestream && livestream.supported && (

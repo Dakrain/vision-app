@@ -66,6 +66,11 @@ type Props = {
    * in speaker view; in the gallery it is one of `others`.
    */
   presenterCam?: MeetingUser;
+  /**
+   * Shared content other than a screen (the whiteboard): takes the main
+   * tile in every layout; everyone, me included, sits in the strip.
+   */
+  content?: ReactNode;
   /** Actions in a tile's menu (none: no menu). */
   tileActions?: (user: MeetingUser) => TileMenuAction[];
   onTileAction?: (user: MeetingUser, action: TileMenuAction) => void;
@@ -112,15 +117,18 @@ export function MeetingStage({
   selfSharing = false,
   sharingUid,
   presenterCam,
+  content,
   tileActions,
   onTileAction,
   onVisibleStreamsChange,
   renderTile,
 }: Props) {
+  const board = content !== undefined && content !== null;
   // Focus only differs from speaker view while something is shared.
-  const focus = view === 'focus' && sharingUid !== undefined;
-  const layout: 'speaker' | 'gallery' | 'large' =
+  const focus = view === 'focus' && (sharingUid !== undefined || board);
+  let layout: 'speaker' | 'gallery' | 'large' =
     view === 'focus' ? 'speaker' : view;
+  if (board) layout = 'speaker';
   const pageSize = layout === 'speaker' ? 1 : PAGE_SIZE[layout];
 
   const [page, setPage] = useState(0);
@@ -153,23 +161,30 @@ export function MeetingStage({
   };
 
   const current = Math.min(page, pages - 1);
-  const hero = others.find((u) => u.agUid === heroUid) ?? others[0];
+  const hero = board
+    ? undefined
+    : others.find((u) => u.agUid === heroUid) ?? others[0];
   const rest = sortBy(
     // The presenter's camera has its own floating tile.
     others.filter((u) => u !== hero && u !== presenterCam),
     rankIn(recent),
   );
-  let strip = rest.length > STRIP_SIZE ? rest.slice(0, STRIP_SIZE - 1) : rest;
+  // With a board on stage my own tile joins the strip (floating, it would
+  // cover the board's tools).
+  const selfInStrip = board && !!self && !hideSelf;
+  const stripRoom = STRIP_SIZE - (selfInStrip ? 1 : 0);
+  let strip = rest.length > stripRoom ? rest.slice(0, stripRoom - 1) : rest;
   if (focus) strip = [];
   const hidden = focus ? 0 : rest.length - strip.length;
-  const showPresenterCam = layout === 'speaker' && !focus && !!presenterCam;
+  const showPresenterCam =
+    layout === 'speaker' && !focus && !board && !!presenterCam;
   // The spotlight, then my pin, lead the gallery.
   const featured = [spotlightUid, pinnedUid].filter(
     (uid): uid is number => uid !== undefined,
   );
   const shown =
     layout === 'speaker'
-      ? [hero, ...strip].filter(Boolean)
+      ? ([hero, ...strip].filter(Boolean) as MeetingUser[])
       : sortBy(others, rankIn(featured)).slice(
           current * pageSize,
           (current + 1) * pageSize,
@@ -183,7 +198,7 @@ export function MeetingStage({
       .filter((uid): uid is number => !!uid);
     // Speaker view: only the main tile is big; large gallery: all small.
     const big = (uid: number) => {
-      if (layout === 'speaker') return uid === hero?.agUid;
+      if (layout === 'speaker') return !!hero && uid === hero.agUid;
       if (uid === sharingUid) return true;
       return layout === 'gallery' && uids.length <= HIGH_QUALITY_TILES;
     };
@@ -241,7 +256,7 @@ export function MeetingStage({
     );
   };
 
-  if (others.length === 0) {
+  if (others.length === 0 && !board) {
     return (
       <div className="meeting-stage">
         {self && (
@@ -259,13 +274,26 @@ export function MeetingStage({
     );
   }
 
-  let content: ReactNode;
+  let stage: ReactNode;
   if (layout === 'speaker') {
-    content = (
+    stage = (
       <>
-        {frame(hero, 'meeting-stage-hero')}
-        {strip.length > 0 && (
+        {hero ? (
+          frame(hero, 'meeting-stage-hero')
+        ) : (
+          <div className="meeting-stage-hero meeting-stage-board">
+            {content}
+          </div>
+        )}
+        {(strip.length > 0 || (selfInStrip && !focus)) && (
           <div className="meeting-stage-strip">
+            {selfInStrip && !focus && self && (
+              <div
+                className={`meeting-stage-cell${selfSpeaking ? ' speaking' : ''}`}
+              >
+                {renderTile(self)}
+              </div>
+            )}
             {strip.map((user) => frame(user, 'meeting-stage-cell'))}
             {hidden > 0 && <div className="meeting-stage-more">+{hidden}</div>}
           </div>
@@ -274,7 +302,7 @@ export function MeetingStage({
     );
   } else {
     const { cols, rows } = gridFor(shown.length);
-    content = (
+    stage = (
       <>
         <div
           className={`meeting-stage-gallery${
@@ -320,11 +348,11 @@ export function MeetingStage({
   const hasStrip = layout === 'speaker' && strip.length > 0;
   return (
     <div className={`meeting-stage${hasStrip ? ' has-strip' : ''}`}>
-      {content}
+      {stage}
       {selfSharing && (
         <div className="meeting-stage-sharing">Bạn đang chia sẻ màn hình</div>
       )}
-      {self && !hideSelf && !focus && (
+      {self && !hideSelf && !focus && !board && (
         <div className={`meeting-stage-self${selfSpeaking ? ' speaking' : ''}`}>
           {renderTile(self)}
         </div>

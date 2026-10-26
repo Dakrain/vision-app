@@ -69,6 +69,7 @@ import { ReactComponent as SendIcon } from './ic_send.svg';
 import { ReactComponent as HomeSettingIcon } from './ic_setting.svg';
 import { ReactComponent as HomeSettingActiveIcon } from './ic_setting_selected.svg';
 import { ReactComponent as ShareScreenIcon } from './ic_share_screen.svg';
+import { ReactComponent as WhiteboardIcon } from './ic_whiteboard.svg';
 import { ReactComponent as UsersIcon } from './ic_users.svg';
 export interface IconProps {
   name: string;
@@ -102,6 +103,8 @@ export default function Icon({
       return <CameraOffIcon {...svgProps} />;
     case 'shareScreen':
       return <ShareScreenIcon {...svgProps} />;
+    case 'whiteboard':
+      return <WhiteboardIcon {...svgProps} />;
     case 'home':
       return <HomeIcon {...svgProps} />;
     case 'homeActive':

@@ -121,4 +121,32 @@ describe('MeetingStage', () => {
     fireEvent.click(screen.getByText('Spotlight cho mọi người'));
     expect(onTileAction).toHaveBeenCalledWith(others[0], 'spotlight');
   });
+  it('board: content on the main tile, me first in the strip, alone too', () => {
+    const { container, rerender } = render(
+      <MeetingStage
+        view="gallery"
+        others={others.slice(0, 2)}
+        self={me}
+        heroUid={700001}
+        content={<div data-testid="board">board</div>}
+        renderTile={tile}
+      />,
+    );
+    expect(screen.getByTestId('board')).toBeInTheDocument();
+    expect(container.querySelector('.meeting-stage-gallery')).toBeNull();
+    expect(
+      names(container, '.meeting-stage-strip .meeting-stage-cell'),
+    ).toEqual(['Me', 'U1', 'U2']);
+    expect(container.querySelector('.meeting-stage-self')).toBeNull();
+    rerender(
+      <MeetingStage
+        view="speaker"
+        others={[]}
+        self={me}
+        content={<div data-testid="board">board</div>}
+        renderTile={tile}
+      />,
+    );
+    expect(screen.getByTestId('board')).toBeInTheDocument();
+  });
 });

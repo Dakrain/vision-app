@@ -62,6 +62,11 @@ const configuration: webpack.Configuration = {
 
   module: {
     rules: [
+      // ESM packages (Excalidraw) import paths without extensions.
+      {
+        test: /\.m?js$/,
+        resolve: { fullySpecified: false },
+      },
       {
         test: /\.s?(c|a)ss$/,
         use: [
