@@ -28,6 +28,61 @@
   min-height: 0;
 }
 
+.meeting-stage-hero {
+  position: relative;
+}
+
+// Speaker view: everyone else in a row under the main tile.
+.meeting-stage-strip {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  height: 128px;
+  padding-top: 8px;
+
+  .meeting-stage-cell {
+    flex: 0 1 auto;
+    aspect-ratio: 16 / 9;
+    height: 100%;
+  }
+
+  // Compact name tags, as on the self tile.
+  .surface-view .surface-view-info {
+    bottom: 6px;
+    left: 6px;
+    max-width: calc(100% - 12px);
+    gap: 4px;
+    padding: 2px 6px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .surface-view-info-label {
+      font-size: 12px;
+      line-height: 16px;
+    }
+  }
+}
+
+.meeting-stage-more {
+  flex: none;
+  aspect-ratio: 16 / 9;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: #262626;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 20px;
+  font-weight: 600;
+}
+
 .meeting-stage-hint {
   position: absolute;
   left: 0;
@@ -95,8 +150,14 @@
   }
 }
 
+// Above the strip, not on it.
+.meeting-stage.has-strip .meeting-stage-presenter {
+  bottom: 164px;
+}
+
 // Talking: yellow outline, on every kind of tile (mine included).
 .meeting-stage-cell,
+.meeting-stage-hero,
 .meeting-stage-solo,
 .meeting-stage-self {
   // Drawn over the video (the tile paints above a plain outline).

@@ -12,6 +12,9 @@ const PAGE_SIZE = 9;
 /** Up to this many gallery tiles are big enough to want the full stream. */
 const HIGH_QUALITY_TILES = 4;
 
+/** Speaker view's strip under the main tile (more: a "+N" tile). */
+const STRIP_SIZE = 5;
+
 type Props = {
   view: MeetingViewMode;
   /** Other participants in the call. */
@@ -46,7 +49,9 @@ const gridFor = (n: number) => {
 
 /**
  * The meeting's video area, mirroring the mobile layouts:
- * - Speaker: one participant fills the stage.
+ * - Speaker (like Teams): whoever spoke last fills the stage and stays
+ *   there until someone else talks; everyone else sits in a strip below,
+ *   most recent speakers first.
  * - Gallery: adaptive grid, 9 per page, active speaker outlined.
  * My own video floats in a corner either way.
  */
@@ -68,11 +73,36 @@ export function MeetingStage({
     if (page > pages - 1) setPage(pages - 1);
   }, [page, pages]);
 
+  // Who took the stage, most recent first: orders the strip so the people
+  // in the conversation stay in sight.
+  const [recent, setRecent] = useState<number[]>([]);
+  useEffect(() => {
+    if (heroUid === undefined) return;
+    setRecent((prev) =>
+      prev[0] === heroUid
+        ? prev
+        : [heroUid, ...prev.filter((uid) => uid !== heroUid)],
+    );
+  }, [heroUid]);
+
   const current = Math.min(page, pages - 1);
   const hero = others.find((u) => u.agUid === heroUid) ?? others[0];
+  const rank = (u: MeetingUser) => {
+    const i = recent.indexOf(u.agUid ?? -1);
+    return i < 0 ? recent.length : i;
+  };
+  // Stable sort: people who never spoke keep the room's order.
+  const rest = others
+    // The presenter's camera has its own floating tile.
+    .filter((u) => u !== hero && u !== presenterCam)
+    .map((u, i) => ({ u, i }))
+    .sort((a, b) => rank(a.u) - rank(b.u) || a.i - b.i)
+    .map(({ u }) => u);
+  const strip = rest.length > STRIP_SIZE ? rest.slice(0, STRIP_SIZE - 1) : rest;
+  const hidden = rest.length - strip.length;
   const shown =
     view === 'speaker'
-      ? others.filter((u) => u === hero)
+      ? [hero, ...strip].filter(Boolean)
       : others.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
 
   // Tell the parent which videos to receive, and at what quality.
@@ -81,10 +111,14 @@ export function MeetingStage({
     const uids = shown
       .map((u) => u.agUid)
       .filter((uid): uid is number => !!uid);
-    const allHigh = view === 'speaker' || uids.length <= HIGH_QUALITY_TILES;
+    // Speaker view: only the main tile is big.
+    const big = (uid: number) =>
+      view === 'speaker'
+        ? uid === hero?.agUid
+        : uids.length <= HIGH_QUALITY_TILES || uid === sharingUid;
     const streams: VisibleStreams = {
-      high: uids.filter((uid) => allHigh || uid === sharingUid),
-      low: uids.filter((uid) => !allHigh && uid !== sharingUid),
+      high: uids.filter(big),
+      low: uids.filter((uid) => !big(uid)),
     };
     if (view === 'speaker' && presenterCam?.agUid) {
       streams.low.push(presenterCam.agUid);
@@ -112,7 +146,32 @@ export function MeetingStage({
 
   let content: ReactNode;
   if (view === 'speaker') {
-    content = <div className="meeting-stage-hero">{renderTile(hero)}</div>;
+    content = (
+      <>
+        <div
+          className={`meeting-stage-hero${
+            hero.agUid === activeSpeakerUid ? ' speaking' : ''
+          }`}
+        >
+          {renderTile(hero)}
+        </div>
+        {strip.length > 0 && (
+          <div className="meeting-stage-strip">
+            {strip.map((user) => (
+              <div
+                key={user.agUid}
+                className={`meeting-stage-cell${
+                  user.agUid === activeSpeakerUid ? ' speaking' : ''
+                }`}
+              >
+                {renderTile(user)}
+              </div>
+            ))}
+            {hidden > 0 && <div className="meeting-stage-more">+{hidden}</div>}
+          </div>
+        )}
+      </>
+    );
   } else {
     const { cols, rows } = gridFor(shown.length);
     content = (
@@ -165,8 +224,9 @@ export function MeetingStage({
     );
   }
 
+  const hasStrip = view === 'speaker' && strip.length > 0;
   return (
-    <div className="meeting-stage">
+    <div className={`meeting-stage${hasStrip ? ' has-strip' : ''}`}>
       {content}
       {self && (
         <div className={`meeting-stage-self${selfSpeaking ? ' speaking' : ''}`}>
@@ -174,7 +234,9 @@ export function MeetingStage({
         </div>
       )}
       {view === 'speaker' && presenterCam && (
-        <div className="meeting-stage-presenter">{renderTile(presenterCam)}</div>
+        <div className="meeting-stage-presenter">
+          {renderTile(presenterCam)}
+        </div>
       )}
     </div>
   );
