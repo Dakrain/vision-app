@@ -63,6 +63,7 @@ import { ReactComponent as ChatCheckIcon } from './ic_chat_check.svg';
 import { ReactComponent as ChatPaperclipIcon } from './ic_chat_paperclip.svg';
 import { ReactComponent as ChatMicIcon } from './ic_chat_mic.svg';
 import { ReactComponent as ChatImageIcon } from './ic_chat_image.svg';
+import { ReactComponent as LobbyBackgroundIcon } from './ic_lobby_background.svg';
 import { ReactComponent as ChatSmileyIcon } from './ic_chat_smiley.svg';
 import { ReactComponent as SendIcon } from './ic_send.svg';
 import { ReactComponent as HomeSettingIcon } from './ic_setting.svg';
@@ -231,6 +232,8 @@ export default function Icon({
       return <TileMicIcon {...svgProps} />;
     case 'tileMicOff':
       return <TileMicOffIcon {...svgProps} />;
+    case 'lobbyBackground':
+      return <LobbyBackgroundIcon {...svgProps} />;
     default:
       return null;
   }

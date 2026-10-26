@@ -20,6 +20,8 @@ import {
 import Icon from 'assets/svg/icons';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { restoreVirtualBackground } from '@/renderer/shared/utils/virtualBackground';
+import { VirtualBackgroundDialog } from '@/renderer/features/Meeting/components/VirtualBackgroundDialog/VirtualBackgroundDialog';
 import { loadLobbyPrefs, saveLobbyPrefs } from './prefs';
 import './MeetingLobby.scss';
 
@@ -28,23 +30,49 @@ type Device = { deviceId?: string; deviceName?: string };
 const options = (list: Device[]) =>
   list.map((d) => ({ value: d.deviceId ?? '', label: d.deviceName }));
 
+/** Mic / camera the room lets this member turn on (server defaults). */
+const allowedFor = (meeting?: Meeting) => {
+  const isManager =
+    meeting?.user?.role === MeetingRole.HOST ||
+    meeting?.user?.role === MeetingRole.CO_HOST;
+  return {
+    mic: isManager || (meeting?.room?.muteAllAudio ?? 1) === 1,
+    camera: isManager || (meeting?.room?.muteAllVideo ?? 0) === 1,
+  };
+};
+
 /**
- * Pre-join screen: the user previews camera/mic, picks devices and decides
- * whether to enter with mic/camera on. The choice is written to the server
- * (`PUT /meeting/:id/setting`) before entering so other participants see the
- * right mute icons, and handed to the meeting screen via router state.
+ * Pre-join screen: the user previews camera/mic/background, picks devices
+ * and decides whether to enter with mic/camera on. The choice is written to
+ * the server (`PUT /meeting/:id/setting`) before entering so other
+ * participants see the right mute icons, and handed to the meeting screen
+ * via router state.
  *
- * Waiting room: someone not yet approved stays here (devices can be set up
- * meanwhile) and enters on their own once the host approves.
+ * Opened either for a meeting I already belong to (`meetingId`: my own, or
+ * from the list) or to join by code (`meetingKey` + `password`). In the
+ * latter case nothing is sent until "Tham gia": only then is the join
+ * request made, so the host hears about me once I am actually ready. With a
+ * waiting room I then stay here until the host approves, and enter on my own.
  */
 function MeetingLobby() {
   const location = useLocation();
   const navigate = useNavigate();
   const { withLoading } = useLoading();
   const { user } = useAuth();
-  const { meetingId } = (location.state || {}) as { meetingId?: number };
+  const {
+    meetingId: initialMeetingId,
+    meetingKey,
+    password,
+  } = (location.state || {}) as {
+    meetingId?: number;
+    meetingKey?: string;
+    password?: string;
+  };
+  // Known from the start, or once the join request has been accepted.
+  const [meetingId, setMeetingId] = useState(initialMeetingId);
 
   const [detail, setDetail] = useState<Meeting>();
+  const [openBackground, setOpenBackground] = useState(false);
   const [enableMic, setEnableMic] = useState(() => loadLobbyPrefs().enableMic);
   const [enableCamera, setEnableCamera] = useState(
     () => loadLobbyPrefs().enableCamera,
@@ -61,11 +89,7 @@ function MeetingLobby() {
   const isHost = detail?.user?.role === MeetingRole.HOST;
   const isWaiting = detail?.user?.status === MemberStatus.PENDING;
   // Room permissions (members only; same defaults as the server).
-  const isManager =
-    detail?.user?.role === MeetingRole.HOST ||
-    detail?.user?.role === MeetingRole.CO_HOST;
-  const micAllowed = isManager || (detail?.room?.muteAllAudio ?? 1) === 1;
-  const cameraAllowed = isManager || (detail?.room?.muteAllVideo ?? 0) === 1;
+  const { mic: micAllowed, camera: cameraAllowed } = allowedFor(detail);
   // Waiting members don't get the room settings yet; the meeting screen
   // applies them on entry.
   const settingsKnown = !!detail && !isWaiting;
@@ -82,7 +106,8 @@ function MeetingLobby() {
 
   useEffect(() => {
     if (!meetingId) {
-      navigate('/home', { replace: true });
+      // Joining by code: the meeting is only known after "Tham gia".
+      if (!meetingKey) navigate('/home', { replace: true });
       return;
     }
     withLoading(MeetingService.fetchMeetingDetail(meetingId))
@@ -139,6 +164,7 @@ function MeetingLobby() {
       view,
     });
     AgoraEngineService.startPreview(VideoSourceType.VideoSourceCamera);
+    restoreVirtualBackground();
     return () => {
       AgoraEngineService.stopPreview(VideoSourceType.VideoSourceCamera);
       AgoraEngineService.setupLocalVideo({
@@ -208,13 +234,18 @@ function MeetingLobby() {
     saveLobbyPrefs({ speakerId: id });
   };
 
-  const join = async () => {
-    if (!meetingId) return;
+  /** Enters an approved meeting with the choices made here. */
+  const enter = async (meeting: Meeting) => {
+    const id = meeting.room?.id ?? meetingId;
+    if (!id) return;
+    const allowed = allowedFor(meeting);
+    const mic = enableMic && allowed.mic;
+    const camera = enableCamera && allowed.camera;
     try {
       await withLoading(
-        MeetingService.updateSetting(meetingId, {
-          enable_audio: enableMic ? 1 : 0,
-          enable_video: enableCamera ? 1 : 0,
+        MeetingService.updateSetting(id, {
+          enable_audio: mic ? 1 : 0,
+          enable_video: camera ? 1 : 0,
         }),
       );
     } catch (_) {
@@ -223,13 +254,60 @@ function MeetingLobby() {
     }
     navigate('/meeting', {
       replace: true,
-      state: { meetingId, enableMic, enableCamera },
+      state: { meetingId: id, enableMic: mic, enableCamera: camera },
     });
+  };
+
+  /** Joining by code: the request (the host's waiting list) is made now. */
+  const requestToJoin = async () => {
+    if (!meetingKey) return;
+    try {
+      const result = await withLoading(
+        MeetingService.joinMeeting({
+          visionMeetingKey: meetingKey,
+          visionMeetingPwd: password ?? '',
+        }),
+      );
+      if (
+        !result?.id ||
+        (result.status !== MemberStatus.APPROVED &&
+          result.status !== MemberStatus.PENDING)
+      ) {
+        notification.warning({
+          message: 'Bạn không thể tham gia cuộc họp này',
+          placement: 'top',
+        });
+        return;
+      }
+      const next = await withLoading(
+        MeetingService.fetchMeetingDetail(result.id),
+      );
+      setMeetingId(result.id);
+      setDetail(next);
+      // Waiting room: the poll below enters once the host approves.
+      if (next?.user?.status === MemberStatus.APPROVED) await enter(next);
+    } catch (_) {
+      notification.error({
+        message: 'Không tham gia được cuộc họp',
+        description:
+          'Mã cuộc họp hoặc mật khẩu không đúng, hoặc cuộc họp đã kết thúc.',
+        placement: 'top',
+      });
+    }
+  };
+
+  const join = () => {
+    if (!meetingId) {
+      requestToJoin();
+      return;
+    }
+    if (detail) enter(detail);
   };
 
   const cancel = async () => {
     // Members were already added to the room by `POST /meeting/request`;
     // release the slot. The host keeps the room (exit would drop host role).
+    // Joining by code before "Tham gia": nothing to release.
     if (meetingId && !isHost) {
       await MeetingService.leaveMeeting(meetingId).catch(() => {});
     }
@@ -238,8 +316,8 @@ function MeetingLobby() {
 
   // Waiting room: poll for the host's decision. Approved → enter with the
   // choices made here; rejected (the member row is removed) → back home.
-  const joinRef = useRef(join);
-  joinRef.current = join;
+  const enterRef = useRef(enter);
+  enterRef.current = enter;
   useEffect(() => {
     if (!isWaiting || !meetingId) return undefined;
     let stopped = false;
@@ -254,7 +332,7 @@ function MeetingLobby() {
             message: 'Chủ phòng đã cho bạn vào cuộc họp',
             placement: 'top',
           });
-          joinRef.current();
+          enterRef.current(next);
         }
       } catch (_) {
         if (stopped) return;
@@ -274,6 +352,10 @@ function MeetingLobby() {
 
   const room = detail?.room;
   const hostName = detail?.host?.fullName || room?.ownerFullName;
+  // My own meeting starts; anyone else's is joined.
+  let joinLabel = 'Tham gia ngay';
+  if (isWaiting) joinLabel = 'Đang chờ duyệt…';
+  else if (isHost) joinLabel = 'Bắt đầu';
 
   return (
     <div className="lobby">
@@ -316,6 +398,14 @@ function MeetingLobby() {
             <Icon name={enableCamera ? 'cameraOn' : 'cameraOff'} />
             <span>{enableCamera ? 'Camera bật' : 'Camera tắt'}</span>
           </button>
+          <button
+            type="button"
+            className="lobby-toggle"
+            onClick={() => setOpenBackground(true)}
+          >
+            <Icon name="lobbyBackground" />
+            <span>Phông nền</span>
+          </button>
         </div>
       </div>
 
@@ -325,7 +415,9 @@ function MeetingLobby() {
         </Typography.Title>
         <div className="lobby-info">
           {hostName && <span>Chủ trì: {hostName}</span>}
-          {room?.visionMeetingKey && <span>ID: {room.visionMeetingKey}</span>}
+          {(room?.visionMeetingKey || meetingKey) && (
+            <span>ID: {room?.visionMeetingKey || meetingKey}</span>
+          )}
         </div>
 
         <div className="lobby-field">
@@ -372,13 +464,17 @@ function MeetingLobby() {
         <div className="lobby-actions">
           <Button
             variant="primary"
-            title={isWaiting ? 'Đang chờ duyệt…' : 'Tham gia ngay'}
+            title={joinLabel}
             onClick={join}
             disabled={isWaiting}
           />
           <Button variant="outline" title="Huỷ" onClick={cancel} />
         </div>
       </div>
+      <VirtualBackgroundDialog
+        open={openBackground}
+        onClose={() => setOpenBackground(false)}
+      />
     </div>
   );
 }

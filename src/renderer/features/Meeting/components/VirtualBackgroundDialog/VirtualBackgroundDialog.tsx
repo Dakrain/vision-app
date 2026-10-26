@@ -2,13 +2,11 @@ import './VirtualBackgroundDialog.scss';
 import { Button } from '@/renderer/shared/components/Button';
 import { useCallback, useEffect, useState } from 'react';
 
-import AgoraEngineService from '@/renderer/shared/services/Agora';
 import { Image, Modal, notification } from 'antd';
 import {
-  BackgroundBlurDegree,
-  BackgroundSourceType,
-  MediaSourceType,
-} from 'agora-electron-sdk';
+  loadVirtualBackground,
+  saveVirtualBackground,
+} from '@/renderer/shared/utils/virtualBackground';
 import { VirtualBackgroundProps, VirtualBackground } from './types';
 
 const { ipcRenderer, nativeImage } = window.require('electron');
@@ -72,12 +70,22 @@ export function VirtualBackgroundDialog({
     );
   }, []);
 
-  useEffect(() => {
-    if (open) loadCustomBackgrounds();
-  }, [open, loadCustomBackgrounds]);
-
   const [selectedSource, setSelectedSource] =
     useState<VirtualBackground | null>(null);
+  // What is applied now, highlighted until the user picks something else.
+  const [currentSrc, setCurrentSrc] = useState<string>();
+
+  useEffect(() => {
+    if (!open) return;
+    loadCustomBackgrounds();
+    setSelectedSource(null);
+    setCurrentSrc(loadVirtualBackground());
+  }, [open, loadCustomBackgrounds]);
+
+  const isSelected = (id: string, src: string) =>
+    selectedSource
+      ? selectedSource.id === id
+      : (id === NONE_ID && !currentSrc) || (!!src && src === currentSrc);
 
   const addCustomBackground = async () => {
     try {
@@ -111,34 +119,17 @@ export function VirtualBackgroundDialog({
       onClose();
       return;
     }
-    if (selectedSource.id === NONE_ID) {
-      AgoraEngineService.enableVirtualBackground(
-        false,
-        {},
-        {},
-        MediaSourceType.PrimaryCameraSource,
-      );
-    } else {
-      AgoraEngineService.enableVirtualBackground(
-        true,
-        {
-          background_source_type: BackgroundSourceType.BackgroundImg,
-          source: selectedSource.src,
-          blur_degree: BackgroundBlurDegree.BlurDegreeLow,
-        },
-        {
-          greenCapacity: 0.2,
-        },
-        MediaSourceType.PrimaryCameraSource,
-      );
-    }
+    // Kept on this device, so it survives restarts and being logged out.
+    saveVirtualBackground(
+      selectedSource.id === NONE_ID ? undefined : selectedSource.src,
+    );
     onClose();
   };
 
   const renderItem = (source: VirtualBackground) => (
     <div
       key={source.id}
-      className={`source-item ${selectedSource?.id === source.id ? 'selected' : ''}`}
+      className={`source-item ${isSelected(source.id, source.src) ? 'selected' : ''}`}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -180,7 +171,7 @@ export function VirtualBackgroundDialog({
         <div className="body">
           <div className="sources-grid">
             <div
-              className={`source-item ${selectedSource?.id === NONE_ID ? 'selected' : ''}`}
+              className={`source-item ${isSelected(NONE_ID, '') ? 'selected' : ''}`}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {

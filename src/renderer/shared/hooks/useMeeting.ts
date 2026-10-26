@@ -44,6 +44,7 @@ import {
   SimulcastStreamMode,
 } from 'agora-electron-sdk';
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
+import { restoreVirtualBackground } from '../utils/virtualBackground';
 import {
   AgoraRtmMessage,
   MeetingChat,
@@ -955,6 +956,8 @@ export const useMeeting = () => {
 
     // Enable local video preview
     AgoraEngineService.startPreview();
+    // The background chosen earlier on this device (lobby or a past meeting).
+    restoreVirtualBackground();
 
     if (result === 0) {
       // The lobby choice, unless the room doesn't let me turn it on.
