@@ -27,6 +27,8 @@ type Props = {
   activeSpeakerUid?: number;
   /** I am talking: my own tile is highlighted too. */
   selfSpeaking?: boolean;
+  /** I am sharing my screen: said in words rather than shown. */
+  selfSharing?: boolean;
   /** Presenter: always gets the full stream (text must stay readable). */
   sharingUid?: number;
   /**
@@ -62,6 +64,7 @@ export function MeetingStage({
   heroUid,
   activeSpeakerUid,
   selfSpeaking = false,
+  selfSharing = false,
   sharingUid,
   presenterCam,
   onVisibleStreamsChange,
@@ -138,6 +141,9 @@ export function MeetingStage({
           >
             {renderTile(self)}
           </div>
+        )}
+        {selfSharing && (
+          <div className="meeting-stage-sharing">Bạn đang chia sẻ màn hình</div>
         )}
         <p className="meeting-stage-hint">Đang chờ mọi người tham gia…</p>
       </div>
@@ -228,6 +234,9 @@ export function MeetingStage({
   return (
     <div className={`meeting-stage${hasStrip ? ' has-strip' : ''}`}>
       {content}
+      {selfSharing && (
+        <div className="meeting-stage-sharing">Bạn đang chia sẻ màn hình</div>
+      )}
       {self && (
         <div className={`meeting-stage-self${selfSpeaking ? ' speaking' : ''}`}>
           {renderTile(self)}

@@ -150,6 +150,35 @@
   }
 }
 
+// "You are sharing" instead of a preview of the shared screen.
+.meeting-stage-sharing {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255, 60, 60, 0.9);
+  color: white;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+  }
+}
+
 // Above the strip, not on it.
 .meeting-stage.has-strip .meeting-stage-presenter {
   bottom: 164px;

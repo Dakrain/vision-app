@@ -328,12 +328,12 @@ function Meeting() {
           enableAudio={user.enableAudio === 1}
           // A presenter's main connection carries their screen, camera
           // on or not.
+          // My own tile keeps my camera while I share: previewing the
+          // screen being shared mirrored it into itself.
           enableVideo={
             user.enableVideo === 1 ||
-            (isSharing && isLocal) ||
             (!isLocal && user.agUid === remoteSharingUid)
           }
-          isSharing={isSharing && isLocal}
           avatar={user.avatarUrl ?? ''}
           label={user.fullName ?? 'Vision20User'}
           reaction={user.reaction}
@@ -349,6 +349,7 @@ function Meeting() {
         heroUid={remoteSharingUid ?? lastSpeakerUid}
         activeSpeakerUid={activeSpeakerUid}
         selfSpeaking={selfSpeaking}
+        selfSharing={isSharing}
         sharingUid={remoteSharingUid}
         presenterCam={presenterCam}
         onVisibleStreamsChange={setVisibleStreams}
