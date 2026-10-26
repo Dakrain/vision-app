@@ -425,6 +425,9 @@ export function CreateMeetingDialog({
       title={null}
       closable={false}
       className="meeting-setup"
+      // antd's own `.ant-modal .ant-modal-content` padding outranks the
+      // stylesheet override, which left the footer's shadow strip inset.
+      styles={{ content: { padding: 0 } }}
     >
       <div className="meeting-setup-header">
         <h2>{schedule ? 'Lên lịch cuộc họp' : 'Tạo cuộc họp mới'}</h2>
