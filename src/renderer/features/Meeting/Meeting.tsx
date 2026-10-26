@@ -21,6 +21,7 @@ import {
   useRemoteVideoSubscriptions,
   type VisibleStreams,
 } from '@/renderer/shared/hooks/useRemoteVideoSubscriptions';
+import { ownerOfAgUid, parseAgUid } from '@/renderer/shared/utils/agoraUid';
 import { takeAutoRecord } from '@/shared/utils/recordingPrefs';
 import { ensureScreenCaptureAccess } from '@/shared/utils/screenCapturePermission';
 import { LivestreamDialog } from './components/LivestreamDialog/LivestreamDialog';
@@ -103,6 +104,10 @@ function Meeting() {
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,
+    companion,
+    deviceAudio,
+    toggleDeviceAudio,
+    uidVideoOff,
     muteMember,
     muteAllMembers,
     kickMember,
@@ -267,13 +272,50 @@ function Meeting() {
 
   const renderUsers = useMemo(() => {
     const selfUid = meetingDetail?.user?.agUid;
-    const self = meetingUsers.find((user) => user.agUid === selfUid);
+    const myUserId = meetingDetail?.user?.userId;
+    // Member rows carry the main uid; on a second device mine is another.
+    const selfMember = meetingUsers.find((user) => user.userId === myUserId);
+    const self =
+      selfMember &&
+      (companion
+        ? {
+            ...selfMember,
+            agUid: selfUid,
+            enableAudio: enableMic ? 1 : 0,
+            enableVideo: enableCamera ? 1 : 0,
+          }
+        : selfMember);
     // Others actually in the RTC channel.
     const others = meetingUsers.filter(
       (user) =>
         user.agUid !== selfUid &&
         remoteUsers.some((remoteUser) => remoteUser === user.agUid),
     );
+    // Connections that are not a member's main one: someone's second device
+    // or a presenter's camera (docs: vision-api meeting-devices.md).
+    const sharerId =
+      remoteSharingUid !== undefined
+        ? ownerOfAgUid(remoteSharingUid)
+        : undefined;
+    let presenterCam: MeetingUserType | undefined;
+    remoteUsers.forEach((uid) => {
+      if (uid === selfUid || meetingUsers.some((u) => u.agUid === uid)) return;
+      const { userId, kind } = parseAgUid(uid);
+      const owner = meetingUsers.find((u) => u.userId === userId);
+      if (!owner || kind === 'main') return;
+      const tile: MeetingUserType = {
+        ...owner,
+        agUid: uid,
+        fullName: `${owner.fullName ?? ''} (${
+          kind === 'aux' ? 'camera' : 'thiết bị khác'
+        })`,
+        enableVideo: uidVideoOff[uid] ? 0 : 1,
+        enableAudio: kind === 'aux' ? 0 : 1,
+        reaction: undefined,
+      };
+      others.push(tile);
+      if (kind === 'aux' && userId === sharerId) presenterCam = tile;
+    });
     const renderTile = (user: MeetingUserType) => {
       const isLocal = user.agUid === selfUid;
       return (
@@ -301,6 +343,7 @@ function Meeting() {
         activeSpeakerUid={activeSpeakerUid}
         selfSpeaking={selfSpeaking}
         sharingUid={remoteSharingUid}
+        presenterCam={presenterCam}
         onVisibleStreamsChange={setVisibleStreams}
         renderTile={renderTile}
       />
@@ -315,6 +358,11 @@ function Meeting() {
     lastSpeakerUid,
     activeSpeakerUid,
     selfSpeaking,
+    companion,
+    enableMic,
+    enableCamera,
+    uidVideoOff,
+    meetingDetail?.user?.userId,
   ]);
 
   const myUid = meetingDetail?.user?.agUid;
@@ -406,10 +454,13 @@ function Meeting() {
     // Really in the room right now: joined per the API *and* connected to
     // the call (remoteUsers never contains our own uid). `isJoin` alone
     // stays 1 when someone drops without leaving properly.
+    // Any of their connections counts (a second device, a presenter's
+    // camera), and so does mine on this device.
     const isOnline = (user: MeetingUserType) =>
       user.isJoin === 1 &&
       (user.agUid === myUid ||
-        remoteUsers.some((remoteUser) => remoteUser === user.agUid));
+        user.userId === meetingDetail?.user?.userId ||
+        remoteUsers.some((uid) => ownerOfAgUid(uid) === user.userId));
     const online = activeUsers.filter(isOnline);
     const hosts = online.filter((user) => user.role === MeetingRole.HOST);
     const cohosts = online.filter((user) => user.role === MeetingRole.CO_HOST);
@@ -568,6 +619,7 @@ function Meeting() {
     myUid,
     meetingDetail?.room?.waitingRoom,
     meetingDetail?.room?.joinUrl,
+    meetingDetail?.user?.userId,
     activeSpeakerUid,
     selfSpeaking,
     roomSettings,
@@ -681,6 +733,17 @@ function Meeting() {
           </div>
         </div>
         <div className="meeting-body">
+          {companion && (
+            <div className="meeting-companion-banner" role="status">
+              <span>
+                Bạn đang tham gia thêm trên thiết bị này.
+                {!deviceAudio && ' Âm thanh đang tắt để tránh tiếng vọng.'}
+              </span>
+              <button type="button" onClick={toggleDeviceAudio}>
+                {deviceAudio ? 'Tắt âm thanh' : 'Bật âm thanh'}
+              </button>
+            </div>
+          )}
           {isReconnecting && (
             <div className="meeting-reconnecting" role="status">
               <span className="meeting-reconnecting-spinner" />

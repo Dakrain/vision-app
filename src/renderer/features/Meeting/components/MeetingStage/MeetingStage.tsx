@@ -26,6 +26,11 @@ type Props = {
   selfSpeaking?: boolean;
   /** Presenter: always gets the full stream (text must stay readable). */
   sharingUid?: number;
+  /**
+   * The presenter's camera (kept on next to their screen): a small tile
+   * in speaker view; in the gallery it is one of `others`.
+   */
+  presenterCam?: MeetingUser;
   /** Called when the set of on-screen remote videos changes. */
   onVisibleStreamsChange?: (streams: VisibleStreams) => void;
   renderTile: (user: MeetingUser) => ReactNode;
@@ -53,6 +58,7 @@ export function MeetingStage({
   activeSpeakerUid,
   selfSpeaking = false,
   sharingUid,
+  presenterCam,
   onVisibleStreamsChange,
   renderTile,
 }: Props) {
@@ -80,6 +86,9 @@ export function MeetingStage({
       high: uids.filter((uid) => allHigh || uid === sharingUid),
       low: uids.filter((uid) => !allHigh && uid !== sharingUid),
     };
+    if (view === 'speaker' && presenterCam?.agUid) {
+      streams.low.push(presenterCam.agUid);
+    }
     const key = JSON.stringify(streams);
     if (key === reported.current) return;
     reported.current = key;
@@ -163,6 +172,9 @@ export function MeetingStage({
         <div className={`meeting-stage-self${selfSpeaking ? ' speaking' : ''}`}>
           {renderTile(self)}
         </div>
+      )}
+      {view === 'speaker' && presenterCam && (
+        <div className="meeting-stage-presenter">{renderTile(presenterCam)}</div>
       )}
     </div>
   );

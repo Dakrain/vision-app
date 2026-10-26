@@ -17,7 +17,30 @@ import {
 } from './request';
 import { API_BASE_URL } from '../../config';
 
+/**
+ * Meetings this app joined as the account's second device: every detail
+ * fetch (join, token renewal, resync) must then ask for that device's own
+ * uid and tokens, or it would take over the first device's connection.
+ */
+const companionMeetings = new Set<number>();
+
 class MeetingService extends BaseService {
+  setCompanion(meetingId: number, companion: boolean) {
+    if (companion) companionMeetings.add(meetingId);
+    else companionMeetings.delete(meetingId);
+  }
+
+  isCompanion(meetingId: number) {
+    return companionMeetings.has(meetingId);
+  }
+
+  /** Is this account already in the meeting on another device? */
+  async fetchMyDevices(
+    meetingId: number,
+  ): Promise<{ known: number; main: number; companion: number }> {
+    return this.get(`/meeting/${meetingId}/devices`);
+  }
+
   async joinMeeting(request: JoinMeetingRequest): Promise<JoinMeetingStatus> {
     return this.post('/meeting/request', request);
   }
@@ -128,7 +151,11 @@ class MeetingService extends BaseService {
   }
 
   async fetchMeetingDetail(meetingId: number): Promise<Meeting> {
-    return this.get(`/meeting/${meetingId}`);
+    return this.get(`/meeting/${meetingId}`, {
+      params: companionMeetings.has(meetingId)
+        ? { device: 'companion' }
+        : undefined,
+    });
   }
 
   async updateSetting(

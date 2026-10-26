@@ -93,7 +93,12 @@ export interface MeetingUser {
   agRtcToken?: string;
   fullName?: string;
   agRtmToken?: string;
+  /** RTC token for agAuxUid (the camera kept on while sharing). */
   agScreenToken?: string;
+  /** Uid of the camera kept on while this connection shares its screen. */
+  agAuxUid?: number;
+  /** 0: main device, 1: the account's second device in this meeting. */
+  deviceSlot?: number;
   avatarUrl?: string;
   reaction?: string; //Use for view only
   isScreenShare?: boolean;

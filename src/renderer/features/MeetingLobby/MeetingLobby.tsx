@@ -8,7 +8,7 @@ import {
 import { Avatar, Button } from '@/shared/components';
 import { useAuth } from '@/shared/hooks/useAuth';
 import useLoading from '@/shared/hooks/useLoading';
-import { notification, Select, Typography } from 'antd';
+import { Modal, notification, Select, Typography } from 'antd';
 import {
   AudioVolumeInfo,
   IRtcEngineEventHandler,
@@ -21,6 +21,7 @@ import Icon from 'assets/svg/icons';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { restoreVirtualBackground } from '@/renderer/shared/utils/virtualBackground';
+import { livestreamErrorCode } from '@/renderer/shared/hooks/useLivestream';
 import { VirtualBackgroundDialog } from '@/renderer/features/Meeting/components/VirtualBackgroundDialog/VirtualBackgroundDialog';
 import { loadLobbyPrefs, saveLobbyPrefs } from './prefs';
 import './MeetingLobby.scss';
@@ -73,6 +74,8 @@ function MeetingLobby() {
 
   const [detail, setDetail] = useState<Meeting>();
   const [openBackground, setOpenBackground] = useState(false);
+  // Already in this meeting on another device: transfer, or join here too.
+  const [deviceChoice, setDeviceChoice] = useState<Meeting>();
   const [enableMic, setEnableMic] = useState(() => loadLobbyPrefs().enableMic);
   const [enableCamera, setEnableCamera] = useState(
     () => loadLobbyPrefs().enableCamera,
@@ -234,27 +237,48 @@ function MeetingLobby() {
     saveLobbyPrefs({ speakerId: id });
   };
 
-  /** Enters an approved meeting with the choices made here. */
-  const enter = async (meeting: Meeting) => {
+  /**
+   * Enters an approved meeting with the choices made here. `main` takes
+   * this account's usual place (another device of mine in the meeting is
+   * pushed out: a transfer); `companion` joins next to it as a second
+   * device. Without a mode, ask first when I am already in there.
+   */
+  const enter = async (meeting: Meeting, mode?: 'main' | 'companion') => {
     const id = meeting.room?.id ?? meetingId;
     if (!id) return;
-    const allowed = allowedFor(meeting);
-    const mic = enableMic && allowed.mic;
-    const camera = enableCamera && allowed.camera;
-    try {
-      await withLoading(
-        MeetingService.updateSetting(id, {
-          enable_audio: mic ? 1 : 0,
-          enable_video: camera ? 1 : 0,
-        }),
+    if (!mode) {
+      // Older servers have no /devices: just join as before.
+      const devices = await MeetingService.fetchMyDevices(id).catch(
+        () => undefined,
       );
-    } catch (_) {
-      // The meeting screen applies the same choice locally, so a failed
-      // sync only leaves other clients with a stale icon until the next toggle.
+      if (devices?.known && devices.main) {
+        setDeviceChoice(meeting);
+        return;
+      }
+    }
+    const companion = mode === 'companion';
+    const allowed = allowedFor(meeting);
+    // A second device starts muted: it sits next to the first one.
+    const mic = enableMic && allowed.mic && !companion;
+    const camera = enableCamera && allowed.camera;
+    // The member row (what others see) belongs to the main device.
+    if (!companion) {
+      try {
+        await withLoading(
+          MeetingService.updateSetting(id, {
+            enable_audio: mic ? 1 : 0,
+            enable_video: camera ? 1 : 0,
+          }),
+        );
+      } catch (_) {
+        // The meeting screen applies the same choice locally, so a failed
+        // sync only leaves other clients with a stale icon until the next
+        // toggle.
+      }
     }
     navigate('/meeting', {
       replace: true,
-      state: { meetingId: id, enableMic: mic, enableCamera: camera },
+      state: { meetingId: id, enableMic: mic, enableCamera: camera, companion },
     });
   };
 
@@ -286,11 +310,18 @@ function MeetingLobby() {
       setDetail(next);
       // Waiting room: the poll below enters once the host approves.
       if (next?.user?.status === MemberStatus.APPROVED) await enter(next);
-    } catch (_) {
+    } catch (error) {
+      const code = livestreamErrorCode(error);
+      let description = 'Vui lòng thử lại.';
+      if (code === 'e_meeting_not_found') {
+        description =
+          'Mã cuộc họp hoặc mật khẩu không đúng, hoặc cuộc họp đã kết thúc.';
+      } else if (code === 'e_meeting_over_limit') {
+        description = 'Cuộc họp đã đủ số người tham gia.';
+      }
       notification.error({
         message: 'Không tham gia được cuộc họp',
-        description:
-          'Mã cuộc họp hoặc mật khẩu không đúng, hoặc cuộc họp đã kết thúc.',
+        description,
         placement: 'top',
       });
     }
@@ -475,6 +506,38 @@ function MeetingLobby() {
         open={openBackground}
         onClose={() => setOpenBackground(false)}
       />
+      <Modal
+        open={!!deviceChoice}
+        centered
+        footer={null}
+        title="Bạn đang ở trong cuộc họp này trên thiết bị khác"
+        onCancel={() => setDeviceChoice(undefined)}
+      >
+        <Typography.Paragraph>
+          Chuyển cuộc họp sang thiết bị này, hay tham gia thêm (ví dụ để chia
+          sẻ màn hình hoặc bật camera ở đây)?
+        </Typography.Paragraph>
+        <div className="lobby-device-choice">
+          <Button
+            variant="primary"
+            title="Chuyển sang thiết bị này"
+            onClick={() => {
+              const meeting = deviceChoice;
+              setDeviceChoice(undefined);
+              if (meeting) enter(meeting, 'main');
+            }}
+          />
+          <Button
+            variant="outline"
+            title="Tham gia trên thiết bị này"
+            onClick={() => {
+              const meeting = deviceChoice;
+              setDeviceChoice(undefined);
+              if (meeting) enter(meeting, 'companion');
+            }}
+          />
+        </div>
+      </Modal>
     </div>
   );
 }

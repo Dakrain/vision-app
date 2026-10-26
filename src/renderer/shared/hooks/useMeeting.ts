@@ -45,6 +45,7 @@ import {
 } from 'agora-electron-sdk';
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
 import { restoreVirtualBackground } from '../utils/virtualBackground';
+import { ownerOfAgUid } from '../utils/agoraUid';
 import {
   AgoraRtmMessage,
   MeetingChat,
@@ -70,11 +71,17 @@ export const useMeeting = () => {
     meetingId,
     enableMic: lobbyMic,
     enableCamera: lobbyCamera,
+    companion: companionState,
   } = (location.state || {}) as {
     meetingId?: number;
     enableMic?: boolean;
     enableCamera?: boolean;
+    /** Joined as this account's second device ("Tham gia trên thiết bị này"). */
+    companion?: boolean;
   };
+  const companion = !!companionState;
+  // Before any detail fetch below: a second device needs its own uid/tokens.
+  if (meetingId) MeetingService.setCompanion(Number(meetingId), companion);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const meetingDetail = useAppSelector(selectMeetingDetail);
@@ -96,6 +103,17 @@ export const useMeeting = () => {
     [],
   );
   const [isSharing, setIsSharing] = useState(false);
+  // A second device starts with the room's audio off (it sits next to the
+  // first one: hearing the meeting twice would echo).
+  const [deviceAudio, setDeviceAudio] = useState(!companion);
+  // While sharing, the camera stays on through a second connection (its
+  // own uid; the screen takes the main one so older apps still see it).
+  const auxConnection = useRef<{ channelId: string; localUid: number }>();
+  // My own extra uids, never shown or received as someone else.
+  const ownAuxUid = useRef<number>();
+  // Video muted per uid, for connections that are not a member row (a
+  // second device, a presenter's camera).
+  const [uidVideoOff, setUidVideoOff] = useState<Record<number, boolean>>({});
   const { withLoading } = useLoading();
   const client = useClient();
   const channel = useRef<RtmChannel | null>(null);
@@ -119,6 +137,8 @@ export const useMeeting = () => {
     } else {
       AgoraEngineService.muteLocalAudioStream(false);
     }
+    // The member row (mute icons others see) belongs to the main device.
+    if (companion) return;
     dispatch(
       debouncedUpdateUserConfig({
         meetingId: Number(meetingId),
@@ -134,11 +154,19 @@ export const useMeeting = () => {
       return;
     }
     setEnableCamera(!enableCamera);
-    if (enableCamera) {
+    if (auxConnection.current) {
+      // Sharing: the main connection carries the screen, the camera rides
+      // on the second one.
+      AgoraEngineService.updateChannelMediaOptionsEx(
+        { publishCameraTrack: !enableCamera },
+        auxConnection.current,
+      );
+    } else if (enableCamera) {
       AgoraEngineService.muteLocalVideoStream(true);
     } else {
       AgoraEngineService.muteLocalVideoStream(false);
     }
+    if (companion) return;
     dispatch(
       debouncedUpdateUserConfig({
         meetingId: Number(meetingId),
@@ -149,15 +177,39 @@ export const useMeeting = () => {
     );
   };
 
+  const stopAuxCamera = useCallback(() => {
+    if (!auxConnection.current) return;
+    AgoraEngineService.leaveChannelEx(auxConnection.current);
+    auxConnection.current = undefined;
+  }, []);
+
   const startSharingScreen = useCallback(() => {
     // The screen track rides on the main connection, so video must be
     // unmuted for it to go out; the camera itself is unpublished instead.
     AgoraEngineService.muteLocalVideoStream(false);
     setShareScreen(true);
     dispatch(startShareScreen(Number(meetingId)));
-  }, [dispatch, meetingId]);
+    // ...and keeps going out on a second connection (API with
+    // ag_aux_uid only; older servers: the screen replaces the camera).
+    const user = meetingDetail?.user;
+    const channelId = meetingDetail?.room?.channelName;
+    if (user?.agAuxUid && user.agScreenToken && channelId) {
+      const connection = { channelId, localUid: user.agAuxUid };
+      AgoraEngineService.joinChannelEx(user.agScreenToken, connection, {
+        channelProfile: ChannelProfileType.ChannelProfileCommunication,
+        clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+        publishCameraTrack: enableCamera,
+        publishMicrophoneTrack: false,
+        publishScreenTrack: false,
+        autoSubscribeAudio: false,
+        autoSubscribeVideo: false,
+      });
+      auxConnection.current = connection;
+    }
+  }, [dispatch, meetingId, meetingDetail, enableCamera]);
 
   const stopSharingScreen = useCallback(() => {
+    stopAuxCamera();
     // Back to camera, keeping whatever mic/camera state the user had.
     AgoraEngineService.updateChannelMediaOptions({
       publishScreenTrack: false,
@@ -168,7 +220,7 @@ export const useMeeting = () => {
     AgoraEngineService.muteLocalAudioStream(!enableMic);
     setShareScreen(false);
     dispatch(stopShareScreen(Number(meetingId)));
-  }, [dispatch, meetingId, enableCamera, enableMic]);
+  }, [dispatch, meetingId, enableCamera, enableMic, stopAuxCamera]);
 
   const sendMessage = (message: MeetingChat) => {
     // Only send the message through the channel
@@ -214,16 +266,24 @@ export const useMeeting = () => {
   // My own mic level (Agora reports it as uid 0). Still measured while I am
   // muted, so callers combine it with the mic state.
   const [localSpeaking, setLocalSpeaking] = useState(false);
+  // The camera-while-sharing connection reports to the same handler; its
+  // join/leave/connection events are not the meeting's (leaving it showed
+  // "Đang kết nối…" as if the meeting had dropped).
+  const fromAux = (connection: any) =>
+    connection?.localUid !== undefined &&
+    connection.localUid === ownAuxUid.current;
   const eventHandler = useMemo<IRtcEngineEventHandler>(
     () => ({
       onJoinChannelSuccess(connection: any) {
+        if (fromAux(connection)) return;
         console.log("🚀 ~ onJoinChannelSuccess ~ connection:", connection)
         setIsConnected(true);
         // Report volumes every 300ms (smoothed) for speaker detection.
         AgoraEngineService.enableAudioVolumeIndication(300, 3, true);
       },
 
-      onAudioVolumeIndication(_connection: any, speakers: any[]) {
+      onAudioVolumeIndication(connection: any, speakers: any[]) {
+        if (fromAux(connection)) return;
         const local = (speakers ?? []).find((s) => s.uid === 0);
         if (local) {
           const on = local.volume >= SPEAKING_VOLUME && local.vad !== 0;
@@ -244,7 +304,14 @@ export const useMeeting = () => {
       },
 
       onUserJoined(connection: any, remoteUid: any) {
+        if (fromAux(connection)) return;
         console.log("🚀 ~ onUserJoined ~ connection:", connection)
+        if (remoteUid === ownAuxUid.current) {
+          // My own camera-while-sharing connection: not someone else.
+          AgoraEngineService.muteRemoteVideoStream(remoteUid, true);
+          AgoraEngineService.muteRemoteAudioStream(remoteUid, true);
+          return;
+        }
         setRemoteUsers((prevUsers) => {
           // Chỉ thêm remoteUid nếu nó chưa tồn tại trong mảng
           return prevUsers.includes(remoteUid)
@@ -255,6 +322,7 @@ export const useMeeting = () => {
       },
 
       onUserOffline(connection: any, remoteUid: any, reason: any) {
+        if (fromAux(connection)) return;
         console.log("🚀 ~ onUserOffline ~ connection:", connection)
         setRemoteUsers((prevUsers) =>
           prevUsers.filter((user) => user !== remoteUid),
@@ -265,11 +333,18 @@ export const useMeeting = () => {
       },
 
       onUserMuteAudio(connection: any, remoteUid: any, muted: any) {
+        if (fromAux(connection)) return;
         console.log("🚀 ~ onUserMuteAudio ~ connection:", connection)
         dispatch(remoteUserMutedAudio({ agUid: remoteUid, muted }));
       },
       onUserMuteVideo(connection: any, remoteUid: any, muted: any) {
+        if (fromAux(connection)) return;
         console.log("🚀 ~ onUserMuteVideo ~ connection:", connection)
+        setUidVideoOff((prev) =>
+          prev[remoteUid] === !!muted
+            ? prev
+            : { ...prev, [remoteUid]: !!muted },
+        );
         dispatch(remoteUserMutedVideo({ agUid: remoteUid, muted }));
       },
 
@@ -277,6 +352,7 @@ export const useMeeting = () => {
       console.log("🚀 ~ useMeeting ~ connection:", connection)
       },
       onConnectionStateChanged(connection: any, state: any, reason: any) {
+        if (fromAux(connection)) return;
         connectionHandler.current('rtc', state, reason);
       },
 
@@ -331,7 +407,14 @@ export const useMeeting = () => {
     return () => {
       client.off('ConnectionStateChanged', onRtmConnection);
       AgoraEngineService.removeAllListeners();
+      if (auxConnection.current) {
+        AgoraEngineService.leaveChannelEx(auxConnection.current);
+        auxConnection.current = undefined;
+      }
       AgoraEngineService.leaveChannel();
+      // The engine is shared (1:1 calls): undo a second device's silence.
+      AgoraEngineService.muteAllRemoteAudioStreams(false);
+      if (meetingId) MeetingService.setCompanion(Number(meetingId), false);
       client.logout();
       channel?.current?.leave();
       dispatch(resetMeetingState());
@@ -350,6 +433,13 @@ export const useMeeting = () => {
       AgoraEngineService.unregisterEventHandler(eventHandler);
     };
   }, [eventHandler]);
+
+  // A second device hears the room only when asked to.
+  useEffect(() => {
+    if (!isConnected) return;
+    AgoraEngineService.muteAllRemoteAudioStreams(!deviceAudio);
+  }, [isConnected, deviceAudio]);
+  const toggleDeviceAudio = useCallback(() => setDeviceAudio((on) => !on), []);
 
   const goHome = useCallback(() => {
     dispatch(resetMeetingState());
@@ -597,7 +687,10 @@ export const useMeeting = () => {
   >(() => {});
   handleHostCommand.current = (subType, content, senderUid) => {
     const myUid = meetingDetail?.user?.agUid;
-    const sender = meetingUsers.find((u) => u.agUid === senderUid);
+    // A sender may be someone's second device: look them up by user.
+    const sender = meetingUsers.find(
+      (u) => u.userId === ownerOfAgUid(senderUid),
+    );
     if (subType === 'END_MEETING') {
       const ended = () => {
         notification.info({ message: 'Cuộc họp đã kết thúc', placement: 'top' });
@@ -638,7 +731,10 @@ export const useMeeting = () => {
     refreshUsers();
     if (!fromManager || senderUid === myUid) return;
 
-    const targetsMe = Number(content?.ag_uid) === myUid;
+    // Commands name the member's main uid; my second device obeys too.
+    const targetsMe =
+      !!content?.ag_uid &&
+      ownerOfAgUid(Number(content.ag_uid)) === meetingDetail?.user?.userId;
     const muteMe = (audio: boolean, video: boolean) => {
       if (audio) {
         AgoraEngineService.muteLocalAudioStream(true);
@@ -648,16 +744,19 @@ export const useMeeting = () => {
         AgoraEngineService.muteLocalVideoStream(true);
         setEnableCamera(false);
       }
-      // Save my new state so late joiners see the right icons.
-      dispatch(
-        debouncedUpdateUserConfig({
-          meetingId: Number(meetingId),
-          request: {
-            ...(audio ? { enable_audio: 0 } : {}),
-            ...(video ? { enable_video: 0 } : {}),
-          },
-        }),
-      );
+      // Save my new state so late joiners see the right icons (the main
+      // device owns the member row).
+      if (!companion) {
+        dispatch(
+          debouncedUpdateUserConfig({
+            meetingId: Number(meetingId),
+            request: {
+              ...(audio ? { enable_audio: 0 } : {}),
+              ...(video ? { enable_video: 0 } : {}),
+            },
+          }),
+        );
+      }
       const what = [audio && 'micro', video && 'camera']
         .filter(Boolean)
         .join(' và ');
@@ -712,13 +811,14 @@ export const useMeeting = () => {
     try {
       // `exit` deletes the member row server-side; for the host that would
       // drop the host role on rejoin, so the host only leaves locally.
-      if (!isHost) {
+      // A second device leaves alone: the member stays on the first.
+      if (!isHost && !companion) {
         await MeetingService.leaveMeeting(Number(meetingId));
       }
     } finally {
       goHome();
     }
-  }, [meetingId, isHost, goHome]);
+  }, [meetingId, isHost, companion, goHome]);
 
   const endMeeting = useCallback(async () => {
     try {
@@ -802,9 +902,7 @@ export const useMeeting = () => {
           setIsReconnecting(false);
           switch (reason) {
             case ConnectionChangedReasonType.ConnectionChangedSameUidLogin:
-              leaveWithMessage(
-                'Tài khoản của bạn vừa vào cuộc họp này trên thiết bị khác',
-              );
+              leaveWithMessage('Cuộc họp đã được chuyển sang thiết bị khác');
               break;
             case ConnectionChangedReasonType.ConnectionChangedBannedByServer:
             case ConnectionChangedReasonType.ConnectionChangedRejectedByServer:
@@ -829,9 +927,7 @@ export const useMeeting = () => {
     // RTM (chat, reactions, host commands, END_MEETING).
     if (state !== 'ABORTED') return;
     if (reason === 'REMOTE_LOGIN') {
-      leaveWithMessage(
-        'Tài khoản của bạn vừa vào cuộc họp này trên thiết bị khác',
-      );
+      leaveWithMessage('Cuộc họp đã được chuyển sang thiết bị khác');
       return;
     }
     // Any other abort leaves chat silently dead: log in and join again.
@@ -960,6 +1056,7 @@ export const useMeeting = () => {
     restoreVirtualBackground();
 
     if (result === 0) {
+      ownAuxUid.current = meetingDetail?.user?.agAuxUid;
       // The lobby choice, unless the room doesn't let me turn it on.
       const enableAudio =
         (lobbyMic ?? meetingDetail?.user?.enableAudio === 1) &&
@@ -1015,6 +1112,10 @@ export const useMeeting = () => {
     activeSpeakerUid,
     lastSpeakerUid,
     localSpeaking,
+    companion,
+    deviceAudio,
+    toggleDeviceAudio,
+    uidVideoOff,
     muteMember,
     muteAllMembers,
     kickMember,

@@ -64,6 +64,37 @@
   position: relative;
 }
 
+// The presenter's camera next to their shared screen (speaker view).
+.meeting-stage-presenter {
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  width: 240px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+
+  .surface-view .surface-view-info {
+    bottom: 8px;
+    left: 8px;
+    max-width: calc(100% - 16px);
+    gap: 4px;
+    padding: 4px 8px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .surface-view-info-label {
+      font-size: 12px;
+      line-height: 16px;
+    }
+  }
+}
+
 // Talking: yellow outline, on every kind of tile (mine included).
 .meeting-stage-cell,
 .meeting-stage-solo,
