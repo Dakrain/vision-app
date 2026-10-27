@@ -410,10 +410,15 @@ export const useMeeting = () => {
         // the recovery timer will try to restore media — instead of erasing
         // them until the next refetch. (A presenter who really left is
         // cleared below once no source has them any more.)
-        if (
-          !rtmUidsRef.current.includes(remoteUid) &&
-          !serverUidsRef.current.includes(remoteUid)
-        ) {
+        // They left on purpose (reason 0 = quit), or RTM saw them go too:
+        // the last server snapshot (up to ~15 s old) must not keep them on
+        // screen as "Đang kết nối…". A newer snapshot re-adds them if Agora
+        // still has them.
+        const gone = reason === 0 || !rtmUidsRef.current.includes(remoteUid);
+        if (gone) {
+          setServerUids((prev) => prev.filter((u) => u !== remoteUid));
+        }
+        if (gone || !serverUidsRef.current.includes(remoteUid)) {
           // A presenter who drops out (app killed, phone switched off,
           // network gone) never sends "stopped sharing": without this they
           // stayed "the presenter" — and came back as a shared screen.
@@ -1604,6 +1609,11 @@ export const useMeeting = () => {
         newChannel.on('MemberLeft', (memberId: string) => {
           const uid = Number(memberId);
           setRtmUids((prev) => prev.filter((u) => u !== uid));
+          // RTC already lost them as well: don't wait for the next server
+          // snapshot to take the tile down.
+          if (!remoteUsersRef.current.includes(uid)) {
+            setServerUids((prev) => prev.filter((u) => u !== uid));
+          }
         });
         return channel.current?.join();
       })
