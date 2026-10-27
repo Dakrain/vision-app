@@ -3,6 +3,7 @@ import {
   Meeting,
   MeetingChat,
   MeetingListPage,
+  MeetingRoster,
   MeetingUser,
   RoomSettings,
 } from '@/renderer/shared/types/meeting';
@@ -174,6 +175,16 @@ class MeetingService extends BaseService {
 
   async fetchChats(meetingId: number): Promise<PageResponse<MeetingChat>> {
     return this.get(`/meeting/${meetingId}/chat`);
+  }
+
+  /**
+   * Who the server thinks is in the room right now — a presence source
+   * independent of Agora RTC/RTM, polled by useMeeting. May 404 on an old
+   * server that doesn't have this endpoint yet; callers should stop
+   * polling in that case rather than retry forever.
+   */
+  async fetchRoster(meetingId: number): Promise<MeetingRoster> {
+    return this.get(`/meeting/${meetingId}/roster`);
   }
 }
 

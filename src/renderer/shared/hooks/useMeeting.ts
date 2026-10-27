@@ -48,7 +48,14 @@ import {
 } from 'agora-electron-sdk';
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
 import { restoreVirtualBackground } from '../utils/virtualBackground';
-import { ownerOfAgUid } from '../utils/agoraUid';
+import { ownerOfAgUid, parseAgUid } from '../utils/agoraUid';
+import {
+  RtcRecoveryTracker,
+  mergeServerSnapshot,
+  sourcesOf,
+  trustedMismatch,
+  unionPresence,
+} from '../utils/meetingRoster';
 import { WhiteboardSync } from '../utils/whiteboardSync';
 import {
   ReactionBubble,
@@ -65,6 +72,7 @@ import {
   MemberStatus,
   RoomPermissions,
   RoomSettings,
+  RosterMember,
 } from '../types/meeting';
 import { AGORA_APP_ID } from '../config';
 
@@ -318,6 +326,15 @@ export const useMeeting = () => {
   // My own mic level (Agora reports it as uid 0). Still measured while I am
   // muted, so callers combine it with the mic state.
   const [localSpeaking, setLocalSpeaking] = useState(false);
+  // onUserOffline below (part of the RTC event handler) checks these to
+  // decide whether a dropped RTC uid is a real departure or just a transient
+  // disconnect that RTM/the server still vouch for — declared here, ahead of
+  // that handler, so it doesn't read them before they're defined. They're
+  // populated from the rtmUids/serverUids state further down (see the
+  // "Presence beyond RTC" section) via the same always-read-latest-ref
+  // convention used throughout this hook.
+  const rtmUidsRef = useRef<number[]>([]);
+  const serverUidsRef = useRef<number[]>([]);
   // The camera-while-sharing connection reports to the same handler; its
   // join/leave/connection events are not the meeting's (leaving it showed
   // "Đang kết nối…" as if the meeting had dropped).
@@ -388,7 +405,16 @@ export const useMeeting = () => {
         );
         setActiveSpeakerUid((prev) => (prev === remoteUid ? undefined : prev));
         setLastSpeakerUid((prev) => (prev === remoteUid ? undefined : prev));
-        dispatch(removeMeetingUser(remoteUid));
+        // RTM or the server still vouch for this uid: most likely a
+        // transient RTC drop, not a real departure. Keep their member row —
+        // the recovery timer below will try to restore media — instead of
+        // erasing them until the next refetch.
+        if (
+          !rtmUidsRef.current.includes(remoteUid) &&
+          !serverUidsRef.current.includes(remoteUid)
+        ) {
+          dispatch(removeMeetingUser(remoteUid));
+        }
       },
 
       onUserMuteAudio(connection: any, remoteUid: any, muted: any) {
@@ -517,6 +543,201 @@ export const useMeeting = () => {
       AgoraEngineService.unregisterEventHandler(eventHandler);
     };
   }, [eventHandler]);
+
+  // ---- Presence beyond RTC (Teams/Zoom-style roster) ----
+  // onUserJoined/onUserOffline can miss someone or lag behind a recovery
+  // the SDK already made under the hood. Two more sources are unioned with
+  // RTC so a participant only disappears from the roster when all three
+  // agree they're gone — see shared/utils/meetingRoster.ts for the pure
+  // merge/mismatch logic (unit-tested separately).
+  const [rtmUids, setRtmUids] = useState<number[]>([]);
+  const [serverUids, setServerUids] = useState<number[]>([]);
+  const [rosterMembers, setRosterMembers] = useState<RosterMember[]>([]);
+  // Set on a 404/network error from the roster endpoint: an old server
+  // without it. Stops polling for this meeting instead of retrying forever.
+  const rosterDead = useRef(false);
+
+  // The handlers/timers below are registered once (or run from a plain
+  // interval) and read the latest values through these refs instead of
+  // closing over state, same convention as connectionHandler above.
+  // (rtmUidsRef/serverUidsRef themselves are declared earlier, above
+  // eventHandler, which already reads them.)
+  rtmUidsRef.current = rtmUids;
+  serverUidsRef.current = serverUids;
+  const remoteUsersRef = useRef<number[]>([]);
+  remoteUsersRef.current = remoteUsers;
+  const isConnectedRef = useRef(false);
+  isConnectedRef.current = isConnected;
+  const chatOnlineRef = useRef(false);
+  chatOnlineRef.current = chatOnline;
+  const enableMicRef = useRef(enableMic);
+  enableMicRef.current = enableMic;
+  const enableCameraRef = useRef(enableCamera);
+  enableCameraRef.current = enableCamera;
+
+  // Who the union says is present, minus me and my own aux uid (never a
+  // tile of its own). This — not remoteUsers alone — is what Meeting.tsx
+  // renders tiles from.
+  const selfAgUid = meetingDetail?.user?.agUid;
+  const presentUids = useMemo(
+    () =>
+      unionPresence(remoteUsers, rtmUids, serverUids).filter(
+        (uid) => uid !== selfAgUid && uid !== ownAuxUid.current,
+      ),
+    [remoteUsers, rtmUids, serverUids, selfAgUid],
+  );
+
+  // Every ~30s (and right after (re)joining RTM), a full member snapshot
+  // corrects anything MemberJoined/MemberLeft missed and reseeds the set
+  // after a reconnect. Only trusted while chatOnline — see trustedMismatch.
+  useEffect(() => {
+    if (!chatOnline) return undefined;
+    const snapshot = () => {
+      channel.current
+        ?.getMembers()
+        .then((members: string[]) => {
+          const uids = (members ?? [])
+            .map((m) => Number(m))
+            .filter((uid) => uid && uid !== selfAgUid);
+          setRtmUids(uids);
+          return undefined;
+        })
+        .catch(() => {});
+    };
+    snapshot();
+    const timer = setInterval(snapshot, 30_000);
+    return () => clearInterval(timer);
+  }, [chatOnline, selfAgUid]);
+
+  // Server roster: a presence source independent of Agora entirely. See
+  // mergeServerSnapshot for the staleness/availability rules.
+  useEffect(() => {
+    const id = Number(meetingId);
+    if (!id || !selfAgUid) return undefined;
+    rosterDead.current = false;
+    const poll = () => {
+      if (rosterDead.current) return;
+      MeetingService.fetchRoster(id)
+        .then((roster) => {
+          setRosterMembers(roster?.members ?? []);
+          const kindOf = new Map(
+            (roster?.members ?? []).map((m) => [m.agUid, m.kind]),
+          );
+          // Aux (presenter camera) uids only ever come from RTC: a stale
+          // server row for one would show a phantom "Đang kết nối…" tile.
+          const uids = (roster?.uids ?? []).filter(
+            (uid) => uid !== selfAgUid && kindOf.get(uid) !== 'aux',
+          );
+          setServerUids((prev) =>
+            mergeServerSnapshot(
+              prev,
+              {
+                available: roster?.available === true,
+                uids,
+                fetchedAt: roster?.fetchedAt ?? Date.now(),
+              },
+              Date.now(),
+            ),
+          );
+          return undefined;
+        })
+        .catch((error) => {
+          let status: number | undefined;
+          try {
+            status = JSON.parse(error)?.response?.status;
+          } catch (_e) {
+            status = undefined;
+          }
+          // 404 (no such endpoint) or a bare network error (no response at
+          // all): an old server. Any other status is worth retrying.
+          if (status === 404 || status === undefined) {
+            rosterDead.current = true;
+          }
+        });
+    };
+    poll();
+    const timer = setInterval(poll, 15_000);
+    return () => clearInterval(timer);
+  }, [meetingId, selfAgUid]);
+
+  // Someone is present (RTM/server) but we have no member row for them yet
+  // — e.g. the RTC-triggered fetch raced the RTM/server update. Companion
+  // and aux uids never get a row of their own, so only ask about "main".
+  useEffect(() => {
+    if (presentUids.length === 0) return;
+    const known = new Set(meetingUsers.map((u) => u.agUid));
+    const unknown = presentUids.some(
+      (uid) => parseAgUid(uid).kind === 'main' && !known.has(uid),
+    );
+    if (unknown) dispatch(debouncedFetchMeetingUsers(Number(meetingId)));
+  }, [presentUids, meetingUsers, dispatch, meetingId]);
+
+  // Recovery: a uid is present via RTM/server but missing from RTC for too
+  // long while my own RTC connection is healthy. Leaving and rejoining the
+  // main channel nudges Agora into resending onUserJoined for anyone still
+  // actually there. The aux (presenter camera) connection is untouched.
+  const recoveryTracker = useRef(new RtcRecoveryTracker());
+  const rejoinRtc = useCallback(() => {
+    if (!isConnectedRef.current || !meetingDetail) return;
+    AgoraEngineService.leaveChannel();
+    const joined = AgoraEngineService.joinChannel(
+      meetingDetail?.user?.agRtcToken || '',
+      meetingDetail?.room?.channelName || '',
+      meetingDetail?.user?.agUid || 0,
+      {
+        channelProfile: ChannelProfileType.ChannelProfileCommunication,
+        clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+        publishMicrophoneTrack: true,
+        publishCameraTrack: true,
+        autoSubscribeAudio: true,
+        autoSubscribeVideo: true,
+      },
+    );
+    if (joined !== 0) return;
+    AgoraEngineService.enableVideo();
+    AgoraEngineService.enableAudio();
+    AgoraEngineService.updateChannelMediaOptions({ publishCameraTrack: true });
+    AgoraEngineService.startPreview();
+    restoreVirtualBackground();
+    // Restore the current (not lobby) mic/camera state: the user may have
+    // toggled either since joining.
+    AgoraEngineService.muteLocalAudioStream(!enableMicRef.current);
+    AgoraEngineService.muteLocalVideoStream(!enableCameraRef.current);
+  }, [meetingDetail]);
+  const rejoinRtcRef = useRef(rejoinRtc);
+  rejoinRtcRef.current = rejoinRtc;
+
+  useEffect(() => {
+    if (!meetingId) return undefined;
+    const timer = setInterval(() => {
+      if (!isConnectedRef.current) return;
+      const mismatched = trustedMismatch(
+        remoteUsersRef.current,
+        rtmUidsRef.current,
+        serverUidsRef.current,
+        chatOnlineRef.current,
+      );
+      const { recover, warnings } = recoveryTracker.current.evaluate(
+        mismatched,
+        Date.now(),
+        (uid) =>
+          sourcesOf(
+            uid,
+            remoteUsersRef.current,
+            rtmUidsRef.current,
+            serverUidsRef.current,
+          ),
+      );
+      warnings.forEach((w) =>
+        console.warn(
+          '[meetingRoster] uid still missing from RTC after a recovery attempt',
+          { uid: w.uid, sources: w.sources },
+        ),
+      );
+      if (recover) rejoinRtcRef.current();
+    }, 5_000);
+    return () => clearInterval(timer);
+  }, [meetingId]);
 
   // A second device hears the room only when asked to.
   useEffect(() => {
@@ -1349,6 +1570,18 @@ export const useMeeting = () => {
             }
           }
         });
+        // RTM's own presence set: incremental updates between the periodic
+        // getMembers() snapshot above. Companion devices log in under their
+        // own agUid; aux (presenter camera) connections never log into RTM.
+        newChannel.on('MemberJoined', (memberId: string) => {
+          const uid = Number(memberId);
+          if (!uid || uid === meetingDetail?.user?.agUid) return;
+          setRtmUids((prev) => (prev.includes(uid) ? prev : [...prev, uid]));
+        });
+        newChannel.on('MemberLeft', (memberId: string) => {
+          const uid = Number(memberId);
+          setRtmUids((prev) => prev.filter((u) => u !== uid));
+        });
         return channel.current?.join();
       })
       .then(() => setChatOnline(true))
@@ -1430,6 +1663,25 @@ export const useMeeting = () => {
     }
   }, [meetingDetail, client, eventHandler, dispatch, goHome]);
 
+  // Test hook for driving/inspecting the roster over the DevTools protocol
+  // (dev builds only) — e.g. simulating a lost RTC event without touching
+  // RTM/server, to verify the recovery path in useMeeting/meetingRoster.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') return undefined;
+    // eslint-disable-next-line no-underscore-dangle
+    (window as any).__visionRoster = {
+      remoteUsers: () => remoteUsersRef.current,
+      rtmUids: () => rtmUidsRef.current,
+      serverUids: () => serverUidsRef.current,
+      presentUids: () => presentUids,
+      // Pretends RTC lost this uid (onUserOffline fired, or its
+      // onUserJoined never arrived) while RTM/server still see them.
+      simulateRtcDrop: (uid: number) =>
+        setRemoteUsers((prev) => prev.filter((u) => u !== uid)),
+    };
+    return undefined;
+  }, [presentUids]);
+
   return {
     // states
     isConnected,
@@ -1494,5 +1746,9 @@ export const useMeeting = () => {
     meetingDetail,
     meetingId,
     remoteUsers,
+    // Presence beyond RTC: union of RTC/RTM/server, for tiles that must
+    // stay up through a transient RTC drop. See meetingRoster.ts.
+    presentUids,
+    rosterMembers,
   };
 };

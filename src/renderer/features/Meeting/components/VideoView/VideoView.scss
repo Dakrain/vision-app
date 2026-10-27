@@ -28,6 +28,24 @@
     }
   }
 
+  // Plain-text caption for a tile that is present (RTM/server) but has no
+  // RTC media yet — deliberately no icon, per the design's icon policy.
+  .surface-view-connecting {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 13px;
+    line-height: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 4px 12px;
+    border-radius: 14px;
+    white-space: nowrap;
+  }
+
   // Name tag (Figma "Icon and Text" over the video).
   .surface-view-info {
     position: absolute;

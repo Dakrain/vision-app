@@ -24,14 +24,18 @@ export function VideoView({
   reaction,
   isSharing = false,
   hideLabel = false,
+  connecting = false,
 }: VideoViewProps) {
   const isSetup = useRef(false);
   const localSource = isSharing
     ? VideoSourceType.VideoSourceScreen
     : VideoSourceType.VideoSourceCamera;
+  // Present via RTM/server but no RTC media: always show the avatar, never
+  // the (nonexistent) video surface.
+  const showVideo = enableVideo && !connecting;
 
   useLayoutEffect(() => {
-    if (debug || !enableVideo) {
+    if (debug || !showVideo) {
       return;
     }
 
@@ -80,7 +84,7 @@ export function VideoView({
       }
       isSetup.current = false;
     };
-  }, [isLocal, uid, debug, enableVideo, localSource]);
+  }, [isLocal, uid, debug, showVideo, localSource]);
 
   // Heart/Like/Clap float up on their own (see ReactionBubbles); the tile
   // badge only ever shows a raised hand.
@@ -111,14 +115,19 @@ export function VideoView({
         position: 'relative',
       }}
     >
-      {enableVideo ? (
+      {showVideo ? (
         <div className="surface-view-item" id={`surface-view-${uid}`} />
       ) : (
         <Avatar url={avatar} radius={32} name={label} />
       )}
+      {connecting && (
+        <div className="surface-view-connecting">Đang kết nối…</div>
+      )}
       {!hideLabel && (
         <div className="surface-view-info">
-          <Icon name={enableAudio ? 'tileMic' : 'tileMicOff'} />
+          {!connecting && (
+            <Icon name={enableAudio ? 'tileMic' : 'tileMicOff'} />
+          )}
           <span className="surface-view-info-label">{label}</span>
         </div>
       )}

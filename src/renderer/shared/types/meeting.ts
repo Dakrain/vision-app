@@ -102,6 +102,8 @@ export interface MeetingUser {
   avatarUrl?: string;
   reaction?: string; //Use for view only
   isScreenShare?: boolean;
+  /** Present via RTM/server but no RTC media yet/anymore. View only. */
+  connecting?: boolean;
 }
 
 export interface Host {
@@ -179,4 +181,29 @@ export interface AgoraRtmMessage {
   message_type: string;
   message_sub_type?: string | null;
   message_content: any;
+}
+
+/** One entry of GET /meeting/:id/roster — a presence source independent of Agora. */
+export interface RosterMember {
+  agUid?: number;
+  userId?: number;
+  kind?: 'main' | 'companion' | 'aux';
+  fullName?: string;
+  avatarUrl?: string;
+  role?: number;
+}
+
+/**
+ * Server-side view of who is in the room, polled alongside RTC/RTM so a
+ * dropped Agora event doesn't make someone vanish from the roster — see
+ * shared/utils/meetingRoster.ts.
+ */
+export interface MeetingRoster {
+  channel?: string;
+  /** When this snapshot was taken, unix ms. */
+  fetchedAt?: number;
+  /** False on a transient failure: keep the previous snapshot instead. */
+  available?: boolean;
+  uids?: number[];
+  members?: RosterMember[];
 }
