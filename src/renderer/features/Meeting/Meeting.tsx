@@ -762,6 +762,17 @@ function Meeting() {
     announceScreenShare(false);
   };
 
+  // Leaving while sharing: say "stopped sharing" first (others otherwise
+  // keep me as the presenter) and stop capturing the screen.
+  const leave = () => {
+    if (isSharing) stopShare();
+    leaveMeeting();
+  };
+  const end = () => {
+    if (isSharing) stopShare();
+    endMeeting();
+  };
+
   // Permission taken away mid-meeting: stop sharing / recording (the hook
   // already tells the user what changed).
   useEffect(() => {
@@ -774,7 +785,16 @@ function Meeting() {
   useEffect(() => {
     ipcRenderer.send(isSharing ? 'share-overlay:show' : 'share-overlay:hide');
   }, [isSharing]);
-  useEffect(() => () => ipcRenderer.send('share-overlay:hide'), []);
+  // However the meeting closes (kicked, ended, left), stop capturing.
+  const sharingRef = useRef(isSharing);
+  sharingRef.current = isSharing;
+  useEffect(
+    () => () => {
+      ipcRenderer.send('share-overlay:hide');
+      if (sharingRef.current) AgoraEngineService.stopScreenCapture();
+    },
+    [],
+  );
   const stopShareRef = useRef(stopShare);
   stopShareRef.current = stopShare;
   useEffect(() => {
@@ -888,7 +908,7 @@ function Meeting() {
               <button
                 type="button"
                 onClick={() =>
-                  isHost ? setOpenLeaveDialog(true) : leaveMeeting()
+                  isHost ? setOpenLeaveDialog(true) : leave()
                 }
               >
                 Rời phòng
@@ -1082,7 +1102,7 @@ function Meeting() {
             variant="primary"
             title="Kết thúc"
             className="meeting-footer-end"
-            onClick={() => (isHost ? setOpenLeaveDialog(true) : leaveMeeting())}
+            onClick={() => (isHost ? setOpenLeaveDialog(true) : leave())}
           />
         </div>
         <Modal
@@ -1099,12 +1119,12 @@ function Meeting() {
             <Button
               variant="primary"
               title="Kết thúc cuộc họp cho mọi người"
-              onClick={endMeeting}
+              onClick={end}
             />
             <Button
               variant="outline"
               title="Rời phòng"
-              onClick={leaveMeeting}
+              onClick={leave}
             />
           </div>
         </Modal>

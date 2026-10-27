@@ -388,6 +388,10 @@ export const useMeeting = () => {
         );
         setActiveSpeakerUid((prev) => (prev === remoteUid ? undefined : prev));
         setLastSpeakerUid((prev) => (prev === remoteUid ? undefined : prev));
+        // A presenter who drops out (app killed, phone switched off, network
+        // gone) never sends "stopped sharing": without this they stayed "the
+        // presenter" — and came back as a shared screen when they rejoined.
+        setRemoteSharingUid((prev) => (prev === remoteUid ? undefined : prev));
         dispatch(removeMeetingUser(remoteUid));
       },
 
