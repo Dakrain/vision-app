@@ -363,7 +363,10 @@ function Meeting() {
           // My own tile keeps my camera while I share: previewing the
           // screen being shared mirrored it into itself.
           enableVideo={
-            user.enableVideo === 1 ||
+            (!isLocal && user.agUid !== undefined &&
+            uidVideoOff[user.agUid] !== undefined
+              ? !uidVideoOff[user.agUid]
+              : user.enableVideo === 1) ||
             (!isLocal && user.agUid === remoteSharingUid)
           }
           // A shared screen shows no name tag: it covered the content.

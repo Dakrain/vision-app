@@ -41,6 +41,8 @@ import {
   ConnectionChangedReasonType,
   ConnectionStateType,
   IRtcEngineEventHandler,
+  RemoteVideoState,
+  RemoteVideoStateReason,
   ScreenCaptureSourceInfo,
   SimulcastStreamMode,
 } from 'agora-electron-sdk';
@@ -386,10 +388,35 @@ export const useMeeting = () => {
         connection: any,
         remoteUid: any,
         state: any,
-        _reason: any,
+        reason: any,
         _elapsed: any,
       ) {
-        console.log("🚀 ~ useMeeting ~ connection:", state)
+        if (fromAux(connection)) return;
+        // What actually arrives, not the server's flag: someone who joined
+        // with the camera already on sends no mute event, and a mute event
+        // that came before their member row was loaded was lost — their
+        // tile stayed an avatar while the camera was on.
+        let off: boolean | undefined;
+        if (
+          state === RemoteVideoState.RemoteVideoStateDecoding ||
+          (state === RemoteVideoState.RemoteVideoStateStarting &&
+            reason ===
+              RemoteVideoStateReason.RemoteVideoStateReasonRemoteUnmuted)
+        ) {
+          off = false;
+        } else if (
+          state === RemoteVideoState.RemoteVideoStateStopped &&
+          (reason ===
+            RemoteVideoStateReason.RemoteVideoStateReasonRemoteMuted ||
+            reason ===
+              RemoteVideoStateReason.RemoteVideoStateReasonRemoteOffline)
+        ) {
+          off = true;
+        }
+        if (off === undefined) return;
+        setUidVideoOff((prev) =>
+          prev[remoteUid] === off ? prev : { ...prev, [remoteUid]: off! },
+        );
       },
       onLocalVideoStateChanged(source: any, state: any, reason: any) {
         console.log("🚀 ~ onLocalVideoStateChanged ~ source:", source, state, reason);
