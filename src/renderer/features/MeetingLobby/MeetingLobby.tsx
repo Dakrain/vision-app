@@ -429,9 +429,12 @@ function MeetingLobby() {
             <Icon name={enableCamera ? 'cameraOn' : 'cameraOff'} />
             <span>{enableCamera ? 'Camera bật' : 'Camera tắt'}</span>
           </button>
+          {/* A background only means something with the camera on. */}
           <button
             type="button"
             className="lobby-toggle"
+            disabled={!enableCamera}
+            title={enableCamera ? undefined : 'Bật camera để chọn phông nền'}
             onClick={() => setOpenBackground(true)}
           >
             <Icon name="lobbyBackground" />
