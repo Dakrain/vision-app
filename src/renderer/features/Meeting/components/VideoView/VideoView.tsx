@@ -23,6 +23,7 @@ export function VideoView({
   style,
   reaction,
   isSharing = false,
+  hideLabel = false,
 }: VideoViewProps) {
   const isSetup = useRef(false);
   const localSource = isSharing
@@ -126,10 +127,12 @@ export function VideoView({
       ) : (
         <Avatar url={avatar} radius={32} name={label} />
       )}
-      <div className="surface-view-info">
-        <Icon name={enableAudio ? 'tileMic' : 'tileMicOff'} />
-        <span className="surface-view-info-label">{label}</span>
-      </div>
+      {!hideLabel && (
+        <div className="surface-view-info">
+          <Icon name={enableAudio ? 'tileMic' : 'tileMicOff'} />
+          <span className="surface-view-info-label">{label}</span>
+        </div>
+      )}
       {renderReaction}
     </div>
   );

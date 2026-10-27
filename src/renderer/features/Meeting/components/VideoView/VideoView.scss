@@ -10,6 +10,11 @@
   position: relative;
 
   .surface-view-item {
+    // The whole tile: Agora fits the video into this box, so without a
+    // height a portrait stream (a phone's screen) was sized by width only
+    // and cropped top and bottom.
+    width: 100%;
+    height: 100%;
     object-fit: fill;
     overflow: hidden;
 

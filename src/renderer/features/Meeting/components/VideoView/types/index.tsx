@@ -13,4 +13,6 @@ export interface VideoViewProps {
   reaction?: string;
   /** Local tile only: render the screen-capture source instead of the camera. */
   isSharing?: boolean;
+  /** No name tag (a shared screen: it would cover the content). */
+  hideLabel?: boolean;
 }

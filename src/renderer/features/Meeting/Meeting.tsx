@@ -366,6 +366,8 @@ function Meeting() {
             user.enableVideo === 1 ||
             (!isLocal && user.agUid === remoteSharingUid)
           }
+          // A shared screen shows no name tag: it covered the content.
+          hideLabel={!isLocal && user.agUid === remoteSharingUid}
           avatar={user.avatarUrl ?? ''}
           label={user.fullName ?? 'Vision20User'}
           reaction={user.reaction}
