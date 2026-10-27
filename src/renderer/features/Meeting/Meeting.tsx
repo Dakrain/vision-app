@@ -137,6 +137,8 @@ function Meeting() {
     meetingId,
     setSources,
     remoteUsers,
+    presentUids,
+    rosterMembers,
     toggleCamera,
     toggleMic,
     sendReaction,
@@ -321,12 +323,38 @@ function Meeting() {
             enableVideo: enableCamera ? 1 : 0,
           }
         : selfMember);
-    // Others actually in the RTC channel.
-    const others = meetingUsers.filter(
-      (user) =>
-        user.agUid !== selfUid &&
-        remoteUsers.some((remoteUser) => remoteUser === user.agUid),
-    );
+    // Others present by any source (RTC ∪ RTM ∪ server roster), not just
+    // RTC: someone RTC temporarily lost still gets a tile, marked
+    // "connecting" instead of disappearing (see useMeeting/meetingRoster).
+    const others: MeetingUserType[] = meetingUsers
+      .filter(
+        (user) =>
+          user.agUid !== selfUid &&
+          typeof user.agUid === 'number' &&
+          presentUids.includes(user.agUid),
+      )
+      .map((user) => ({
+        ...user,
+        connecting: !remoteUsers.includes(user.agUid as number),
+      }));
+    // Present (RTM/server) but no member row yet — the fetch above is in
+    // flight. Only "main" uids get a row at all; show a bare placeholder
+    // meanwhile, using the roster's own name/avatar when it has one.
+    presentUids.forEach((uid) => {
+      if (others.some((u) => u.agUid === uid)) return;
+      if (parseAgUid(uid).kind !== 'main') return;
+      const rosterMember = rosterMembers.find((m) => m.agUid === uid);
+      others.push({
+        agUid: uid,
+        userId: rosterMember?.userId,
+        fullName: rosterMember?.fullName ?? 'Đang tham gia…',
+        avatarUrl: rosterMember?.avatarUrl,
+        role: rosterMember?.role,
+        enableAudio: 0,
+        enableVideo: 0,
+        connecting: true,
+      });
+    });
     // Connections that are not a member's main one: someone's second device
     // or a presenter's camera (docs: vision-api meeting-devices.md).
     const sharerId =
@@ -377,6 +405,7 @@ function Meeting() {
           avatar={user.avatarUrl ?? ''}
           label={user.fullName ?? 'Vision20User'}
           reaction={user.reaction}
+          connecting={user.connecting}
           className="video-item"
         />
       );
@@ -461,6 +490,8 @@ function Meeting() {
     meetingDetail?.user?.agUid,
     meetingUsers,
     remoteUsers,
+    presentUids,
+    rosterMembers,
     isSharing,
     viewMode,
     remoteSharingUid,
@@ -587,7 +618,7 @@ function Meeting() {
       user.isJoin === 1 &&
       (user.agUid === myUid ||
         user.userId === meetingDetail?.user?.userId ||
-        remoteUsers.some((uid) => ownerOfAgUid(uid) === user.userId));
+        presentUids.some((uid) => ownerOfAgUid(uid) === user.userId));
     const online = activeUsers.filter(isOnline);
     const hosts = online.filter((user) => user.role === MeetingRole.HOST);
     const cohosts = online.filter((user) => user.role === MeetingRole.CO_HOST);
@@ -741,6 +772,7 @@ function Meeting() {
     meetingUsers,
     waitingUsers,
     remoteUsers,
+    presentUids,
     canManageMembers,
     myRole,
     myUid,
