@@ -51,6 +51,13 @@ import { restoreVirtualBackground } from '../utils/virtualBackground';
 import { ownerOfAgUid } from '../utils/agoraUid';
 import { WhiteboardSync } from '../utils/whiteboardSync';
 import {
+  ReactionBubble,
+  ReactionRestore,
+  addBubble,
+  bubbleKind,
+  makeBubble,
+} from '../utils/reactionBubbles';
+import {
   AgoraRtmMessage,
   MeetingChat,
   MeetingRole,
@@ -252,6 +259,25 @@ export const useMeeting = () => {
     channel.current?.sendMessage(rtm);
   };
 
+  // Heart/Like/Clap float up on every client, me included, and never touch
+  // a tile; Hand stays sticky on the tile badge until lowered (see
+  // handleReaction below for the receiving side).
+  const [bubbles, setBubbles] = useState<ReactionBubble[]>([]);
+  const removeBubble = useCallback(
+    (id: string) => setBubbles((prev) => prev.filter((b) => b.id !== id)),
+    [],
+  );
+  // What I last raised my hand to, so a bubble's restore (below) and the
+  // picker's highlight both know the state without reading it off a tile
+  // (which, on a second device, is keyed by a different uid than mine).
+  const [handRaised, setHandRaised] = useState(false);
+  const handRaisedRef = useRef(false);
+  // Old, already-installed apps show ROOM_REACTION as sticky tile state;
+  // this resends my hand state a moment after a bubble so their tile
+  // clears itself. One timer, reset on every reaction (see ReactionRestore).
+  const reactionRestore = useRef(new ReactionRestore());
+  useEffect(() => () => reactionRestore.current.cancel(), []);
+
   const sendReaction = (reaction: string) => {
     const rtmMessage: AgoraRtmMessage = {
       message_type: 'ACTION',
@@ -266,10 +292,20 @@ export const useMeeting = () => {
 
     channel.current?.sendMessage(rtm);
 
+    const kind = bubbleKind(reaction);
+    if (kind) {
+      setBubbles((prev) => addBubble(prev, makeBubble(kind, 'Bạn')));
+      reactionRestore.current.schedule(() =>
+        sendReaction(handRaisedRef.current ? 'HAND' : 'NONE'),
+      );
+      return;
+    }
+
+    handRaisedRef.current = reaction === 'HAND';
+    setHandRaised(handRaisedRef.current);
     dispatch(userReaction(reaction));
   };
 
- 
   const [remoteUsers, setRemoteUsers] = useState<number[]>([]);
   // Who's talking (remote users only, like mobile): `activeSpeakerUid` while
   // they speak, `lastSpeakerUid` sticks to whoever spoke last so the speaker
@@ -708,6 +744,32 @@ export const useMeeting = () => {
       setTimeout(() => whiteboardSync.requestAll(), 300);
     }
     setWhiteboard(board);
+  };
+
+  // Reactions from others; reassigned every render (the RTM handler is
+  // not), so sender names resolve against the current member list.
+  const handleReaction = useRef<(content: string, senderUid: number) => void>(
+    () => {},
+  );
+  handleReaction.current = (content, senderUid) => {
+    const kind = bubbleKind(content);
+    if (kind) {
+      // A sender may be someone's second device or presenter camera: the
+      // bubble is still labelled with the account's own name.
+      const sender = meetingUsers.find(
+        (u) => u.userId === ownerOfAgUid(senderUid),
+      );
+      setBubbles((prev) =>
+        addBubble(
+          prev,
+          makeBubble(kind, sender?.fullName ?? 'Một người tham dự'),
+        ),
+      );
+      return;
+    }
+    if (content === 'HAND' || content === 'NONE') {
+      dispatch(setReaction({ agUid: senderUid, reaction: content }));
+    }
   };
 
   const refreshUsers = useCallback(() => {
@@ -1275,7 +1337,10 @@ export const useMeeting = () => {
                   break;
 
                 case 'ROOM_REACTION':
-                  dispatch(setReaction({ agUid: Number(memberId), reaction: rtmMessage.message_content }));
+                  handleReaction.current(
+                    String(rtmMessage.message_content),
+                    Number(memberId),
+                  );
                   break;
 
                 default:
@@ -1422,6 +1487,9 @@ export const useMeeting = () => {
     stopSharingScreen,
     sendMessage,
     sendReaction,
+    bubbles,
+    removeBubble,
+    handRaised,
     meetingUsers,
     meetingDetail,
     meetingId,

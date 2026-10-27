@@ -2,13 +2,13 @@ import { Avatar } from '@/renderer/shared/components';
 import AgoraEngineService from '@/shared/services/Agora/AgoraEngineService';
 import Icon from 'assets/svg/icons';
 import { useLayoutEffect, useMemo, useRef } from 'react';
-import { VideoViewProps } from './types';
 import {
   RenderModeType,
   VideoMirrorModeType,
   VideoSourceType,
   VideoViewSetupMode,
 } from 'agora-electron-sdk';
+import { VideoViewProps } from './types';
 import './VideoView.scss';
 
 export function VideoView({
@@ -82,35 +82,24 @@ export function VideoView({
     };
   }, [isLocal, uid, debug, enableVideo, localSource]);
 
+  // Heart/Like/Clap float up on their own (see ReactionBubbles); the tile
+  // badge only ever shows a raised hand.
   const renderReaction = useMemo(() => {
-    if (reaction) {
-      let name = ''
-      switch(reaction.toLocaleLowerCase()) {
-        case 'hand':
-          name = 'hand';
-          break;
-        case 'clap':
-          name = 'clap';
-          break;
-        case 'heart':
-          name = 'heart';
-          break;
-        case 'like':
-          name = 'like';
-          break;
-        default:
-          break;
-      }
-      if(name) {
-        return <Icon name={name} className="surface-view-info-reaction" style={{
-          position: 'absolute',
-          bottom: '10px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '32px',
-          height: '32px',
-        }} />;
-      }
+    if (reaction?.toLocaleLowerCase() === 'hand') {
+      return (
+        <Icon
+          name="hand"
+          className="surface-view-info-reaction"
+          style={{
+            position: 'absolute',
+            bottom: '10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '32px',
+            height: '32px',
+          }}
+        />
+      );
     }
   }, [reaction]);
 

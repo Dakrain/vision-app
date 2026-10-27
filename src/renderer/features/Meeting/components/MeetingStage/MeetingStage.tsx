@@ -77,6 +77,8 @@ type Props = {
   /** Called when the set of on-screen remote videos changes. */
   onVisibleStreamsChange?: (streams: VisibleStreams) => void;
   renderTile: (user: MeetingUser) => ReactNode;
+  /** Floating reaction bubbles: above every tile, clicks pass through. */
+  overlay?: ReactNode;
 };
 
 const ACTION_LABEL: Record<TileMenuAction, string> = {
@@ -122,6 +124,7 @@ export function MeetingStage({
   onTileAction,
   onVisibleStreamsChange,
   renderTile,
+  overlay,
 }: Props) {
   const board = content !== undefined && content !== null;
   // Focus only differs from speaker view while something is shared.
@@ -270,6 +273,7 @@ export function MeetingStage({
           <div className="meeting-stage-sharing">Bạn đang chia sẻ màn hình</div>
         )}
         <p className="meeting-stage-hint">Đang chờ mọi người tham gia…</p>
+        {overlay}
       </div>
     );
   }
@@ -362,6 +366,7 @@ export function MeetingStage({
           {renderTile(presenterCam)}
         </div>
       )}
+      {overlay}
     </div>
   );
 }

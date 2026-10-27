@@ -40,6 +40,7 @@ import {
   MeetingDetail,
   MeetingUser,
   MenuItem,
+  ReactionBubbles,
   UserSection,
   VideoView,
   VirtualBackgroundDialog,
@@ -75,7 +76,6 @@ function Meeting() {
   const [activeTab, setActiveTab] = useState(MEETING_USER_TABS[0].value);
   const [showMeetingUser, setShowMeetingUser] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const [reaction, setReaction] = useState(false);
   const [openLeaveDialog, setOpenLeaveDialog] = useState(false);
   const [openLivestreamDialog, setOpenLivestreamDialog] = useState(false);
   const [openAddMember, setOpenAddMember] = useState(false);
@@ -140,6 +140,9 @@ function Meeting() {
     toggleCamera,
     toggleMic,
     sendReaction,
+    bubbles,
+    removeBubble,
+    handRaised,
     sendMessage,
     startSharingScreen,
     stopSharingScreen,
@@ -449,6 +452,9 @@ function Meeting() {
         presenterCam={presenterCam}
         onVisibleStreamsChange={setVisibleStreams}
         renderTile={renderTile}
+        overlay={
+          <ReactionBubbles bubbles={bubbles} onBubbleDone={removeBubble} />
+        }
       />
     );
   }, [
@@ -476,6 +482,8 @@ function Meeting() {
     enableCamera,
     uidVideoOff,
     meetingDetail?.user?.userId,
+    bubbles,
+    removeBubble,
   ]);
 
   const myUid = meetingDetail?.user?.agUid;
@@ -1027,24 +1035,19 @@ function Meeting() {
               onClose={() => {
                 setOpenEmojiPicker(false);
               }}
+              handRaised={handRaised}
               onEmojiSelect={(emoji) => {
-                sendReaction(emoji);
-                setReaction(true);
+                // Heart/Like/Clap just fly up; Hand is the one sticky
+                // state, so picking it again lowers it.
+                sendReaction(emoji === 'HAND' && handRaised ? 'NONE' : emoji);
                 setOpenEmojiPicker(false);
               }}
             >
               <MenuItem
                 icon="emoji"
                 caret="up"
-                name={reaction ? 'Dừng thả cảm xúc' : 'Thả cảm xúc'}
-                onClick={() => {
-                  if (reaction) {
-                    setReaction(false);
-                    sendReaction('NONE');
-                  } else {
-                    setOpenEmojiPicker(true);
-                  }
-                }}
+                name="Thả cảm xúc"
+                onClick={() => setOpenEmojiPicker(true)}
               />
             </EmojiPicker>
             <MenuItem

@@ -1,0 +1,106 @@
+// Overlay sits above the tiles (meeting-stage children top out at z-index
+// 3) and never intercepts clicks: the bubbles only ever get animated with
+// transform/opacity, no per-frame JS.
+.reaction-bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.reaction-bubble {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation-duration: 3s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+
+  .reaction-bubble-icon {
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  }
+
+  .reaction-bubble-name {
+    max-width: 120px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 11px;
+    line-height: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// A few sideways-drift variants so bubbles spawned together don't all rise
+// in a straight line (see reactionBubbles.ts's `drift`).
+.reaction-bubble-drift-0 {
+  animation-name: reaction-bubble-rise-left;
+}
+.reaction-bubble-drift-1 {
+  animation-name: reaction-bubble-rise-straight;
+}
+.reaction-bubble-drift-2 {
+  animation-name: reaction-bubble-rise-right;
+}
+
+@keyframes reaction-bubble-rise-straight {
+  0% {
+    transform: translate(-50%, 0) scale(0.4);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, -60px) scale(1);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -360px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes reaction-bubble-rise-left {
+  0% {
+    transform: translate(-50%, 0) scale(0.4);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, -60px) scale(1);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% - 28px), -360px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes reaction-bubble-rise-right {
+  0% {
+    transform: translate(-50%, 0) scale(0.4);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, -60px) scale(1);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + 28px), -360px) scale(1);
+    opacity: 0;
+  }
+}
