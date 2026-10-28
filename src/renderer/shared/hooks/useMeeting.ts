@@ -846,6 +846,23 @@ export const useMeeting = () => {
     [sendAction, meetingDetail?.user?.agUid],
   );
 
+  // "I am sharing" was said once, when the share started: someone who
+  // joins later never heard it and showed my screen as an avatar. Repeat it
+  // when someone enters the RTM channel (only then can they receive it),
+  // and a few seconds after an RTC join as a fallback.
+  // (`shareScreen`: set by start/stopSharingScreen. The page keeps its own
+  // `isSharing`; this hook's one is not updated.)
+  useEffect(() => {
+    if (!shareScreen) return undefined;
+    const timer = setTimeout(() => announceScreenShare(true), 800);
+    return () => clearTimeout(timer);
+  }, [rtmUids.length, shareScreen, announceScreenShare]);
+  useEffect(() => {
+    if (!shareScreen) return undefined;
+    const timer = setTimeout(() => announceScreenShare(true), 5000);
+    return () => clearTimeout(timer);
+  }, [remoteUsers.length, shareScreen, announceScreenShare]);
+
   // Spotlight (Teams): a host/co-host puts one participant (main uid) on
   // everyone's stage. RTM only, nothing on the server: a manager repeats it
   // whenever someone joins so late joiners get it too.
