@@ -42,7 +42,8 @@
   padding-top: 8px;
 
   .meeting-stage-cell {
-    flex: 0 1 auto;
+    // Never squeezed: the stage shows only as many as fit (see stripFit).
+    flex: none;
     aspect-ratio: 16 / 9;
     height: 100%;
   }

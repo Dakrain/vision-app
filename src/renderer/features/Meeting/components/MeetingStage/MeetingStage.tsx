@@ -33,6 +33,11 @@ const HIGH_QUALITY_TILES = 4;
 
 /** Speaker view's strip under the main tile (more: a "+N" tile). */
 const STRIP_SIZE = 5;
+/** A strip tile: 120px high (the strip's 128 less its top padding), 16:9. */
+const STRIP_TILE_WIDTH = (120 * 16) / 9;
+const STRIP_GAP = 8;
+/** The stage's side padding, both sides. */
+const STAGE_PADDING_X = 32;
 
 export type TileMenuAction = 'pin' | 'unpin' | 'spotlight' | 'unspotlight';
 
@@ -134,6 +139,26 @@ export function MeetingStage({
   if (board) layout = 'speaker';
   const pageSize = layout === 'speaker' ? 1 : PAGE_SIZE[layout];
 
+  // As many strip tiles as fit side by side at 16:9 (a narrow window, or the
+  // chat panel open, squeezed them into slivers); the rest go into "+N".
+  // A callback ref: the stage element can arrive after the first effect run.
+  const [rootEl, setRootEl] = useState<HTMLDivElement | null>(null);
+  const [stripFit, setStripFit] = useState(STRIP_SIZE);
+  useEffect(() => {
+    const el = rootEl;
+    // (jsdom has no ResizeObserver: keep the full strip.)
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(() => {
+      const width = el.clientWidth - STAGE_PADDING_X;
+      const fit = Math.floor(
+        (width + STRIP_GAP) / (STRIP_TILE_WIDTH + STRIP_GAP),
+      );
+      setStripFit(Math.max(2, Math.min(STRIP_SIZE, fit)));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [rootEl]);
+
   const [page, setPage] = useState(0);
   const pages = Math.max(1, Math.ceil(others.length / pageSize));
   useEffect(() => {
@@ -175,7 +200,7 @@ export function MeetingStage({
   // With a board on stage my own tile joins the strip (floating, it would
   // cover the board's tools).
   const selfInStrip = board && !!self && !hideSelf;
-  const stripRoom = STRIP_SIZE - (selfInStrip ? 1 : 0);
+  const stripRoom = stripFit - (selfInStrip ? 1 : 0);
   let strip = rest.length > stripRoom ? rest.slice(0, stripRoom - 1) : rest;
   if (focus) strip = [];
   const hidden = focus ? 0 : rest.length - strip.length;
@@ -351,7 +376,10 @@ export function MeetingStage({
 
   const hasStrip = layout === 'speaker' && strip.length > 0;
   return (
-    <div className={`meeting-stage${hasStrip ? ' has-strip' : ''}`}>
+    <div
+      ref={setRootEl}
+      className={`meeting-stage${hasStrip ? ' has-strip' : ''}`}
+    >
       {stage}
       {selfSharing && (
         <div className="meeting-stage-sharing">Bạn đang chia sẻ màn hình</div>
