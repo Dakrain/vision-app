@@ -76,17 +76,20 @@ export function CallOverlay() {
 
   return (
     <div className="call-overlay" role="dialog" aria-label="Cuộc gọi">
+      {/* VideoView forces `position: relative` on itself: the placement
+          lives on a wrapper. */}
       {showRemoteVideo ? (
-        <VideoView
-          className="call-overlay-remote"
-          uid={call.remoteUid!}
-          isLocal={false}
-          avatar={call.peer?.avatar ?? ''}
-          enableVideo
-          enableAudio
-          label={peerName}
-          debug={false}
-        />
+        <div className="call-overlay-remote">
+          <VideoView
+            uid={call.remoteUid!}
+            isLocal={false}
+            avatar={call.peer?.avatar ?? ''}
+            enableVideo
+            enableAudio
+            label={peerName}
+            debug={false}
+          />
+        </div>
       ) : (
         <div className="call-overlay-peer">
           <Avatar url={call.peer?.avatar ?? ''} radius={56} name={peerName} />
@@ -95,16 +98,17 @@ export function CallOverlay() {
       )}
 
       {call.phase === 'connected' && isVideo && call.cameraOn && (
-        <VideoView
-          className="call-overlay-local"
-          uid={0}
-          isLocal
-          avatar=""
-          enableVideo
-          enableAudio={call.micOn}
-          label="Bạn"
-          debug={false}
-        />
+        <div className="call-overlay-local">
+          <VideoView
+            uid={0}
+            isLocal
+            avatar=""
+            enableVideo
+            enableAudio={call.micOn}
+            label="Bạn"
+            debug={false}
+          />
+        </div>
       )}
 
       <div className="call-overlay-status">{status}</div>

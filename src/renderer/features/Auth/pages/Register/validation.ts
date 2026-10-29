@@ -30,6 +30,7 @@ export function validateConfirmPassword(
   value: string,
   password: string,
 ): string | null {
+  if (!value) return 'Vui lòng nhập lại mật khẩu';
   return value === password ? null : 'Mật khẩu không khớp';
 }
 

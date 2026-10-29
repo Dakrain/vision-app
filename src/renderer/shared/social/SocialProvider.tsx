@@ -84,7 +84,13 @@ export function SocialProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!me) return undefined;
     let first = true;
-    return watchConversations(me.backendId, (list) => {
+    return watchConversations(me.backendId, (all) => {
+      // Someone opened a chat with me but sent nothing yet: not a
+      // conversation for me until the first message.
+      const list = all.filter(
+        (c) =>
+          c.type !== 'direct' || !!c.lastMessage || c.members.includes(me.uid),
+      );
       setConversations(list);
       list.forEach((c) => {
         const at = c.lastMessageAt?.getTime() ?? 0;

@@ -24,6 +24,20 @@ const SAMPLE_RATE = 48000;
 const WIDTH = 1920;
 const HEIGHT = 1080;
 
+/** The same mixed frame delivered again (see the observer in `start`). */
+export function isRepeat(
+  previous: { renderTimeMs?: number; data: Int16Array } | undefined,
+  renderTimeMs: number | undefined,
+  data: Int16Array,
+): boolean {
+  if (!previous || previous.renderTimeMs !== renderTimeMs) return false;
+  if (previous.data.length !== data.length) return false;
+  for (let i = 0; i < data.length; i += 1) {
+    if (previous.data[i] !== data[i]) return false;
+  }
+  return true;
+}
+
 interface Session {
   id: string;
   output: Output;
@@ -115,19 +129,30 @@ export function useMeetingRecorder(meetingTitle?: string) {
       // 10 ms chunks of 16-bit mono PCM.
       const audioQueue = { done: Promise.resolve() as Promise<unknown> };
       let audioFrames = 0;
+      // While sharing there is a second connection (the camera's), and
+      // Agora hands every mixed frame over once per connection: the audio
+      // came out twice as long as the meeting. A frame identical to the one
+      // just before (same render time, same samples) is that repeat.
+      let previous: { renderTimeMs?: number; data: Int16Array } | undefined;
       AgoraEngineService.setMixedAudioFrameParameters(SAMPLE_RATE, 1, 480);
       observer = {
         onMixedAudioFrame: (_channel, frame) => {
           const bytes = frame.buffer;
           const samples = frame.samplesPerChannel ?? 0;
           if (stopped.value || !bytes || !samples) return;
-          const sample = new AudioSample({
-            data: new Int16Array(
-              bytes.buffer.slice(
-                bytes.byteOffset,
-                bytes.byteOffset + samples * 2,
-              ),
+          const data = new Int16Array(
+            bytes.buffer.slice(
+              bytes.byteOffset,
+              bytes.byteOffset + samples * 2,
             ),
+          );
+          if (isRepeat(previous, frame.renderTimeMs, data)) {
+            previous = undefined;
+            return;
+          }
+          previous = { renderTimeMs: frame.renderTimeMs, data: data.slice() };
+          const sample = new AudioSample({
+            data,
             format: 's16',
             numberOfChannels: 1,
             sampleRate: SAMPLE_RATE,

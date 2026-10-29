@@ -47,5 +47,6 @@ describe('register validation (mirrors mobile account_information.dart)', () => 
       'Mật khẩu không khớp',
     );
     expect(validateConfirmPassword('123456', '123456')).toBeNull();
+    expect(validateConfirmPassword('', '')).toBe('Vui lòng nhập lại mật khẩu');
   });
 });

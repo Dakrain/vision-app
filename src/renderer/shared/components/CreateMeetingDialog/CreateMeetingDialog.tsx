@@ -220,7 +220,8 @@ export function CreateMeetingDialog({
         onScheduled?.();
         onClose();
       } else {
-        navigate(`/meeting/lobby`, { state: { meetingId } });
+        // justCreated: cancelling in the lobby removes it again.
+        navigate(`/meeting/lobby`, { state: { meetingId, justCreated: true } });
       }
     } catch (_) {
       notification.error({

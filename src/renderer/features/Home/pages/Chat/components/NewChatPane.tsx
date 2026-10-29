@@ -66,7 +66,7 @@ export function NewChatPane({ people, myId, onPick }: Props) {
           <input
             id="chat-to-input"
             ref={inputRef}
-            placeholder="Gõ tên cá nhân bạn muốn chat"
+            placeholder="Nhập tên liên hệ hoặc email"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {

@@ -64,10 +64,13 @@ function MeetingLobby() {
     meetingId: initialMeetingId,
     meetingKey,
     password,
+    justCreated = false,
   } = (location.state || {}) as {
     meetingId?: number;
     meetingKey?: string;
     password?: string;
+    /** Instant meeting created just now, on the way in. */
+    justCreated?: boolean;
   };
   // Known from the start, or once the join request has been accepted.
   const [meetingId, setMeetingId] = useState(initialMeetingId);
@@ -341,6 +344,15 @@ function MeetingLobby() {
     // Joining by code before "Tham gia": nothing to release.
     if (meetingId && !isHost) {
       await MeetingService.leaveMeeting(meetingId).catch(() => {});
+    }
+    // An instant meeting I just created and never started: drop it, or it
+    // sits in everyone's "Live" list forever.
+    if (meetingId && isHost && justCreated) {
+      await withLoading(
+        MeetingService.deleteMeeting(meetingId).catch(() =>
+          MeetingService.endMeeting(meetingId),
+        ),
+      ).catch(() => {});
     }
     navigate('/home', { replace: true });
   };

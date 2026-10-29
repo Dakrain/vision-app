@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Modal } from 'antd';
 import { Excalidraw } from '@excalidraw/excalidraw';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import '@excalidraw/excalidraw/index.css';
@@ -36,6 +37,23 @@ export default function Whiteboard({
 }: Props) {
   const api = useRef<ExcalidrawImperativeAPI>();
 
+  // Closing wipes the board for everyone: ask first unless it's empty.
+  const confirmClose = () => {
+    if (!sync.elements().some((e) => !e.isDeleted)) {
+      onClose();
+      return;
+    }
+    Modal.confirm({
+      title: 'Đóng bảng trắng?',
+      content: 'Bảng trắng sẽ đóng với mọi người và nội dung đã vẽ sẽ mất.',
+      okText: 'Đóng',
+      okButtonProps: { danger: true },
+      cancelText: 'Huỷ',
+      centered: true,
+      onOk: onClose,
+    });
+  };
+
   // Someone else drew: redraw from the shared scene.
   useEffect(
     () =>
@@ -57,7 +75,7 @@ export default function Whiteboard({
             <button type="button" onClick={onToggleLock}>
               {locked ? 'Cho mọi người vẽ' : 'Khoá (chỉ xem)'}
             </button>
-            <button type="button" className="danger" onClick={onClose}>
+            <button type="button" className="danger" onClick={confirmClose}>
               Đóng bảng trắng
             </button>
           </div>

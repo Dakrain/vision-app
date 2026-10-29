@@ -886,10 +886,10 @@ function Meeting() {
                 selectable: true,
                 selectedKeys: [viewMode],
                 items: [
-                  { key: 'speaker', label: 'Speaker View' },
-                  { key: 'gallery', label: 'Gallery View' },
-                  { key: 'large', label: 'Large Gallery (7x7)' },
-                  { key: 'focus', label: 'Focus (chỉ nội dung chia sẻ)' },
+                  { key: 'speaker', label: 'Người nói' },
+                  { key: 'gallery', label: 'Lưới' },
+                  { key: 'large', label: 'Lưới lớn (7x7)' },
+                  { key: 'focus', label: 'Tập trung (chỉ nội dung chia sẻ)' },
                   { type: 'divider' },
                   {
                     key: 'self',
