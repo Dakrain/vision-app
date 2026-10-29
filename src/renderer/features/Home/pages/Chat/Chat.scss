@@ -22,6 +22,55 @@
   color: #808080;
 }
 
+// Danh bạ: friend requests above the contacts.
+.chat-section-title {
+  padding: 12px 16px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #808080;
+  text-transform: uppercase;
+}
+
+.chat-request-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+
+  button {
+    padding: 4px 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    background: white;
+    color: #333333;
+    cursor: pointer;
+
+    &.accept {
+      border-color: #ff3c3c;
+      background: #ff3c3c;
+      color: white;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
+.chat-add-contact {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #ff3c3c;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-add-contact-error {
+  margin-top: 8px;
+  color: #ff4d4f;
+}
+
 // ---- Left column
 .chat-list {
   flex: none;

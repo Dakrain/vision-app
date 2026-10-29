@@ -402,6 +402,9 @@ function Meeting() {
           }
           // A shared screen shows no name tag: it covered the content.
           hideLabel={!isLocal && user.agUid === remoteSharingUid}
+          hideMic={
+            user.agUid !== undefined && parseAgUid(user.agUid).kind === 'aux'
+          }
           avatar={user.avatarUrl ?? ''}
           label={user.fullName ?? 'Vision20User'}
           reaction={user.reaction}

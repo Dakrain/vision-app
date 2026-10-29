@@ -24,6 +24,7 @@ export function VideoView({
   reaction,
   isSharing = false,
   hideLabel = false,
+  hideMic = false,
   connecting = false,
 }: VideoViewProps) {
   const isSetup = useRef(false);
@@ -125,7 +126,7 @@ export function VideoView({
       )}
       {!hideLabel && (
         <div className="surface-view-info">
-          {!connecting && (
+          {!connecting && !hideMic && (
             <Icon name={enableAudio ? 'tileMic' : 'tileMicOff'} />
           )}
           <span className="surface-view-info-label">{label}</span>

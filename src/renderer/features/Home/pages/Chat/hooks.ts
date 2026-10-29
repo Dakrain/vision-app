@@ -19,16 +19,23 @@ export function useOnline() {
   return online;
 }
 
-/** My contacts ("Danh bạ"), loaded once per Chat page visit. */
+/** My contacts ("Danh bạ") and the friend requests waiting for me, loaded
+ * once per Chat page visit. */
 export function useContacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [requests, setRequests] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setContacts(await FriendService.fetchContacts());
+      const [list, pending] = await Promise.all([
+        FriendService.fetchContacts(),
+        FriendService.fetchRequests().catch(() => []),
+      ]);
+      setContacts(list);
+      setRequests(pending);
       setFailed(false);
     } catch (_) {
       setFailed(true);
@@ -41,7 +48,7 @@ export function useContacts() {
     load();
   }, [load]);
 
-  return { contacts, loading, failed, reload: load };
+  return { contacts, requests, loading, failed, reload: load };
 }
 
 /** Case- and accent-insensitive "contains". */

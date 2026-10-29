@@ -10,10 +10,13 @@ import {
   peerBackendId,
   profileOf,
 } from '@/shared/services/Firebase/chat';
-import type { Contact } from '@/shared/services/Friend/FriendService';
+import FriendService, {
+  type Contact,
+} from '@/shared/services/Friend/FriendService';
 import { Dropdown, notification, Spin } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import { listTimeLabel } from './chatFormat';
+import { AddContactDialog } from './components/AddContactDialog';
 import { ChatAvatar } from './components/ChatAvatar';
 import { ForwardDialog } from './components/ForwardDialog';
 import { NewChatPane } from './components/NewChatPane';
@@ -69,7 +72,14 @@ function ConversationRow({
 function Chat() {
   const { me, conversations, activeConversationId, setActiveConversationId } =
     useSocial();
-  const { contacts, loading: contactsLoading } = useContacts();
+  const {
+    contacts,
+    requests,
+    loading: contactsLoading,
+    reload: reloadContacts,
+  } = useContacts();
+  const [addingContact, setAddingContact] = useState(false);
+  const [answering, setAnswering] = useState<number>();
   const [tab, setTab] = useState<ListTab>('chats');
   const [query, setQuery] = useState('');
   // Composing a new conversation instead of showing one.
@@ -159,6 +169,65 @@ function Chat() {
     (p) => matches(p.fullName, query) || matches(p.email, query),
   );
 
+  // A friend request: accept (they join Danh bạ) or decline.
+  const answer = async (p: Contact, accept: boolean) => {
+    if (!p.friendId) return;
+    setAnswering(p.friendId);
+    try {
+      if (accept) await FriendService.acceptRequest(p.friendId);
+      else await FriendService.removeFriend(p.friendId);
+      await reloadContacts();
+    } catch (_) {
+      notification.error({
+        message: 'Không thực hiện được, vui lòng thử lại',
+        placement: 'top',
+      });
+    } finally {
+      setAnswering(undefined);
+    }
+  };
+
+  const renderRequests = () =>
+    !query.trim() &&
+    requests.length > 0 && (
+      <>
+        <div className="chat-section-title">
+          Lời mời kết bạn ({requests.length})
+        </div>
+        {requests.map((p) => (
+          <div key={`request-${p.id}`} className="chat-row-item contact">
+            <Avatar
+              url={p.avatarUrl ?? ''}
+              radius={24}
+              name={p.fullName ?? '?'}
+            />
+            <span className="chat-row-item-text">
+              <b>{p.fullName}</b>
+              <span>{p.email}</span>
+            </span>
+            <span className="chat-request-actions">
+              <button
+                type="button"
+                className="accept"
+                disabled={answering === p.friendId}
+                onClick={() => answer(p, true)}
+              >
+                Đồng ý
+              </button>
+              <button
+                type="button"
+                disabled={answering === p.friendId}
+                onClick={() => answer(p, false)}
+              >
+                Từ chối
+              </button>
+            </span>
+          </div>
+        ))}
+        <div className="chat-section-title">Danh bạ</div>
+      </>
+    );
+
   const renderList = () => {
     if (tab === 'contacts') {
       if (contactsLoading) {
@@ -170,14 +239,17 @@ function Chat() {
       }
       if (shownContacts.length === 0) {
         return (
-          <div className="chat-empty">
-            {query.trim()
-              ? 'Không tìm thấy liên hệ nào'
-              : 'Chưa có liên hệ nào'}
-          </div>
+          <>
+            {renderRequests()}
+            <div className="chat-empty">
+              {query.trim()
+                ? 'Không tìm thấy liên hệ nào'
+                : 'Chưa có liên hệ nào'}
+            </div>
+          </>
         );
       }
-      return shownContacts.map((p) => (
+      const rows = shownContacts.map((p) => (
         <button
           key={p.id}
           type="button"
@@ -195,6 +267,12 @@ function Chat() {
           </span>
         </button>
       ));
+      return (
+        <>
+          {renderRequests()}
+          {rows}
+        </>
+      );
     }
     return (
       <>
@@ -291,6 +369,15 @@ function Chat() {
           </button>
         </div>
         <div className="chat-toolbar">
+          {tab === 'contacts' && (
+            <button
+              type="button"
+              className="chat-add-contact"
+              onClick={() => setAddingContact(true)}
+            >
+              Thêm liên hệ
+            </button>
+          )}
           {tab === 'chats' && (
             <div className="chat-toolbar-icons">
               <Dropdown
@@ -331,6 +418,10 @@ function Chat() {
         message={forwarding}
         people={people}
         onClose={() => setForwarding(undefined)}
+      />
+      <AddContactDialog
+        open={addingContact}
+        onClose={() => setAddingContact(false)}
       />
     </div>
   );
