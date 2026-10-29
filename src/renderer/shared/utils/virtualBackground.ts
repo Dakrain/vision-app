@@ -6,6 +6,7 @@ import {
 } from 'agora-electron-sdk';
 
 const fs = window.require('fs');
+const path = window.require('path');
 
 /**
  * The chosen virtual background, kept on this device. It used to live only
@@ -15,12 +16,30 @@ const fs = window.require('fs');
  */
 const KEY = 'meeting.virtualBackground';
 
+/** One of the bundled backgrounds, at the path of the running install. */
+const PRESET = /virtual_background_\d+\.jpg$/;
+const relocatePreset = (src: string): string | undefined => {
+  const name = path.basename(src);
+  if (!PRESET.test(name) || !process.resourcesPath) return undefined;
+  const moved = path.join(
+    process.resourcesPath,
+    'assets/images/virtual_background',
+    name,
+  );
+  return fs.existsSync(moved) ? moved : undefined;
+};
+
 /** Image path of the saved background, or undefined for none. */
 export const loadVirtualBackground = (): string | undefined => {
   try {
     const src = localStorage.getItem(KEY) || undefined;
-    // A custom image the user has since deleted.
-    return src && fs.existsSync(src) ? src : undefined;
+    if (!src || fs.existsSync(src)) return src;
+    // A bundled one saved by another install (reinstalled, or run from a
+    // different place — a DMG mounts somewhere new each time): same image.
+    const moved = relocatePreset(src);
+    if (moved) localStorage.setItem(KEY, moved);
+    // Otherwise a photo of mine that has since been deleted.
+    return moved;
   } catch (_) {
     return undefined;
   }
