@@ -11,6 +11,7 @@ import {
   useState,
 } from 'react';
 import { signInAsUser, signOut, uidFor } from '../services/Firebase/app';
+import { osNotify } from '../utils/osNotify';
 import {
   Conversation,
   Me,
@@ -98,12 +99,15 @@ export function SocialProvider({ children }: { children: ReactNode }) {
         lastSeen.current[c.id] = at;
         if (first || before === undefined || at <= before) return;
         if (c.lastMessageBy === me.uid || c.id === activeRef.current) return;
+        const title = conversationTitle(c, me.backendId);
         notification.info({
-          message: conversationTitle(c, me.backendId),
+          message: title,
           description: c.lastMessage,
           placement: 'bottomRight',
           duration: 4,
         });
+        // Window minimised or behind others: a system notification too.
+        osNotify(title, c.lastMessage ?? '');
       });
       first = false;
     });
