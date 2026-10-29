@@ -12,4 +12,9 @@ export type RegisterRequest = {
   lastName: string;
   email: string;
   password: string;
+  /** See GENDER_UNSET: left out, the server stores 0 (= Nữ). */
+  gender?: number;
 };
+
+/** Gender codes: 1 Nam, 0 Nữ. 2 = not chosen (the column has no "none"). */
+export const GENDER_UNSET = 2;

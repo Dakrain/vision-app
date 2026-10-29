@@ -253,7 +253,10 @@ export function PersonalInfo({ user }: Props) {
             <Select
               variant="borderless"
               placeholder="Chọn giới tính"
-              value={form.gender >= 0 ? form.gender : undefined}
+              // Anything but 1/0 (e.g. 2 from registration) is "not chosen".
+              value={
+                form.gender === 0 || form.gender === 1 ? form.gender : undefined
+              }
               onChange={(v) => set('gender', v)}
               options={[
                 { value: 1, label: 'Nam' },

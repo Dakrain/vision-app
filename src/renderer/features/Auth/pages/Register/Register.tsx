@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { message } from 'antd';
 import Icon from '@/assets/svg/icons';
 import authService from '@/renderer/shared/services/Auth/AuthService';
+import { GENDER_UNSET } from '@/renderer/shared/services/Auth/request';
 import { RegisterFormErrors, validateRegisterForm } from './validation';
 
 const { ipcRenderer } = window.require('electron');
@@ -45,7 +46,14 @@ function Register() {
     setApiError('');
     setSubmitting(true);
     try {
-      await authService.register({ firstName, lastName, email, password });
+      // No gender asked here: 0 would read as "Nữ".
+      await authService.register({
+        firstName,
+        lastName,
+        email,
+        password,
+        gender: GENDER_UNSET,
+      });
       message.success('Đăng ký thành công');
       navigate('/login');
     } catch (e) {
