@@ -109,6 +109,8 @@ function Meeting() {
     remoteSharingUid,
     spotlightUid,
     spotlight,
+    recordingUids,
+    announceRecording,
     whiteboard,
     whiteboardSync,
     canControlWhiteboard,
@@ -789,6 +791,19 @@ function Meeting() {
   ]);
 
   const recorder = useMeetingRecorder(meetingDetail?.room?.title);
+  // Everyone is told while I record (RTM; see useMeeting).
+  const announceRecordingRef = useRef(announceRecording);
+  announceRecordingRef.current = announceRecording;
+  const recordingAnnounced = useRef(false);
+  useEffect(() => {
+    if (recorder.isRecording === recordingAnnounced.current) return;
+    recordingAnnounced.current = recorder.isRecording;
+    announceRecordingRef.current(recorder.isRecording);
+  }, [recorder.isRecording]);
+  const othersRecording = recordingUids
+    .map((uid) => meetingUsers.find((u) => u.agUid === uid)?.fullName)
+    .filter(Boolean)
+    .join(', ');
 
   const stopShare = () => {
     AgoraEngineService.stopScreenCapture();
@@ -876,6 +891,14 @@ function Meeting() {
             {recorder.isRecording && (
               <span className="meeting-rec-badge" title="Đang ghi cuộc họp">
                 ● REC <RecordingClock startedAt={recorder.startedAt} />
+              </span>
+            )}
+            {!recorder.isRecording && recordingUids.length > 0 && (
+              <span
+                className="meeting-rec-badge"
+                title={`${othersRecording || 'Một người tham dự'} đang ghi cuộc họp`}
+              >
+                ● Đang được ghi
               </span>
             )}
             <p>{meetingDetail?.room?.title}</p>

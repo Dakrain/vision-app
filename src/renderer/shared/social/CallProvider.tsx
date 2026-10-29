@@ -636,7 +636,19 @@ export function CallProvider({ children }: { children: ReactNode }) {
       setUi(placing);
       let res: CallWithMedia;
       try {
-        res = await CallService.place(peer.backendId, type);
+        try {
+          res = await CallService.place(peer.backendId, type);
+        } catch (first) {
+          // No answer, or a server error rather than a decision (busy,
+          // already in a call…): try once more. Had the first one gone
+          // through after all, this gets e_call_already_in_call → resync.
+          const { code, status } = parseCallError(first);
+          if (code || (status !== undefined && status < 500)) throw first;
+          if (abortPlacingRef.current) throw first;
+          // eslint-disable-next-line no-promise-executor-return
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          res = await CallService.place(peer.backendId, type);
+        }
       } catch (e) {
         const err = parseCallError(e);
         if (err.call) finishedRef.current.add(err.call.id);

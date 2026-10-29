@@ -884,6 +884,46 @@ export const useMeeting = () => {
     return () => clearTimeout(timer);
   }, [remoteUsers.length, canManageMembers, spotlightUid, sendAction]);
 
+  // Recording (local, by anyone allowed): everyone is told who records —
+  // RTM `RECORDING`, repeated while recording so late joiners hear it too.
+  const [recordingUids, setRecordingUids] = useState<number[]>([]);
+  const [recordingMine, setRecordingMine] = useState(false);
+  const announceRecording = useCallback(
+    (recording: boolean) => {
+      setRecordingMine(recording);
+      sendAction('RECORDING', {
+        ag_uid: meetingDetail?.user?.agUid,
+        recording: recording ? 1 : 0,
+      });
+    },
+    [sendAction, meetingDetail?.user?.agUid],
+  );
+  useEffect(() => {
+    if (!recordingMine) return undefined;
+    const timer = setTimeout(
+      () =>
+        sendAction('RECORDING', {
+          ag_uid: meetingDetail?.user?.agUid,
+          recording: 1,
+        }),
+      3000,
+    );
+    return () => clearTimeout(timer);
+  }, [
+    remoteUsers.length,
+    rtmUids.length,
+    recordingMine,
+    sendAction,
+    meetingDetail?.user?.agUid,
+  ]);
+  // Someone who left stops counting as recording.
+  useEffect(() => {
+    setRecordingUids((uids) => {
+      const kept = uids.filter((uid) => remoteUsers.includes(uid));
+      return kept.length === uids.length ? uids : kept;
+    });
+  }, [remoteUsers]);
+
   // ---- Whiteboard (Excalidraw over RTM, no server; see whiteboardSync).
   // One board at a time, opened by anyone allowed to share; its owner (and
   // hosts/co-hosts) can lock it to view-only or close it.
@@ -1251,6 +1291,31 @@ export const useMeeting = () => {
       });
       return;
     }
+    if (subType === 'RECORDING') {
+      // Only about oneself, like SCREEN_SHARE.
+      if (Number(content?.ag_uid) !== senderUid || senderUid === myUid) return;
+      const recording = !!content?.recording;
+      let changed = false;
+      setRecordingUids((uids) => {
+        const has = uids.includes(senderUid);
+        if (has === recording) return uids;
+        changed = true;
+        return recording
+          ? [...uids, senderUid]
+          : uids.filter((uid) => uid !== senderUid);
+      });
+      if (changed || recording) {
+        notification[recording ? 'warning' : 'info']({
+          key: `recording-${senderUid}`,
+          message: `${sender?.fullName ?? 'Một người tham dự'} ${
+            recording ? 'đang ghi lại cuộc họp' : 'đã dừng ghi cuộc họp'
+          }`,
+          placement: 'top',
+          duration: 3,
+        });
+      }
+      return;
+    }
     const fromManager =
       sender?.role === MeetingRole.HOST || sender?.role === MeetingRole.CO_HOST;
     if (subType === 'SPOTLIGHT') {
@@ -1585,6 +1650,7 @@ export const useMeeting = () => {
                 case 'MEMBERS_CHANGED':
                 case 'SETTINGS_CHANGED':
                 case 'SPOTLIGHT':
+                case 'RECORDING':
                   handleHostCommand.current(
                     rtmMessage.message_sub_type,
                     rtmMessage.message_content,
@@ -1760,6 +1826,8 @@ export const useMeeting = () => {
     remoteSharingUid,
     spotlightUid,
     spotlight,
+    recordingUids,
+    announceRecording,
     whiteboard,
     whiteboardSync,
     canControlWhiteboard,
