@@ -54,7 +54,7 @@ export function MeetingChat({
       )}
       <div className="meeting-chat-body">
         <div className="meeting-chat-notice">
-          Tin nhắn chỉ hiển thị với những người tham gia cuộc họp và sẽ bị xoá
+          Tin nhắn chỉ hiển thị với những người tham gia cuộc họp và sẽ bị xóa
           khi cuộc họp kết thúc
         </div>
         <div className="meeting-chat-messages">

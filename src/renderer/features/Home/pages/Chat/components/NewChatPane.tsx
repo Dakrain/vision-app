@@ -14,6 +14,7 @@ interface Props {
 export function NewChatPane({ people, myId, onPick }: Props) {
   const [query, setQuery] = useState('');
   const [remote, setRemote] = useState<Contact[]>([]);
+  const [searching, setSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const requestId = useRef(0);
 
@@ -24,10 +25,12 @@ export function NewChatPane({ people, myId, onPick }: Props) {
     const text = query.trim();
     if (text.length < 3) {
       setRemote([]);
+      setSearching(false);
       return undefined;
     }
     requestId.current += 1;
     const id = requestId.current;
+    setSearching(true);
     const timer = setTimeout(async () => {
       try {
         const res = await MeetingService.searchUsers(text);
@@ -44,6 +47,8 @@ export function NewChatPane({ people, myId, onPick }: Props) {
         );
       } catch (_) {
         if (id === requestId.current) setRemote([]);
+      } finally {
+        if (id === requestId.current) setSearching(false);
       }
     }, 300);
     return () => clearTimeout(timer);
@@ -74,6 +79,17 @@ export function NewChatPane({ people, myId, onPick }: Props) {
             }}
           />
         </label>
+        {/* Typed something and nothing to pick: say why, instead of a
+            blank pane. */}
+        {query.trim() && suggestions.length === 0 && (
+          <div className="chat-to-suggestions">
+            <div className="chat-to-empty">
+              {searching
+                ? 'Đang tìm…'
+                : 'Không tìm thấy liên hệ. Người chưa có trong danh bạ: nhập email của họ.'}
+            </div>
+          </div>
+        )}
         {suggestions.length > 0 && (
           <div className="chat-to-suggestions">
             {suggestions.map((p) => (

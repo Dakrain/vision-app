@@ -581,3 +581,9 @@
     }
   }
 }
+
+// Read-only values (the sign-in email): no edit affordance.
+.settings-field input.readonly {
+  color: #808080;
+  cursor: default;
+}

@@ -285,7 +285,7 @@ function Chat() {
             <button
               type="button"
               className="chat-draft-close"
-              aria-label="Huỷ"
+              aria-label="Hủy"
               onClick={() => setDraft(undefined)}
             >
               <Icon name="meetingClose" />
@@ -363,7 +363,11 @@ function Chat() {
             type="button"
             role="tab"
             aria-selected={tab === 'contacts'}
-            onClick={() => setTab('contacts')}
+            onClick={() => {
+              setTab('contacts');
+              // A new-message draft doesn't belong on the contacts list.
+              setDraft(undefined);
+            }}
           >
             Danh bạ
           </button>

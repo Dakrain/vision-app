@@ -47,6 +47,11 @@ interface MeetingProps {
   refreshKey: number;
 }
 
+// First page of each tab, kept across remounts (the tab is rebuilt on every
+// visit and on the way back from a meeting): it shows at once, refreshed
+// behind it, instead of a spinner each time.
+const firstPageCache = new Map<ListTab, MeetingListItem[]>();
+
 function Meeting({
   openJoinMeetingDialog,
   openCreateMeetingDialog,
@@ -79,6 +84,7 @@ function Meeting({
         });
         if (id !== requestId.current) return;
         const rows = res.rows ?? [];
+        if (pageNumber === 1) firstPageCache.set(tab, rows);
         setMeetings((prev) => (pageNumber === 1 ? rows : [...prev, ...rows]));
         setPage(pageNumber);
         setHasMore(pageNumber * (res.pageSize || rows.length) < res.total);
@@ -94,9 +100,10 @@ function Meeting({
   );
 
   useEffect(() => {
-    setMeetings([]);
-    load(1);
-  }, [load, refreshKey]);
+    const cached = firstPageCache.get(tab);
+    setMeetings(cached ?? []);
+    load(1, !!cached);
+  }, [load, refreshKey, tab]);
 
   // Keep the first page fresh; skip while the user is paging further down.
   useEffect(() => {
@@ -158,7 +165,7 @@ function Meeting({
       content: `"${meeting.title}" sẽ bị xóa khỏi danh sách của mọi người.`,
       okText: 'Xóa',
       okButtonProps: { danger: true },
-      cancelText: 'Huỷ',
+      cancelText: 'Hủy',
       centered: true,
       onOk: async () => {
         try {

@@ -1,0 +1,15 @@
+.device-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+
+  > span {
+    font-weight: 600;
+    color: #333333;
+  }
+
+  .ant-select {
+    width: 100%;
+  }
+}

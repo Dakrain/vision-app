@@ -46,6 +46,7 @@ import {
   VirtualBackgroundDialog,
 } from './components';
 import { ShareScreenDialog } from './components/ShareScreenDialog/ShareScreenDialog';
+import { DeviceSettingsDialog } from './components/DeviceSettingsDialog/DeviceSettingsDialog';
 import { MEETING_USER_TABS } from './constants';
 import { RoomPermissions } from './components/RoomPermissions/RoomPermissions';
 import { selectChats } from './store/selector';
@@ -66,6 +67,7 @@ const HIDE_SELF_KEY = 'meeting.hideSelf';
 const Whiteboard = lazy(() => import('./components/Whiteboard/Whiteboard'));
 
 function Meeting() {
+  const [openDeviceSettings, setOpenDeviceSettings] = useState(false);
   const [openShareScreenDialog, setOpenShareScreenDialog] = useState(false);
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
   const [openVirtualBackgroundDialog, setOpenVirtualBackgroundDialog] =
@@ -582,7 +584,7 @@ function Meeting() {
       content:
         'Tắt micro của mọi thành viên (trừ Host và Co-host)? Mọi người vẫn tự bật lại được.',
       okText: 'Tắt micro tất cả',
-      cancelText: 'Huỷ',
+      cancelText: 'Hủy',
       onOk: () =>
         muteAllMembers().catch(() =>
           notification.error({
@@ -934,7 +936,7 @@ function Meeting() {
             </Dropdown>
             <MenuItem
               icon="fullScreen"
-              name="Full screen"
+              name={isFullScreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
               onClick={() => {
                 if (!document.fullscreenElement) {
                   document.documentElement.requestFullscreen();
@@ -1143,8 +1145,12 @@ function Meeting() {
               trigger={['click']}
               placement="top"
               menu={{
-                items: [{ key: 'virtualBackground', label: 'Phông nền' }],
+                items: [
+                  { key: 'devices', label: 'Micrô, camera và loa' },
+                  { key: 'virtualBackground', label: 'Phông nền' },
+                ],
                 onClick: ({ key }) => {
+                  if (key === 'devices') setOpenDeviceSettings(true);
                   if (key === 'virtualBackground') {
                     setOpenVirtualBackgroundDialog(true);
                   }
@@ -1200,6 +1206,10 @@ function Meeting() {
           activeStreams={livestream.activeStreams}
           onStart={livestream.start}
           onStop={livestream.stop}
+        />
+        <DeviceSettingsDialog
+          open={openDeviceSettings}
+          onClose={() => setOpenDeviceSettings(false)}
         />
         <ShareScreenDialog
           open={openShareScreenDialog}

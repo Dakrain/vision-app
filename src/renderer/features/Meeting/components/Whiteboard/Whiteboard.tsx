@@ -48,7 +48,7 @@ export default function Whiteboard({
       content: 'Bảng trắng sẽ đóng với mọi người và nội dung đã vẽ sẽ mất.',
       okText: 'Đóng',
       okButtonProps: { danger: true },
-      cancelText: 'Huỷ',
+      cancelText: 'Hủy',
       centered: true,
       onOk: onClose,
     });

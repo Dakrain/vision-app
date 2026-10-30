@@ -396,8 +396,12 @@ function MeetingLobby() {
   const room = detail?.room;
   const hostName = detail?.host?.fullName || room?.ownerFullName;
   // My own meeting starts; anyone else's is joined.
+  // A known meeting whose details are still loading: my role isn't known
+  // yet (the label used to flip from "Tham gia ngay" to "Bắt đầu").
+  const loadingDetail = !!meetingId && !detail;
   let joinLabel = 'Tham gia ngay';
-  if (isWaiting) joinLabel = 'Đang chờ duyệt…';
+  if (loadingDetail) joinLabel = 'Đang tải…';
+  else if (isWaiting) joinLabel = 'Đang chờ duyệt…';
   else if (isHost) joinLabel = 'Bắt đầu';
 
   return (
@@ -512,9 +516,9 @@ function MeetingLobby() {
             variant="primary"
             title={joinLabel}
             onClick={join}
-            disabled={isWaiting}
+            disabled={isWaiting || loadingDetail}
           />
-          <Button variant="outline" title="Huỷ" onClick={cancel} />
+          <Button variant="outline" title="Hủy" onClick={cancel} />
         </div>
       </div>
       <VirtualBackgroundDialog

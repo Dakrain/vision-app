@@ -100,7 +100,7 @@ export function UserPicker({
           disabled={!query.trim()}
           onClick={addTyped}
         >
-          Add
+          Thêm
         </button>
       </div>
       {showList && (

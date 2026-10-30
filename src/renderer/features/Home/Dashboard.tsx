@@ -24,14 +24,26 @@ import UserService from '../../shared/services/User/UserService';
 const { Sider } = Layout;
 const { ipcRenderer } = window.require('electron');
 
+// The tab last open, kept across remounts (leaving a meeting rebuilds the
+// dashboard; it used to land on Home every time).
+let lastMenu = 'home';
+
 function Dashboard() {
   useEffect(() => {
-    ipcRenderer.send('resize-window', { width: 1366, height: 768 });
+    // Only out of the small login window: coming back from a meeting it
+    // snapped a resized or moved window back to 1366x768, centred.
+    if (window.innerWidth < 900) {
+      ipcRenderer.send('resize-window', { width: 1366, height: 768 });
+    }
   }, []);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [activeMenu, setActiveMenu] = useState<string>('home');
+  const [activeMenu, setActiveMenuState] = useState<string>(lastMenu);
+  const setActiveMenu = (menu: string) => {
+    lastMenu = menu;
+    setActiveMenuState(menu);
+  };
   const userDetail = useSelector(selectAuth);
   const [openJoinMeetingDialog, setOpenJoinMeetingDialog] = useState(false);
   const [openCreateMeetingDialog, setOpenCreateMeetingDialog] = useState(false);
@@ -51,6 +63,7 @@ function Dashboard() {
   }, []);
 
   const doLogout = async () => {
+    lastMenu = 'home';
     // Drop this device server-side too; leave either way.
     await UserService.logout().catch(() => {});
     dispatch(logout());

@@ -446,6 +446,19 @@ const createWindow = async () => {
   menuBuilder.buildMenu();
 
   // Open urls in the user's browser
+  // A link never replaces the app itself (a placeholder google.com link did,
+  // with no way back): pages elsewhere open in the browser.
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const current = mainWindow?.webContents.getURL() ?? '';
+    const sameApp =
+      url.startsWith('file:') ||
+      (current.startsWith('http') &&
+        new URL(url).origin === new URL(current).origin);
+    if (sameApp) return;
+    event.preventDefault();
+    if (/^https?:/.test(url)) shell.openExternal(url);
+  });
+
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
     return { action: 'deny' };

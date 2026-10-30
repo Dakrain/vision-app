@@ -70,7 +70,7 @@ export function MeetingUser({
       content: confirm(user.fullName ?? ''),
       okText: ACTION_LABEL[action],
       okButtonProps: { danger: true },
-      cancelText: 'Huỷ',
+      cancelText: 'Hủy',
       onOk: () => onAction?.(user, action),
     });
   };

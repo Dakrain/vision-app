@@ -278,12 +278,12 @@ export function LivestreamDialog({
               </Checkbox>
               {!isActive && (
                 <Popconfirm
-                  title="Xoá nơi phát này?"
-                  okText="Xoá"
-                  cancelText="Huỷ"
+                  title="Xóa nơi phát này?"
+                  okText="Xóa"
+                  cancelText="Hủy"
                   onConfirm={() => removeDestination(d.id)}
                 >
-                  <Typography.Link type="danger">Xoá</Typography.Link>
+                  <Typography.Link type="danger">Xóa</Typography.Link>
                 </Popconfirm>
               )}
             </div>
@@ -356,7 +356,7 @@ export function LivestreamDialog({
                     setAdding(false);
                   }}
                 >
-                  Huỷ
+                  Hủy
                 </Typography.Link>
               )}
             </div>

@@ -129,7 +129,7 @@ export function CallOverlay() {
               className="call-btn toggle"
               onClick={call.dismiss}
             >
-              Huỷ
+              Hủy
             </button>
             <button
               type="button"
@@ -186,7 +186,7 @@ export function CallOverlay() {
                 className="call-btn decline"
                 onClick={call.hangUp}
               >
-                {call.phase === 'connected' ? 'Kết thúc' : 'Huỷ'}
+                {call.phase === 'connected' ? 'Kết thúc' : 'Hủy'}
               </button>
             </>
           ))}

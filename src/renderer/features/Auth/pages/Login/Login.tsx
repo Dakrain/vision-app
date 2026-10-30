@@ -7,7 +7,9 @@ import { useAppSelector } from '@/renderer/store/hooks';
 import useLoading from '@/renderer/shared/hooks/useLoading';
 import { message } from 'antd';
 import { useAuth } from '@/renderer/shared/hooks/useAuth';
+import Icon from '@/assets/svg/icons';
 import { login } from '../../../../shared/store/auth/action';
+import { ForgotPasswordDialog } from './ForgotPasswordDialog';
 import { selectIsAuth } from '../../../../shared/store/auth/selector';
 
 const { ipcRenderer } = window.require('electron');
@@ -21,6 +23,7 @@ function Login() {
   const [email, setEmail] = useState(isDev ? 'hai2@gmail.com' : '');
   const [password, setPassword] = useState(isDev ? '12345678' : '');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const { error } = useAuth();
   useEffect(() => {
     ipcRenderer.send('resize-window', { width: 480, height: 852 });
@@ -57,7 +60,6 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        {error && <div className="error">{error.message}</div>}
         <div className="form-group">
           <label htmlFor="password">Mật khẩu</label>
           <div className="password-input">
@@ -70,16 +72,25 @@ function Login() {
             />
             <button
               type="button"
-              className="toggle-password"
-              aria-label="Toggle password visibility"
+              // Same as Register: Figma only has the slashed eye, lit up
+              // while the text shows (the old <i> had no icon at all).
+              className={`toggle-password${isPasswordVisible ? ' visible' : ''}`}
+              aria-label={isPasswordVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-pressed={isPasswordVisible}
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             >
-              <i className="eye-icon" />
+              <Icon name="eyeSlash" />
             </button>
           </div>
-          <a href="https://google.com" className="forgot-password">
+          {/* Under the pair it is about, not between the two fields. */}
+          {error && <div className="error">{error.message}</div>}
+          <button
+            type="button"
+            className="forgot-password"
+            onClick={() => setForgotOpen(true)}
+          >
             Quên mật khẩu?
-          </a>
+          </button>
         </div>
       </div>
       <div className="login-footer">
@@ -93,9 +104,10 @@ function Login() {
         </button>
 
         <p className="terms">
-          Bằng việc đăng nhập, bạn đồng ý với{' '}
-          <a href="https://google.com">Điều khoản dịch vụ</a>,{' '}
-          <a href="https://google.com">Chính sách bảo mật và Cookie</a>
+          {/* No terms pages exist yet (these linked to google.com, which
+              replaced the whole app window). */}
+          Bằng việc đăng nhập, bạn đồng ý với <b>Điều khoản dịch vụ</b>,{' '}
+          <b>Chính sách bảo mật và Cookie</b>
         </p>
 
         <div className="register-prompt">
@@ -109,6 +121,11 @@ function Login() {
           </button>
         </div>
       </div>
+      <ForgotPasswordDialog
+        open={forgotOpen}
+        initialEmail={email}
+        onClose={() => setForgotOpen(false)}
+      />
     </div>
   );
 }

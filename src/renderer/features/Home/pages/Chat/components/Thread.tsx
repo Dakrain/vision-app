@@ -362,9 +362,13 @@ export function Thread({ conversation, onForward }: Props) {
             const sender = mine
               ? myProfile
               : {
+                  // The member's current picture first: the one stored on
+                  // an old message can be gone (initials on old messages,
+                  // the photo on new ones).
                   avatarUrl:
-                    m.senderAvatar ??
-                    profileOf(conversation, m.senderBackendId).avatarUrl,
+                    profileOf(conversation, m.senderBackendId).avatarUrl ||
+                    m.senderAvatar ||
+                    undefined,
                   displayName: nameOf(m),
                 };
             let status: string | undefined;

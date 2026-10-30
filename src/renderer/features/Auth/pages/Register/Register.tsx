@@ -192,9 +192,9 @@ function Register() {
           </button>
 
           <p className="terms">
-            Bằng việc đăng ký, bạn đồng ý với{' '}
-            <a href="https://google.com">Điều khoản dịch vụ</a>,{' '}
-            <a href="https://google.com">Chính sách bảo mật và Cookie</a>
+            {/* No terms pages exist yet (these linked to google.com). */}
+            Bằng việc đăng ký, bạn đồng ý với <b>Điều khoản dịch vụ</b>,{' '}
+            <b>Chính sách bảo mật và Cookie</b>
           </p>
 
           <div className="login-prompt">

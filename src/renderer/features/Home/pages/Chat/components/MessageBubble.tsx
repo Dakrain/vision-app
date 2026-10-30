@@ -1,6 +1,6 @@
 import Icon from '@/assets/svg/icons';
 import { type Message, RECALLED_TEXT } from '@/shared/services/Firebase/chat';
-import { Dropdown } from 'antd';
+import { Dropdown, Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import { memo } from 'react';
 import {
@@ -43,7 +43,7 @@ const callText = (m: Message) => {
       };
     default:
       return {
-        title: 'Cuộc gọi đã huỷ',
+        title: 'Cuộc gọi đã hủy',
         sub: 'Nhấn để gọi lại',
         missed: false,
       };
@@ -94,7 +94,19 @@ export const MessageBubble = memo(function MessageBubble({
       <button
         type="button"
         className={`chat-call ${c.missed ? 'missed' : ''}`}
-        onClick={() => onCallBack?.(m.callKind === 'video' ? 'video' : 'audio')}
+        // One click used to start the call (a video one turns the camera
+        // on): ask first.
+        onClick={() => {
+          if (!onCallBack) return;
+          const video = m.callKind === 'video';
+          Modal.confirm({
+            title: video ? 'Gọi video lại?' : 'Gọi lại?',
+            okText: 'Gọi',
+            cancelText: 'Hủy',
+            centered: true,
+            onOk: () => onCallBack(video ? 'video' : 'audio'),
+          });
+        }}
       >
         <Icon name={m.callKind === 'video' ? 'chatVideo' : 'chatPhone'} />
         <span>

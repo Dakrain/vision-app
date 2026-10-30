@@ -50,7 +50,7 @@ type Phase =
   | 'outgoing'
   | 'incoming'
   | 'connected'
-  /** My outgoing call wasn't answered: "Gọi lại" / "Huỷ". */
+  /** My outgoing call wasn't answered: "Gọi lại" / "Hủy". */
   | 'ended';
 
 /** Free for a new call (an 'ended' screen is just waiting to be closed). */
@@ -120,7 +120,7 @@ const endText = (call: Call, isCaller: boolean) => {
       // The callee gets the "Cuộc gọi nhỡ" notification from call:missed.
       return isCaller ? 'Không thể nhận cuộc gọi' : undefined;
     case 'cancelled':
-      return isCaller ? undefined : 'Cuộc gọi đã huỷ';
+      return isCaller ? undefined : 'Cuộc gọi đã hủy';
     default:
       return 'Cuộc gọi đã kết thúc';
   }

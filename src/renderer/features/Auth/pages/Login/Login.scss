@@ -3,6 +3,8 @@
   justify-content: center;
   align-items: center;
   height: 90vh;
+  // Room above the logo, as in Figma (it sat flush with the top).
+  padding-top: 40px;
   background-color: #fff;
   overflow: hidden;
   display: flex;
@@ -20,7 +22,7 @@
       color: #FF3C3C;
       font-size: 12px;
       font-weight: 500;
-      margin-bottom: 16px;
+      margin-top: 8px;
     }
 
     .logo {
@@ -81,11 +83,22 @@
           border: none;
           cursor: pointer;
           padding: 0;
+          display: flex;
+          align-items: center;
+          opacity: 0.6;
+
+          &.visible {
+            opacity: 1;
+          }
         }
       }
 
       .forgot-password {
         display: block;
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
         text-align: right;
         margin-top: 8px;
         text-decoration: none;
@@ -174,4 +187,9 @@
       }
     }
   }
+}
+
+.forgot-password-error {
+  margin-top: 8px;
+  color: #ff4d4f;
 }

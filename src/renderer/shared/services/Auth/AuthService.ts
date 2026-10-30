@@ -18,6 +18,28 @@ class AuthService extends BaseService {
   async register(request: RegisterRequest): Promise<User> {
     return this.post('/user', request);
   }
+
+  // Forgotten password, as on mobile: a 6-digit code is mailed, the code
+  // buys a one-off token, the token sets the new password.
+  async forgotPassword(email: string): Promise<unknown> {
+    return this.post('/user/forgotpassword', { email });
+  }
+
+  async verifyResetCode(
+    email: string,
+    code: string,
+  ): Promise<{ id: number; token: string }> {
+    return this.post('/user/codevefiry', { email, code });
+  }
+
+  async resetPassword(request: {
+    id: number;
+    token: string;
+    password: string;
+    confirmPassword: string;
+  }): Promise<unknown> {
+    return this.post('/user/resetpassword', request);
+  }
 }
 
 const authService = new AuthService({

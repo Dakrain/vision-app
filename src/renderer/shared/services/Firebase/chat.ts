@@ -213,7 +213,7 @@ const preview = (m: Omit<Message, 'id'>) => {
       if (m.callOutcome === 'missed') return `📵 Cuộc gọi ${kind} nhỡ`;
       if (m.callOutcome === 'rejected') return `📞 Cuộc gọi ${kind} bị từ chối`;
       if (m.callOutcome === 'completed') return `📞 Cuộc gọi ${kind}`;
-      return `📞 Cuộc gọi ${kind} đã huỷ`;
+      return `📞 Cuộc gọi ${kind} đã hủy`;
     }
     default:
       return m.text ?? '';

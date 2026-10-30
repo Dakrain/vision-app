@@ -113,7 +113,7 @@ export function Composer({
           </div>
           <button
             type="button"
-            aria-label="Huỷ trả lời"
+            aria-label="Hủy trả lời"
             onClick={onCancelReply}
           >
             <Icon name="meetingClose" />

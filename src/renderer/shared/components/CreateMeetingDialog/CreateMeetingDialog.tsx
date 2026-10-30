@@ -16,7 +16,7 @@ import {
   TimePicker,
 } from 'antd';
 import type { Dayjs } from 'dayjs';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useLoading from '../../hooks/useLoading';
@@ -105,6 +105,12 @@ export function CreateMeetingDialog({
   const { withLoading } = useLoading();
 
   const [tab, setTab] = useState<SetupTab>('info');
+  // Each tab, and each opening, starts at the top (the old scroll position
+  // hid the first field).
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 });
+  }, [tab, open]);
   const [title, setTitle] = useState('');
   const [password, setPassword] = useState('');
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
@@ -180,7 +186,10 @@ export function CreateMeetingDialog({
     try {
       const result = await withLoading(
         MeetingService.createMeeting({
-          title: title.trim(),
+          // Left empty, the server names it "Vision 20 Persional`s Meeting…".
+          title:
+            title.trim() ||
+            (user?.fullName ? `Cuộc họp của ${user.fullName}` : 'Cuộc họp'),
           password: password.trim(),
           // 0/absent = start right away.
           startTime: isScheduled ? startTime : undefined,
@@ -459,7 +468,7 @@ export function CreateMeetingDialog({
           Cài đặt cuộc họp
         </button>
       </div>
-      <div className="meeting-setup-body">
+      <div className="meeting-setup-body" ref={bodyRef}>
         {tab === 'info' ? infoTab : settingsTab}
       </div>
       <div className="meeting-setup-footer">

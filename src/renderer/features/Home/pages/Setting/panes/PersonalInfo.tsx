@@ -234,10 +234,10 @@ export function PersonalInfo({ user }: Props) {
         <section>
           <h2>Thông tin cá nhân</h2>
           <div className="settings-row">
-            <Field label="Họ">{text('firstName')}</Field>
-            <Field label="Tên">{text('lastName')}</Field>
+            <Field label="Họ *">{text('firstName')}</Field>
+            <Field label="Tên *">{text('lastName')}</Field>
           </div>
-          <Field label="Ngày sinh">
+          <Field label="Ngày sinh *">
             <DatePicker
               variant="borderless"
               format="DD / MM / YYYY"
@@ -264,7 +264,10 @@ export function PersonalInfo({ user }: Props) {
               ]}
             />
           </Field>
-          <Field label="Email">{text('email')}</Field>
+          {/* The sign-in identifier: shown, not edited here. */}
+          <Field label="Email">
+            <input value={form.email} readOnly className="readonly" />
+          </Field>
           <Field label="Số điện thoại">
             <span className="settings-phone">
               {form.phoneCode && <em>(+{form.phoneCode.replace('+', '')})</em>}

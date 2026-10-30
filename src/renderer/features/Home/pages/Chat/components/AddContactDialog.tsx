@@ -2,6 +2,7 @@ import FriendService from '@/shared/services/Friend/FriendService';
 import MeetingService from '@/shared/services/Meeting/MeetingService';
 import { Input, Modal, notification } from 'antd';
 import { useState } from 'react';
+import { EMAIL_REGEX } from '@/renderer/features/Auth/pages/Register/validation';
 
 type Props = {
   open: boolean;
@@ -27,6 +28,10 @@ export function AddContactDialog({ open, onClose }: Props) {
     const wanted = email.trim().toLowerCase();
     if (!wanted) {
       setError('Vui lòng nhập email');
+      return;
+    }
+    if (!EMAIL_REGEX.test(wanted)) {
+      setError('Email không hợp lệ');
       return;
     }
     setSending(true);
@@ -58,7 +63,7 @@ export function AddContactDialog({ open, onClose }: Props) {
       open={open}
       title="Thêm liên hệ"
       okText="Gửi lời mời"
-      cancelText="Huỷ"
+      cancelText="Hủy"
       confirmLoading={sending}
       onOk={send}
       onCancel={close}

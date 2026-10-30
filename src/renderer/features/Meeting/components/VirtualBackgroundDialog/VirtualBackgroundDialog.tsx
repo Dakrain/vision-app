@@ -102,10 +102,10 @@ export function VirtualBackgroundDialog({
 
   const removeCustomBackground = (source: VirtualBackground) => {
     Modal.confirm({
-      title: 'Xoá phông nền',
-      content: 'Bạn có muốn xoá ảnh nền này?',
-      okText: 'Xoá',
-      cancelText: 'Huỷ',
+      title: 'Xóa phông nền',
+      content: 'Bạn có muốn xóa ảnh nền này?',
+      okText: 'Xóa',
+      cancelText: 'Hủy',
       onOk: async () => {
         await ipcRenderer.invoke('custom-backgrounds:remove', source.src);
         if (selectedSource?.id === source.id) setSelectedSource(null);
@@ -147,7 +147,7 @@ export function VirtualBackgroundDialog({
           <button
             type="button"
             className="remove-btn"
-            title="Xoá ảnh này"
+            title="Xóa ảnh này"
             onClick={(e) => {
               e.stopPropagation();
               removeCustomBackground(source);
