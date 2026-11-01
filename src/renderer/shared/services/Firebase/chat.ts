@@ -15,6 +15,7 @@ import {
   updateDoc,
   where,
   writeBatch,
+  runTransaction,
 } from 'firebase/firestore';
 import { firestore, uidFor } from './app';
 
@@ -240,6 +241,11 @@ export async function sendMessage(
         | 'forwarded'
       >
     >,
+  /**
+   * A fixed id (call entries: `call_<callId>`, as on mobile). The message
+   * is then written only if no device wrote it yet.
+   */
+  messageId?: string,
 ) {
   const clientTimetoken = Date.now();
   const message: Omit<Message, 'id'> = {
@@ -250,31 +256,43 @@ export async function sendMessage(
     clientTimetoken,
     ...content,
   };
-  const ref = doc(
-    collection(firestore, 'conversations', conversationId, 'messages'),
+  const messages = collection(
+    firestore,
+    'conversations',
+    conversationId,
+    'messages',
   );
-  const batch = writeBatch(firestore);
-  batch.set(ref, {
+  const ref = messageId ? doc(messages, messageId) : doc(messages);
+  const data = {
     // JSON round-trip drops undefined fields, nested ones (replyTo) included:
     // Firestore rejects undefined values.
     ...JSON.parse(JSON.stringify(message)),
     createdAt: serverTimestamp(),
     readBy: [],
     deliveredTo: [],
-  });
-  batch.set(
-    doc(firestore, 'conversations', conversationId),
-    {
-      lastMessage: preview(message),
-      lastMessageAt: serverTimestamp(),
-      lastMessageBy: me.uid,
-      lastMessageType: message.type,
-      unreadCounts: Object.fromEntries(
-        otherBackendIds.map((id) => [String(id), increment(1)]),
-      ),
-    },
-    { merge: true },
-  );
+  };
+  const conversationRef = doc(firestore, 'conversations', conversationId);
+  const conversationUpdate = {
+    lastMessage: preview(message),
+    lastMessageAt: serverTimestamp(),
+    lastMessageBy: me.uid,
+    lastMessageType: message.type,
+    unreadCounts: Object.fromEntries(
+      otherBackendIds.map((id) => [String(id), increment(1)]),
+    ),
+  };
+  if (messageId) {
+    // First writer only: no duplicate entry, no unread counted twice.
+    await runTransaction(firestore, async (tx) => {
+      if ((await tx.get(ref)).exists()) return;
+      tx.set(ref, data);
+      tx.set(conversationRef, conversationUpdate, { merge: true });
+    });
+    return;
+  }
+  const batch = writeBatch(firestore);
+  batch.set(ref, data);
+  batch.set(conversationRef, conversationUpdate, { merge: true });
   await batch.commit();
 }
 

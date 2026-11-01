@@ -267,6 +267,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
         callOutcome: outcome,
         ...(call.acceptedAt ? { callDurationSec: Math.max(0, duration) } : {}),
       },
+      `call_${call.id}`,
     ).catch(() => {});
   }, []);
 
