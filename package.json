@@ -198,8 +198,7 @@
       "!node_modules/agora-electron-sdk/node_modules/**/*"
     ],
     "mac": {
-      "sign": ".erb/scripts/notarize.js",
-      "notarize": false,
+      "notarize": true,
       "target": {
         "target": "default",
         "arch": [
@@ -211,7 +210,11 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": false
+      "gatekeeperAssess": false,
+      "extendInfo": {
+        "NSCameraUsageDescription": "Vision20 uses the camera for video calls and meetings.",
+        "NSMicrophoneUsageDescription": "Vision20 uses the microphone for calls and meetings."
+      }
     },
     "dmg": {
       "contents": [
