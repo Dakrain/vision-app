@@ -171,6 +171,32 @@ function Meeting() {
       ? 0
       : chats.slice(chatSeen).filter((chat) => chat.userId !== me?.id).length;
 
+  // A message from someone else while the chat panel is closed: a banner
+  // with it at the top for a few seconds; clicking it opens the chat. (No
+  // sound in a meeting.)
+  const chatCount = useRef<number>();
+  useEffect(() => {
+    const before = chatCount.current;
+    chatCount.current = chats.length;
+    if (chatSeen === undefined || before === undefined) return;
+    if (chats.length <= before || showChat) return;
+    const chat = chats[chats.length - 1];
+    if (!chat || chat.userId === me?.id) return;
+    notification.open({
+      key: 'meeting-chat',
+      message: chat.userName || 'Tin nhắn mới',
+      description: chat.file ? '[Tệp đính kèm]' : chat.message,
+      placement: 'top',
+      duration: 4,
+      style: { cursor: 'pointer' },
+      onClick: () => {
+        notification.destroy('meeting-chat');
+        setShowChat(true);
+        setShowMeetingUser(false);
+      },
+    });
+  }, [chats, chatSeen, showChat, me?.id]);
+
   // Me talking: highlighted like everyone else (only while my mic is on).
   const selfSpeaking = localSpeaking && enableMic;
   // Only on-screen videos are received (see MeetingStage).

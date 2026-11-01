@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Avatar } from '@/shared/components';
 import {
   type Conversation,
@@ -13,7 +14,98 @@ interface Props {
   size: number;
 }
 
-/** A person's photo, or for a group up to three members' photos stacked. */
+/** One member: photo, or initial on grey. */
+function Member({ url, name, d }: { url?: string; name?: string; d: number }) {
+  const initial = (name ?? '').trim().split(/\s+/).pop()?.[0]?.toUpperCase();
+  return (
+    <span
+      className="chat-avatar-member"
+      style={{ width: d, height: d, fontSize: Math.round(d * 0.42) }}
+    >
+      {url ? <img src={url} alt="" /> : (initial ?? '?')}
+    </span>
+  );
+}
+
+/**
+ * The Figma group layouts: two overlapping, three in a triangle, four in a
+ * grid, five and more with a +N cell. (Up to three photos used to pile up,
+ * members without one in red.)
+ */
+function GroupMembers({
+  conversation,
+  ids,
+  size,
+}: {
+  conversation: Conversation;
+  ids: number[];
+  size: number;
+}) {
+  const n = ids.length;
+  const member = (id: number, d: number) => {
+    const p = profileOf(conversation, id);
+    return <Member url={p.avatarUrl} name={p.displayName} d={d} />;
+  };
+  if (n <= 1) return member(ids[0] ?? 0, size);
+  let cells: {
+    left?: number;
+    right?: number;
+    top?: number;
+    bottom?: number;
+    node: ReactNode;
+  }[];
+  if (n === 2) {
+    const d = Math.round(size * 0.68);
+    cells = [
+      { left: 0, top: 0, node: member(ids[0], d) },
+      { right: 0, bottom: 0, node: member(ids[1], d) },
+    ];
+  } else if (n === 3) {
+    const d = Math.round(size * 0.54);
+    cells = [
+      { left: (size - d) / 2, top: 0, node: member(ids[0], d) },
+      { left: 0, bottom: 0, node: member(ids[1], d) },
+      { right: 0, bottom: 0, node: member(ids[2], d) },
+    ];
+  } else {
+    const d = Math.round(size * 0.5);
+    cells = [
+      { left: 0, top: 0, node: member(ids[0], d) },
+      { right: 0, top: 0, node: member(ids[1], d) },
+      { left: 0, bottom: 0, node: member(ids[2], d) },
+      {
+        right: 0,
+        bottom: 0,
+        node:
+          n === 4 ? (
+            member(ids[3], d)
+          ) : (
+            <span
+              className="chat-avatar-member"
+              style={{ width: d, height: d, fontSize: Math.round(d * 0.36) }}
+            >
+              +{n - 3}
+            </span>
+          ),
+      },
+    ];
+  }
+  return (
+    <span className="chat-avatar-group" style={{ width: size, height: size }}>
+      {cells.map(({ node, ...pos }, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <span key={i} className="chat-avatar-group-item" style={pos}>
+          {node}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * A person's photo; for a group its photo, or its members as in the Figma
+ * chat cards (Group 2/3/4/n).
+ */
 export function ChatAvatar({ conversation, me, size }: Props) {
   if (conversation.type === 'group') {
     if (conversation.groupAvatar) {
@@ -25,25 +117,9 @@ export function ChatAvatar({ conversation, me, size }: Props) {
         />
       );
     }
-    const others = conversation.memberBackendIds
-      .filter((id) => id !== me)
-      .slice(0, 3);
-    const small = Math.round(size * 0.58);
+    const others = conversation.memberBackendIds.filter((id) => id !== me);
     return (
-      <span className="chat-avatar-group" style={{ width: size, height: size }}>
-        {others.map((id, i) => {
-          const p = profileOf(conversation, id);
-          return (
-            <span key={id} className={`chat-avatar-group-item i${i}`}>
-              <Avatar
-                url={p.avatarUrl ?? ''}
-                radius={small / 2}
-                name={p.displayName ?? '?'}
-              />
-            </span>
-          );
-        })}
-      </span>
+      <GroupMembers conversation={conversation} ids={others} size={size} />
     );
   }
   const p = profileOf(conversation, peerBackendId(conversation, me));

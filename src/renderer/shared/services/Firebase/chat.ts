@@ -296,6 +296,13 @@ export async function sendMessage(
   await batch.commit();
 }
 
+/** Sets (or with null removes) a group conversation's photo. */
+export function setGroupAvatar(conversationId: string, url: string | null) {
+  return updateDoc(doc(firestore, 'conversations', conversationId), {
+    groupAvatar: url ?? deleteField(),
+  });
+}
+
 export function markRead(conversationId: string, me: Me) {
   return setDoc(
     doc(firestore, 'conversations', conversationId),

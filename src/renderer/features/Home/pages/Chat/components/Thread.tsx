@@ -14,8 +14,10 @@ import {
   recallMessage,
   sendMessage,
   watchMessages,
+  setGroupAvatar,
 } from '@/shared/services/Firebase/chat';
-import { message as toast } from 'antd';
+import { Dropdown, message as toast } from 'antd';
+import { playMessagePop } from '@/shared/utils/sfx';
 import {
   Fragment,
   useCallback,
@@ -70,6 +72,7 @@ export function Thread({ conversation, onForward }: Props) {
   const [atBottom, setAtBottom] = useState(true);
   const [unseen, setUnseen] = useState(0);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const groupPhotoInput = useRef<HTMLInputElement>(null);
 
   useEffect(
     () => watchMessages(conversation.id, setMessages, max),
@@ -114,6 +117,17 @@ export function Thread({ conversation, onForward }: Props) {
     if (!newestId || newestId === lastNewest.current) return;
     const first = lastNewest.current === undefined;
     lastNewest.current = newestId;
+    // A message from the other side in the open conversation (which shows
+    // no notification): a soft pop, like mobile.
+    const newest = visible[visible.length - 1];
+    if (
+      !first &&
+      newest.senderBackendId !== me?.backendId &&
+      newest.type !== 'call' &&
+      Date.now() - (newest.clientTimetoken ?? 0) < 60000
+    ) {
+      playMessagePop();
+    }
     if (first || atBottom) scrollToBottom();
     else setUnseen((n) => n + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -314,13 +328,77 @@ export function Thread({ conversation, onForward }: Props) {
   return (
     <div className="chat-thread">
       <div className="chat-thread-header">
-        <ChatAvatar conversation={conversation} me={me.backendId} size={40} />
-        <div className="chat-thread-title">
-          <b>{title}</b>
-          {conversation.type === 'group' && (
-            <small>{conversation.memberBackendIds.length} thành viên</small>
-          )}
-        </div>
+        {conversation.type === 'group' ? (
+          // The group's photo: change or remove it from its header.
+          <Dropdown
+            trigger={['click']}
+            menu={{
+              items: [
+                { key: 'photo', label: 'Đổi ảnh nhóm' },
+                ...(conversation.groupAvatar
+                  ? [{ key: 'remove', label: 'Xóa ảnh nhóm', danger: true }]
+                  : []),
+              ],
+              onClick: ({ key }) => {
+                if (key === 'photo') groupPhotoInput.current?.click();
+                else
+                  setGroupAvatar(conversation.id, null).catch(() =>
+                    toast.error('Không xóa được ảnh nhóm'),
+                  );
+              },
+            }}
+          >
+            <button
+              type="button"
+              className="chat-thread-group"
+              title="Ảnh nhóm"
+            >
+              <ChatAvatar
+                conversation={conversation}
+                me={me.backendId}
+                size={40}
+              />
+              <div className="chat-thread-title">
+                <b>{title}</b>
+                <small>{conversation.memberBackendIds.length} thành viên</small>
+              </div>
+            </button>
+          </Dropdown>
+        ) : (
+          <>
+            <ChatAvatar
+              conversation={conversation}
+              me={me.backendId}
+              size={40}
+            />
+            <div className="chat-thread-title">
+              <b>{title}</b>
+            </div>
+          </>
+        )}
+        <input
+          ref={groupPhotoInput}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            e.target.value = '';
+            if (!file) return;
+            const hide = toast.loading('Đang tải ảnh nhóm…', 0);
+            try {
+              await setGroupAvatar(
+                conversation.id,
+                await uploadAttachment(file),
+              );
+              toast.success('Đã đổi ảnh nhóm');
+            } catch (_) {
+              toast.error('Không đổi được ảnh nhóm');
+            } finally {
+              hide();
+            }
+          }}
+        />
         {peer && (
           <div className="chat-thread-actions">
             <button
