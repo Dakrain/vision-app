@@ -1,0 +1,31 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close",
+    "coming_soon": "This feature is coming soon.",
+    "confirm": "Confirm",
+    "copied": "Copied",
+    "delete": "Delete",
+    "done": "Done",
+    "error_generic": "Something went wrong, please try again.",
+    "later": "Later",
+    "login_required": "Please sign in to use this feature.",
+    "next": "Next",
+    "no_data": "No data",
+    "ok": "OK",
+    "open_settings": "Open Settings",
+    "retry": "Try again",
+    "save": "Save",
+    "search": "Search",
+    "version": "Version {version} ({build})"
+  },
+  "language": {
+    "current": "Language: {name}",
+    "en": "English",
+    "subtitle": "Choose the app's display language",
+    "title": "Language",
+    "vi": "Tiếng Việt",
+    "zh": "中文 (简体)"
+  }
+}

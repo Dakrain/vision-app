@@ -1,0 +1,31 @@
+{
+  "common": {
+    "back": "Quay lại",
+    "cancel": "Hủy",
+    "close": "Đóng",
+    "coming_soon": "Tính năng này đang được phát triển.",
+    "confirm": "Xác nhận",
+    "copied": "Đã sao chép",
+    "delete": "Xóa",
+    "done": "Xong",
+    "error_generic": "Đã có lỗi xảy ra, vui lòng thử lại.",
+    "later": "Để sau",
+    "login_required": "Bạn cần đăng nhập để sử dụng tính năng này.",
+    "next": "Tiếp",
+    "no_data": "Không có dữ liệu",
+    "ok": "OK",
+    "open_settings": "Mở Cài đặt",
+    "retry": "Thử lại",
+    "save": "Lưu",
+    "search": "Tìm kiếm",
+    "version": "Phiên bản {version} ({build})"
+  },
+  "language": {
+    "current": "Ngôn ngữ mặc định: {name}",
+    "en": "English",
+    "subtitle": "Chọn ngôn ngữ hiển thị của ứng dụng",
+    "title": "Ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "zh": "中文 (简体)"
+  }
+}

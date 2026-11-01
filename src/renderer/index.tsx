@@ -1,4 +1,6 @@
 import { createRoot } from 'react-dom/client';
+// Before the app: the language is set up front.
+import './i18n';
 import App from './App';
 
 const container = document.getElementById('root') as HTMLElement;

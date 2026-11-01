@@ -62,8 +62,11 @@ class UserService extends BaseService {
     return this.put(`/user/${userId}`, body);
   }
 
-  /** Fields only PATCH takes, e.g. job ("Nghề nghiệp"). */
-  patchProfile(userId: number, body: { job?: string }): Promise<User> {
+  /** Fields only PATCH takes, e.g. job ("Nghề nghiệp"), language. */
+  patchProfile(
+    userId: number,
+    body: { job?: string; language?: string },
+  ): Promise<User> {
     return this.patch(`/user/${userId}`, body);
   }
 

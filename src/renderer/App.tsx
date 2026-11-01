@@ -1,11 +1,15 @@
 import { SocialProvider } from './shared/social/SocialProvider';
 import { CallProvider } from './shared/social/CallProvider';
-import { CallOverlay } from './shared/social/CallOverlay';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './global.css';
 import { Provider } from 'react-redux';
 import { ConfigProvider } from 'antd';
+import viVN from 'antd/locale/vi_VN';
+import enUS from 'antd/locale/en_US';
+import zhCN from 'antd/locale/zh_CN';
+import { useTranslation } from 'react-i18next';
 import { store } from '@/renderer/store/configureStore';
+import { CallOverlay } from './shared/social/CallOverlay';
 import Login from './features/Auth/pages/Login/Login';
 import Register from './features/Auth/pages/Register/Register';
 import { LoadingOverlay } from './shared/components';
@@ -15,9 +19,14 @@ import Meeting from './features/Meeting/Meeting';
 import MeetingLobby from './features/MeetingLobby/MeetingLobby';
 import SplashScreen from './features/Auth/pages/SplashScreen/SplashScreen';
 
+// antd's own texts (date pickers, empty lists…) in the app language.
+const ANTD_LOCALE = { vi: viVN, en: enUS, zh: zhCN } as const;
+
 export default function App() {
+  const { i18n } = useTranslation();
   return (
     <ConfigProvider
+      locale={ANTD_LOCALE[i18n.language as keyof typeof ANTD_LOCALE] ?? viVN}
       theme={{
         components: {
           Menu: {

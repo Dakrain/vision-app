@@ -3,7 +3,7 @@ import { selectAuth } from '@/shared/store/auth/selector';
 import Icon from '@/assets/svg/icons';
 import { type JSX, type ReactNode, useEffect, useState } from 'react';
 import { LogoutDialog } from './LogoutDialog';
-import { Language, currentLanguageLabel } from './panes/Language';
+import { Language, useCurrentLanguageLabel } from './panes/Language';
 import { Packages } from './panes/Packages';
 import { PersonalInfo } from './panes/PersonalInfo';
 import { Storage } from './panes/Storage';
@@ -54,6 +54,7 @@ function MenuRow({
 
 /** Account settings (Figma "Account setting / …", 10946:59797 and siblings). */
 function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
+  const languageLabel = useCurrentLanguageLabel();
   const { user } = useAppSelector(selectAuth);
   const [upgrading, setUpgrading] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
@@ -126,7 +127,7 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
             icon={<Icon name="settingGlobe" />}
             color="#7850dc"
             title="Ngôn ngữ"
-            subtitle={currentLanguageLabel}
+            subtitle={languageLabel}
             active={section === 'language'}
             onClick={() => onSectionChange('language')}
           />
