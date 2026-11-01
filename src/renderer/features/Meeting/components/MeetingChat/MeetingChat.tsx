@@ -3,6 +3,7 @@ import { ChatBubble } from '@/renderer/shared/components';
 import { useAppDispatch } from '@/renderer/store';
 import { useAuth } from '@/shared/hooks';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { sendChat } from '../../store/action';
@@ -15,6 +16,7 @@ export function MeetingChat({
   canSend = true,
   online = true,
 }: MeetingChatProps) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { user } = useAuth();
   const { meetingId } = useLocation().state;
@@ -44,18 +46,16 @@ export function MeetingChat({
 
   return (
     <div className="meeting-chat">
-      <div className="meeting-chat-header">Tin nhắn trong cuộc họp</div>
+      <div className="meeting-chat-header">{t('meeting.chat.title')}</div>
       {!online && (
         <div className="meeting-chat-offline" role="status">
           <span className="meeting-chat-offline-spinner" />
-          Mất kết nối chat. Đang kết nối lại… Tin nhắn mới sẽ hiện khi kết
-          nối lại.
+          {t('meeting.chat.reconnecting')}
         </div>
       )}
       <div className="meeting-chat-body">
         <div className="meeting-chat-notice">
-          Tin nhắn chỉ hiển thị với những người tham gia cuộc họp và sẽ bị xóa
-          khi cuộc họp kết thúc
+          {t('meeting.chat.visibility_note')}
         </div>
         <div className="meeting-chat-messages">
           {chats.map((chat, index) => (
@@ -73,7 +73,11 @@ export function MeetingChat({
       </div>
       <div className="meeting-chat-input">
         <input
-          placeholder={canSend ? 'Nhập tin nhắn...' : 'Chủ phòng đã tắt chat'}
+          placeholder={
+            canSend
+              ? t('meeting.chat.input_hint')
+              : t('meeting.chat.disabled_short')
+          }
           disabled={!canSend}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -88,7 +92,7 @@ export function MeetingChat({
           className="meeting-chat-send"
           disabled={!canSend || !message.trim()}
           onClick={() => sendChatMessage()}
-          aria-label="Gửi"
+          aria-label={t('meeting.chat.send')}
         >
           <Icon name="send" />
         </button>

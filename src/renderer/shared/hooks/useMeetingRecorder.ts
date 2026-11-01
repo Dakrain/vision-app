@@ -1,3 +1,4 @@
+import i18n from '@/renderer/i18n';
 import AgoraEngineService from '@/shared/services/Agora/AgoraEngineService';
 import { IAudioFrameObserver } from 'agora-electron-sdk';
 import { notification } from 'antd';
@@ -193,7 +194,9 @@ export function useMeetingRecorder(meetingTitle?: string) {
         reader.releaseLock();
       })().catch((err) => {
         console.warn('[recording] video failed', err);
-        notification.error({ message: 'Bản ghi bị gián đoạn' });
+        notification.error({
+          message: i18n.t('meeting.recording.interrupted'),
+        });
         stopRef.current?.();
       });
 
@@ -216,7 +219,7 @@ export function useMeetingRecorder(meetingTitle?: string) {
         );
       }
       video?.getTracks().forEach((t) => t.stop());
-      notification.error({ message: 'Không bắt đầu ghi được' });
+      notification.error({ message: i18n.t('meeting.recording.start_failed') });
     }
   }, []);
 
@@ -256,7 +259,7 @@ export function useMeetingRecorder(meetingTitle?: string) {
       const key = `recording-${s.id}`;
       notification.success({
         key,
-        message: 'Đã lưu bản ghi cuộc họp',
+        message: i18n.t('meeting.recording.saved'),
         description: saved,
         placement: 'top',
         duration: 10,

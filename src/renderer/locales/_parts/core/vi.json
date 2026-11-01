@@ -1,0 +1,203 @@
+{
+  "account": {
+    "change_password": {
+      "confirm_new": "Nhập lại mật khẩu mới",
+      "current": "Mật khẩu hiện tại",
+      "description": "Để thay đổi mật khẩu của bạn, vui lòng nhập mật khẩu hiện tại. Sau đó, bạn nhập mật khẩu mới và xác nhận lại lần nữa.",
+      "failed": "Không cập nhật được mật khẩu, vui lòng thử lại",
+      "length": "Mật khẩu mới phải từ 6 đến 20 ký tự",
+      "mismatch": "Mật khẩu nhập lại không khớp",
+      "submit": "Cập nhật mật khẩu",
+      "success": "Đã cập nhật mật khẩu",
+      "title": "Thay đổi mật khẩu của bạn",
+      "wrong_current": "Mật khẩu hiện tại không đúng"
+    },
+    "logout": {
+      "confirm_message": "Bạn có chắc chắn muốn đăng xuất không?"
+    },
+    "menu": {
+      "section_title": "TÀI KHOẢN",
+      "storage": "Bộ nhớ",
+      "storage_used": "Đã sử dụng {percent}%"
+    },
+    "packages": {
+      "back": "← Trở lại",
+      "coming_soon": "Sắp có",
+      "coming_soon_hint": "Thanh toán nâng cấp dung lượng sẽ có ở bản cập nhật sau",
+      "current": "Gói hiện tại",
+      "description": "Bạn sẽ nhận thêm dung lượng bộ nhớ và nhiều lợi ích bổ sung",
+      "free": "Miễn phí",
+      "terms": "Bằng cách chọn gói dung lượng, bạn đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư của Vision 20.",
+      "title": "Nâng cấp tài khoản để có thêm dung lượng lưu trữ"
+    },
+    "personal": {
+      "about_you": "Thông tin về bạn",
+      "avatar_changed": "Đã đổi ảnh đại diện",
+      "avatar_failed": "Không đổi được ảnh đại diện",
+      "avatar_unsupported": "Máy chủ chưa hỗ trợ đổi ảnh đại diện",
+      "birthday_required": "Vui lòng chọn ngày sinh",
+      "change_avatar": "Thay đổi",
+      "city": "Thành phố",
+      "city_hint": "Chọn thành phố",
+      "country_hint": "Chọn quốc gia",
+      "email_phone_taken": "Email hoặc số điện thoại đã được dùng cho tài khoản khác",
+      "gender": "Giới tính",
+      "gender_female": "Nữ",
+      "gender_hint": "Chọn giới tính",
+      "gender_male": "Nam",
+      "job": "Nghề nghiệp của bạn",
+      "name_required": "Vui lòng nhập đủ Họ và Tên",
+      "position": "Chức vụ của bạn",
+      "religion": "Tôn giáo của bạn",
+      "required_field": "{label} *",
+      "save_changes": "Lưu thay đổi",
+      "save_failed": "Không lưu được thông tin, vui lòng thử lại",
+      "saved": "Đã lưu thông tin cá nhân",
+      "talent": "Tài năng của bạn",
+      "title": "Thông tin cá nhân",
+      "uploading_avatar": "Đang tải ảnh lên…",
+      "vietnam": "Việt Nam"
+    },
+    "storage": {
+      "current_plan_description": "Hiện tại bạn đang sử dụng gói <b>{name}</b> với Dung lượng lưu trữ tối đa <b>{limit}</b>",
+      "current_title": "Bộ nhớ hiện tại",
+      "current_usage": "Mức sử dụng hiện tại của bạn:",
+      "devotional": "Dưỡng linh",
+      "documents": "Tài liệu",
+      "load_failed": "Không tải được thông tin bộ nhớ",
+      "music": "Âm nhạc",
+      "other": "Khác",
+      "upgrade": "Nâng cấp dung lượng",
+      "upgrade_title": "Nâng cấp bộ nhớ",
+      "video": "Video",
+      "vision_tv": "Vision TV"
+    },
+    "tab": {
+      "logout": "Đăng xuất",
+      "terms": "Điều khoản và Điều kiện"
+    },
+    "terms": {
+      "description": "Nội dung Điều khoản và Điều kiện của Vision 20 đang được cập nhật."
+    }
+  },
+  "auth": {
+    "error_try_later": "Có lỗi xảy ra, vui lòng thử lại sau",
+    "forgot": {
+      "change_failed": "Không đổi được mật khẩu, vui lòng thử lại",
+      "change_password": "Đổi mật khẩu",
+      "changed": "Đã đổi mật khẩu, mời bạn đăng nhập lại",
+      "code_format": "Mã xác nhận gồm 6 chữ số",
+      "code_invalid": "Mã xác nhận không đúng hoặc đã hết hạn",
+      "code_placeholder": "Mã xác nhận",
+      "code_sent": "Mã gồm 6 chữ số đã được gửi tới {email}.",
+      "code_title": "Nhập mã xác nhận",
+      "email_description": "Nhập email tài khoản để nhận mã xác nhận.",
+      "email_not_found": "Không tìm thấy tài khoản với email này",
+      "password_length": "Mật khẩu từ 6 đến 20 ký tự",
+      "password_title": "Đặt mật khẩu mới",
+      "title": "Quên mật khẩu"
+    },
+    "login": {
+      "fill_all": "Vui lòng nhập đầy đủ thông tin",
+      "forgot_password_question": "Quên mật khẩu?",
+      "hide_password": "Ẩn mật khẩu",
+      "no_account_question": "Bạn không có tài khoản?",
+      "privacy_cookie": "Chính sách bảo mật và Cookie",
+      "show_password": "Hiện mật khẩu",
+      "terms_of_service": "Điều khoản dịch vụ",
+      "terms_prefix": "Bằng việc đăng nhập, bạn đồng ý với ",
+      "title": "Đăng nhập",
+      "wrong_credentials": "Email hoặc mật khẩu không đúng"
+    },
+    "otp": {
+      "continue": "Tiếp tục"
+    },
+    "register": {
+      "birthday_hint": "Chọn ngày sinh",
+      "confirm_password": "Nhập lại mật khẩu",
+      "email_exists": "Email đã tồn tại",
+      "error": "Đã có lỗi xảy ra",
+      "have_account_question": "Bạn đã có tài khoản?",
+      "submit": "Đăng ký",
+      "success": "Đăng ký thành công",
+      "terms_prefix": "Bằng việc đăng ký, bạn đồng ý với ",
+      "title": "Tạo mới tài khoản"
+    },
+    "reset": {
+      "new_password": "Mật khẩu mới"
+    }
+  },
+  "home": {
+    "menu": {
+      "account": "Tài khoản",
+      "settings": "Cài đặt",
+      "version": "Phiên bản {version}"
+    },
+    "nav": {
+      "chat": "Chat",
+      "home": "Trang chủ",
+      "meeting": "Cuộc họp",
+      "setting": "Cài đặt"
+    },
+    "page": {
+      "create_meeting": "Tạo cuộc họp mới",
+      "join_meeting": "Tham gia cuộc họp",
+      "schedule_description_after": " để có thể Bắt đầu cuộc họp tức thì hay Lên lịch cho cuộc họp.",
+      "schedule_description_before": "Nhấn vào ",
+      "schedule_title": "Lên lịch cho cuộc họp",
+      "welcome_description": "Đây là một vài gợi ý để bạn bắt đầu...",
+      "welcome_title": "Chào mừng đến với Vision 20"
+    }
+  },
+  "shared": {
+    "deep_link": {
+      "in_meeting_message": "Hãy rời cuộc họp hiện tại rồi mở lại link mời (ID {id}).",
+      "in_meeting_title": "Bạn đang trong một cuộc họp",
+      "invalid": "Link mời không hợp lệ"
+    },
+    "form": {
+      "birthday": "Ngày sinh",
+      "country": "Quốc gia",
+      "email": "Email",
+      "first_name": "Họ",
+      "last_name": "Tên",
+      "password": "Mật khẩu",
+      "phone": "Số điện thoại"
+    },
+    "main": {
+      "image_filter": "Ảnh",
+      "pick_background_title": "Chọn ảnh làm phông nền",
+      "pick_recording_folder_title": "Chọn thư mục lưu bản ghi",
+      "save_recording_title": "Lưu bản ghi cuộc họp"
+    },
+    "recording": {
+      "free_space": "{size} GB còn lại"
+    },
+    "screen_capture": {
+      "message": "macOS đang chặn ứng dụng chia sẻ màn hình. Vào Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Ghi màn hình (Screen Recording), bật quyền cho Vision 20, sau đó khởi động lại ứng dụng.",
+      "open_system_settings": "Mở Cài đặt hệ thống",
+      "title": "Cần cấp quyền ghi màn hình"
+    },
+    "share_overlay": {
+      "open_meeting": "Mở cuộc họp",
+      "sharing": "Bạn đang chia sẻ màn hình",
+      "stop_share": "Dừng chia sẻ"
+    },
+    "user_picker": {
+      "add": "Thêm",
+      "no_results": "Không tìm thấy người dùng nào",
+      "remove": "Bỏ {name}",
+      "searching": "Đang tìm…"
+    },
+    "validation": {
+      "confirm_password_required": "Vui lòng nhập lại mật khẩu",
+      "email_invalid": "Email không hợp lệ",
+      "email_required": "Email không được để trống",
+      "first_name_required": "Họ không được để trống",
+      "last_name_required": "Tên không được để trống",
+      "password_min_length": "Mật khẩu phải có ít nhất 6 ký tự",
+      "password_mismatch": "Mật khẩu không khớp",
+      "password_required": "Mật khẩu không được để trống"
+    }
+  }
+}

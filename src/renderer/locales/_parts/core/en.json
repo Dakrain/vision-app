@@ -1,0 +1,203 @@
+{
+  "account": {
+    "change_password": {
+      "confirm_new": "Confirm new password",
+      "current": "Current password",
+      "description": "To change your password, enter your current password, then enter a new password and confirm it.",
+      "failed": "Couldn't update the password. Please try again",
+      "length": "New password must be 6 to 20 characters",
+      "mismatch": "Passwords don't match",
+      "submit": "Update password",
+      "success": "Password updated",
+      "title": "Change your password",
+      "wrong_current": "Current password is incorrect"
+    },
+    "logout": {
+      "confirm_message": "Are you sure you want to log out?"
+    },
+    "menu": {
+      "section_title": "ACCOUNT",
+      "storage": "Storage",
+      "storage_used": "{percent}% used"
+    },
+    "packages": {
+      "back": "← Back",
+      "coming_soon": "Coming soon",
+      "coming_soon_hint": "Paying for a storage upgrade will come in a later update",
+      "current": "Current plan",
+      "description": "You'll get more storage and extra benefits",
+      "free": "Free",
+      "terms": "By choosing a storage plan, you agree to Vision 20's Terms of Service and Privacy Policy.",
+      "title": "Upgrade your account to get more storage"
+    },
+    "personal": {
+      "about_you": "About you",
+      "avatar_changed": "Profile photo changed",
+      "avatar_failed": "Couldn't change the profile photo",
+      "avatar_unsupported": "The server doesn't support changing the profile photo yet",
+      "birthday_required": "Please select your date of birth",
+      "change_avatar": "Change",
+      "city": "City",
+      "city_hint": "Select city",
+      "country_hint": "Select country",
+      "email_phone_taken": "This email or phone number is already used by another account",
+      "gender": "Gender",
+      "gender_female": "Female",
+      "gender_hint": "Select gender",
+      "gender_male": "Male",
+      "job": "Your occupation",
+      "name_required": "Please enter your last and first name",
+      "position": "Your position",
+      "religion": "Your religion",
+      "required_field": "{label} *",
+      "save_changes": "Save changes",
+      "save_failed": "Couldn't save your information. Please try again",
+      "saved": "Personal information saved",
+      "talent": "Your talents",
+      "title": "Personal information",
+      "uploading_avatar": "Uploading photo…",
+      "vietnam": "Vietnam"
+    },
+    "storage": {
+      "current_plan_description": "You're on the <b>{name}</b> plan with up to <b>{limit}</b> of storage",
+      "current_title": "Current storage",
+      "current_usage": "Your current usage:",
+      "devotional": "Devotional",
+      "documents": "Documents",
+      "load_failed": "Couldn't load storage information",
+      "music": "Music",
+      "other": "Other",
+      "upgrade": "Upgrade storage",
+      "upgrade_title": "Upgrade storage",
+      "video": "Videos",
+      "vision_tv": "Vision TV"
+    },
+    "tab": {
+      "logout": "Log out",
+      "terms": "Terms and Conditions"
+    },
+    "terms": {
+      "description": "Vision 20's Terms and Conditions are being updated."
+    }
+  },
+  "auth": {
+    "error_try_later": "Something went wrong, please try again later",
+    "forgot": {
+      "change_failed": "Couldn't change the password. Please try again",
+      "change_password": "Change password",
+      "changed": "Password changed. Please log in again",
+      "code_format": "The code has 6 digits",
+      "code_invalid": "The code is incorrect or has expired",
+      "code_placeholder": "Verification code",
+      "code_sent": "A 6-digit code was sent to {email}.",
+      "code_title": "Enter verification code",
+      "email_description": "Enter your account email to receive a verification code.",
+      "email_not_found": "No account found with this email",
+      "password_length": "Password must be 6 to 20 characters",
+      "password_title": "Set a new password",
+      "title": "Forgot password"
+    },
+    "login": {
+      "fill_all": "Please fill in all fields",
+      "forgot_password_question": "Forgot password?",
+      "hide_password": "Hide password",
+      "no_account_question": "Don't have an account?",
+      "privacy_cookie": "Privacy and Cookie Policy",
+      "show_password": "Show password",
+      "terms_of_service": "Terms of Service",
+      "terms_prefix": "By logging in, you agree to the ",
+      "title": "Log in",
+      "wrong_credentials": "Incorrect email or password"
+    },
+    "otp": {
+      "continue": "Continue"
+    },
+    "register": {
+      "birthday_hint": "Select date of birth",
+      "confirm_password": "Confirm password",
+      "email_exists": "Email already exists",
+      "error": "Something went wrong",
+      "have_account_question": "Already have an account?",
+      "submit": "Sign up",
+      "success": "Signed up successfully",
+      "terms_prefix": "By signing up, you agree to the ",
+      "title": "Create a new account"
+    },
+    "reset": {
+      "new_password": "New password"
+    }
+  },
+  "home": {
+    "menu": {
+      "account": "Account",
+      "settings": "Settings",
+      "version": "Version {version}"
+    },
+    "nav": {
+      "chat": "Chat",
+      "home": "Home",
+      "meeting": "Meetings",
+      "setting": "Settings"
+    },
+    "page": {
+      "create_meeting": "New meeting",
+      "join_meeting": "Join meeting",
+      "schedule_description_after": " to start an instant meeting or schedule one.",
+      "schedule_description_before": "Click ",
+      "schedule_title": "Schedule a meeting",
+      "welcome_description": "Here is something for you to get started...",
+      "welcome_title": "Welcome to Vision 20"
+    }
+  },
+  "shared": {
+    "deep_link": {
+      "in_meeting_message": "Leave the current meeting, then open the invite link again (ID {id}).",
+      "in_meeting_title": "You're in a meeting",
+      "invalid": "Invalid invite link"
+    },
+    "form": {
+      "birthday": "Date of birth",
+      "country": "Country",
+      "email": "Email",
+      "first_name": "Last name",
+      "last_name": "First name",
+      "password": "Password",
+      "phone": "Phone number"
+    },
+    "main": {
+      "image_filter": "Images",
+      "pick_background_title": "Choose a background image",
+      "pick_recording_folder_title": "Choose a folder for recordings",
+      "save_recording_title": "Save meeting recording"
+    },
+    "recording": {
+      "free_space": "{size} GB left"
+    },
+    "screen_capture": {
+      "message": "macOS is blocking the app from sharing your screen. Go to System Settings → Privacy & Security → Screen Recording, turn it on for Vision 20, then restart the app.",
+      "open_system_settings": "Open System Settings",
+      "title": "Screen recording permission needed"
+    },
+    "share_overlay": {
+      "open_meeting": "Open meeting",
+      "sharing": "You're sharing your screen",
+      "stop_share": "Stop sharing"
+    },
+    "user_picker": {
+      "add": "Add",
+      "no_results": "No users found",
+      "remove": "Remove {name}",
+      "searching": "Searching…"
+    },
+    "validation": {
+      "confirm_password_required": "Please re-enter your password",
+      "email_invalid": "Invalid email",
+      "email_required": "Email is required",
+      "first_name_required": "Last name is required",
+      "last_name_required": "First name is required",
+      "password_min_length": "Password must be at least 6 characters",
+      "password_mismatch": "Passwords don't match",
+      "password_required": "Password is required"
+    }
+  }
+}

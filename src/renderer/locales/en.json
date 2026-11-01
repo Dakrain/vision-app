@@ -1,4 +1,308 @@
 {
+  "account": {
+    "change_password": {
+      "confirm_new": "Confirm new password",
+      "current": "Current password",
+      "description": "To change your password, enter your current password, then enter a new password and confirm it.",
+      "failed": "Couldn't update the password. Please try again",
+      "length": "New password must be 6 to 20 characters",
+      "mismatch": "Passwords don't match",
+      "submit": "Update password",
+      "success": "Password updated",
+      "title": "Change your password",
+      "wrong_current": "Current password is incorrect"
+    },
+    "logout": {
+      "confirm_message": "Are you sure you want to log out?"
+    },
+    "menu": {
+      "section_title": "ACCOUNT",
+      "storage": "Storage",
+      "storage_used": "{percent}% used"
+    },
+    "packages": {
+      "back": "← Back",
+      "coming_soon": "Coming soon",
+      "coming_soon_hint": "Paying for a storage upgrade will come in a later update",
+      "current": "Current plan",
+      "description": "You'll get more storage and extra benefits",
+      "free": "Free",
+      "terms": "By choosing a storage plan, you agree to Vision 20's Terms of Service and Privacy Policy.",
+      "title": "Upgrade your account to get more storage"
+    },
+    "personal": {
+      "about_you": "About you",
+      "avatar_changed": "Profile photo changed",
+      "avatar_failed": "Couldn't change the profile photo",
+      "avatar_unsupported": "The server doesn't support changing the profile photo yet",
+      "birthday_required": "Please select your date of birth",
+      "change_avatar": "Change",
+      "city": "City",
+      "city_hint": "Select city",
+      "country_hint": "Select country",
+      "email_phone_taken": "This email or phone number is already used by another account",
+      "gender": "Gender",
+      "gender_female": "Female",
+      "gender_hint": "Select gender",
+      "gender_male": "Male",
+      "job": "Your occupation",
+      "name_required": "Please enter your last and first name",
+      "position": "Your position",
+      "religion": "Your religion",
+      "required_field": "{label} *",
+      "save_changes": "Save changes",
+      "save_failed": "Couldn't save your information. Please try again",
+      "saved": "Personal information saved",
+      "talent": "Your talents",
+      "title": "Personal information",
+      "uploading_avatar": "Uploading photo…",
+      "vietnam": "Vietnam"
+    },
+    "storage": {
+      "current_plan_description": "You're on the <b>{name}</b> plan with up to <b>{limit}</b> of storage",
+      "current_title": "Current storage",
+      "current_usage": "Your current usage:",
+      "devotional": "Devotional",
+      "documents": "Documents",
+      "load_failed": "Couldn't load storage information",
+      "music": "Music",
+      "other": "Other",
+      "upgrade": "Upgrade storage",
+      "upgrade_title": "Upgrade storage",
+      "video": "Videos",
+      "vision_tv": "Vision TV"
+    },
+    "tab": {
+      "logout": "Log out",
+      "terms": "Terms and Conditions"
+    },
+    "terms": {
+      "description": "Vision 20's Terms and Conditions are being updated."
+    }
+  },
+  "auth": {
+    "error_try_later": "Something went wrong, please try again later",
+    "forgot": {
+      "change_failed": "Couldn't change the password. Please try again",
+      "change_password": "Change password",
+      "changed": "Password changed. Please log in again",
+      "code_format": "The code has 6 digits",
+      "code_invalid": "The code is incorrect or has expired",
+      "code_placeholder": "Verification code",
+      "code_sent": "A 6-digit code was sent to {email}.",
+      "code_title": "Enter verification code",
+      "email_description": "Enter your account email to receive a verification code.",
+      "email_not_found": "No account found with this email",
+      "password_length": "Password must be 6 to 20 characters",
+      "password_title": "Set a new password",
+      "title": "Forgot password"
+    },
+    "login": {
+      "fill_all": "Please fill in all fields",
+      "forgot_password_question": "Forgot password?",
+      "hide_password": "Hide password",
+      "no_account_question": "Don't have an account?",
+      "privacy_cookie": "Privacy and Cookie Policy",
+      "show_password": "Show password",
+      "terms_of_service": "Terms of Service",
+      "terms_prefix": "By logging in, you agree to the ",
+      "title": "Log in",
+      "wrong_credentials": "Incorrect email or password"
+    },
+    "otp": {
+      "continue": "Continue"
+    },
+    "register": {
+      "birthday_hint": "Select date of birth",
+      "confirm_password": "Confirm password",
+      "email_exists": "Email already exists",
+      "error": "Something went wrong",
+      "have_account_question": "Already have an account?",
+      "submit": "Sign up",
+      "success": "Signed up successfully",
+      "terms_prefix": "By signing up, you agree to the ",
+      "title": "Create a new account"
+    },
+    "reset": {
+      "new_password": "New password"
+    }
+  },
+  "call": {
+    "contact_fallback": "Contact",
+    "errors": {
+      "already_in_call": "You're already in another call",
+      "call_failed": "Couldn't place the call",
+      "callee_busy": "The recipient is busy",
+      "join_failed": "Couldn't join the call",
+      "leave_meeting_first": "Leave the meeting before calling"
+    },
+    "in_call": {
+      "answered_elsewhere": "Answered on another device",
+      "camera_off": "Camera off",
+      "camera_on": "Camera on",
+      "connection_lost": "Connection lost",
+      "end": "End",
+      "label": "Call",
+      "mic_off": "Mute",
+      "mic_on": "Unmute",
+      "peer_lost": "Lost connection to the other person",
+      "peer_reconnecting": "The other person lost connection…",
+      "reconnecting": "Network lost. Reconnecting…",
+      "you": "You"
+    },
+    "incoming": {
+      "answer": "Answer",
+      "calling_you": "{name} is calling you",
+      "decline": "Decline",
+      "video_title": "Incoming video call",
+      "voice_title": "Incoming voice call"
+    },
+    "missed": {
+      "called_you": "{name} called you",
+      "called_you_busy": "{name} called you while you were busy",
+      "someone": "Someone"
+    },
+    "outgoing": {
+      "connecting": "Connecting…",
+      "declined": "The recipient declined the call",
+      "ended": "Call ended",
+      "redial": "Call again",
+      "ringing": "Ringing…",
+      "unanswered": "The call couldn't be answered"
+    },
+    "trace": {
+      "call": "Call",
+      "call_back_title": "Call back?",
+      "call_back_video_title": "Video call back?",
+      "cancelled": "Call cancelled",
+      "duration_min_sec": "{min} min {sec} sec",
+      "duration_sec": "{sec} sec",
+      "missed": "Missed call",
+      "rejected": "Call declined",
+      "tap_to_call_back": "Click to call back"
+    },
+    "type": {
+      "video": "Video call",
+      "voice": "Voice call"
+    }
+  },
+  "chat": {
+    "actions": {
+      "copy": "Copy message",
+      "failed": "Couldn't do that, please try again",
+      "forward": "Forward",
+      "hidden": "Message removed for you",
+      "hide": "Remove for you",
+      "menu": "Message actions",
+      "recall": "Unsend message",
+      "recalled": "Message unsent",
+      "reply": "Reply"
+    },
+    "conversations": {
+      "connecting": "Connecting to chat…",
+      "empty": "No conversations yet",
+      "group": "Group",
+      "not_found": "No conversations found",
+      "open_failed": "Couldn't open the conversation",
+      "placeholder": "Select a conversation to start messaging",
+      "untitled": "Chat",
+      "you_prefix": "You: "
+    },
+    "forward": {
+      "failed": "Couldn't forward, please try again",
+      "forwarded": "Forwarded",
+      "note_hint": "Message ...",
+      "title": "Forward to"
+    },
+    "group_create": {
+      "create_failed": "Couldn't create the group chat",
+      "create_group": "Create group chat",
+      "member_search": "Type the names of group members",
+      "min_members_hint": "Select at least 2 members",
+      "name_label": "Group name:",
+      "name_placeholder": "Enter a group name",
+      "no_users": "No users found",
+      "search_more": "Type a name or email to find more people",
+      "unpick": "Remove"
+    },
+    "group_photo": {
+      "change": "Change group photo",
+      "change_failed": "Couldn't change group photo",
+      "changed": "Group photo updated",
+      "remove": "Remove group photo",
+      "remove_failed": "Couldn't remove group photo",
+      "title": "Group photo",
+      "uploading": "Uploading group photo…"
+    },
+    "header": {
+      "video_call": "Video call",
+      "voice_call": "Voice call"
+    },
+    "new_message": {
+      "direct": "Direct chat",
+      "group": "Group chat",
+      "group_draft": "New group chat",
+      "no_match": "No contacts found. For someone not in your contacts, enter their email.",
+      "searching": "Searching…",
+      "to": "To:",
+      "to_placeholder": "Enter a contact name or email"
+    },
+    "outbox": {
+      "resend": "Resend",
+      "send_failed": "Couldn't send message"
+    },
+    "preview": {
+      "call": "[Call]",
+      "file": "[Attachment]",
+      "image": "[Image]",
+      "video_call": "📞 Video call",
+      "video_cancelled": "📞 Video call cancelled",
+      "video_missed": "📵 Missed video call",
+      "video_rejected": "📞 Video call declined",
+      "voice_call": "📞 Voice call",
+      "voice_cancelled": "📞 Voice call cancelled",
+      "voice_missed": "📵 Missed voice call",
+      "voice_rejected": "📞 Voice call declined"
+    },
+    "recalled": "This message was unsent",
+    "screen": {
+      "attachment": "Attachment",
+      "cancel_reply": "Cancel reply",
+      "composer_hint": "Message ...",
+      "emoji": "Emoji",
+      "image": "Image",
+      "jump_latest": "Jump to latest message",
+      "member_count_one": "{count} member",
+      "member_count_other": "{count} members",
+      "offline": "No internet connection",
+      "replying_to": "Replying to {name}",
+      "send": "Send",
+      "send_file": "Send file",
+      "send_image": "Send photo",
+      "sending_file": "Sending file…",
+      "you": "you"
+    },
+    "status": {
+      "seen": "Seen",
+      "sending": "Sending",
+      "sent": "Sent"
+    },
+    "tab": {
+      "contacts": "Contacts",
+      "conversations": "Chats",
+      "new_message": "New message"
+    },
+    "time": {
+      "day_divider": "{month_name} {day}, {year}",
+      "fri": "Fri",
+      "mon": "Mon",
+      "sat": "Sat",
+      "sun": "Sun",
+      "thu": "Thu",
+      "tue": "Tue",
+      "wed": "Wed"
+    }
+  },
   "common": {
     "back": "Back",
     "cancel": "Cancel",
@@ -20,6 +324,49 @@
     "search": "Search",
     "version": "Version {version} ({build})"
   },
+  "contacts": {
+    "add_friend": {
+      "add": "Add contact",
+      "email_invalid": "Invalid email",
+      "email_not_found": "No account found with this email",
+      "email_placeholder": "Email of the person you want to add",
+      "email_required": "Please enter an email",
+      "request_failed": "Couldn't send the request. You may already be friends.",
+      "request_sent": "Friend request sent",
+      "request_sent_desc": "{name} will appear in Contacts once they accept.",
+      "send_request": "Send request"
+    },
+    "empty": "No contacts yet",
+    "friend_requests": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "title_count": "Friend requests ({count})"
+    },
+    "not_found_any": "No contacts found",
+    "section_header": "CONTACTS"
+  },
+  "home": {
+    "menu": {
+      "account": "Account",
+      "settings": "Settings",
+      "version": "Version {version}"
+    },
+    "nav": {
+      "chat": "Chat",
+      "home": "Home",
+      "meeting": "Meetings",
+      "setting": "Settings"
+    },
+    "page": {
+      "create_meeting": "New meeting",
+      "join_meeting": "Join meeting",
+      "schedule_description_after": " to start an instant meeting or schedule one.",
+      "schedule_description_before": "Click ",
+      "schedule_title": "Schedule a meeting",
+      "welcome_description": "Here is something for you to get started...",
+      "welcome_title": "Welcome to Vision 20"
+    }
+  },
   "language": {
     "current": "Language: {name}",
     "en": "English",
@@ -27,5 +374,462 @@
     "title": "Language",
     "vi": "Tiếng Việt",
     "zh": "中文 (简体)"
+  },
+  "meeting": {
+    "add_member": {
+      "add": "Add",
+      "add_failed": "Couldn't add this person (the room may be full).",
+      "already_in": "Already in room",
+      "email_placeholder": "Enter the email of the person to add",
+      "find": "Find",
+      "no_results": "No users found",
+      "note": "Added people get a notification and can join without a passcode.",
+      "role_co_host": "Co-host",
+      "role_member": "Member",
+      "search_failed": "Couldn't search for users, please try again.",
+      "title": "Add people"
+    },
+    "background": {
+      "add_failed": "Couldn't add the image",
+      "add_image_plus": "+ Add image",
+      "choose": "Choose background",
+      "delete_message": "Do you want to delete this background image?",
+      "delete_this": "Delete this image",
+      "delete_title": "Delete background",
+      "from_computer": "Image from your computer",
+      "no_background": "No background",
+      "not_used": "None",
+      "preset": "Background {index}",
+      "your_image": "Your image"
+    },
+    "chat": {
+      "disabled_short": "The host turned off chat",
+      "input_hint": "Type a message...",
+      "new_message": "New message",
+      "reconnecting": "Chat disconnected. Reconnecting… New messages will appear once reconnected.",
+      "send": "Send",
+      "title": "In-meeting messages",
+      "visibility_note": "Messages are only visible to meeting participants and will be deleted when the meeting ends"
+    },
+    "create": {
+      "allow_camera": "Allow camera",
+      "allow_chat": "Allow chat",
+      "allow_livestream": "Allow livestreaming the meeting",
+      "allow_mic": "Allow mic",
+      "allow_record": "Allow recording",
+      "allow_rejoin": "Allow removed people to rejoin",
+      "allow_share": "Let everyone share their screen",
+      "auto_record": "Record automatically when the meeting starts",
+      "co_host": "Assign co-hosts",
+      "co_host_desc": "Co-hosts get the host's controls if the host leaves the room. Assign a co-host by adding their email",
+      "co_host_placeholder": "Enter the co-host's email",
+      "create_failed": "Couldn't create the meeting",
+      "host": "Meeting host",
+      "info_tab": "Meeting info",
+      "invite": "Invite members to your meeting",
+      "invite_placeholder": "Enter a member's email",
+      "livestream": "Livestream the meeting",
+      "livestream_desc": "Meeting livestream lets the host stream the meeting to Facebook and YouTube through the host's account. On Facebook, the host can stream to their own timeline or to a group or Page they manage. On YouTube, the host streams to their own channel.",
+      "max_participants": "Max participants",
+      "new_meeting": "New meeting",
+      "now": "Now",
+      "open": "Open",
+      "participant_settings": "Participant settings",
+      "participant_settings_desc": "Participant settings let the host control what participants can do in the meeting",
+      "password": "Meeting passcode",
+      "password_placeholder": "Leave blank to have a passcode generated for you",
+      "pick_date": "Pick a date",
+      "pick_future_time": "Choose a future start date and time",
+      "pick_time": "Pick a time",
+      "recording": "Recording",
+      "recording_desc": "Recording lets you manage your own recording files",
+      "save_recordings_in": "Save my recordings in",
+      "schedule_failed": "Couldn't schedule the meeting",
+      "schedule_meeting": "Schedule meeting",
+      "scheduled": "Meeting scheduled",
+      "settings_tab": "Meeting settings",
+      "share_screen": "Share screen",
+      "share_screen_desc": "Let participants share their screen in the meeting",
+      "start_meeting": "Start meeting",
+      "start_time": "Start time",
+      "time_zone": "Time zone",
+      "topic": "Meeting topic",
+      "topic_placeholder": "Enter a meeting topic",
+      "waiting_room": "Enable waiting room"
+    },
+    "detail": {
+      "copy": "Copy",
+      "host": "Host",
+      "join_link": "Join link",
+      "meeting_id": "Meeting ID",
+      "password": "Passcode",
+      "start_time": "Start time",
+      "title_of": "{name}'s meeting"
+    },
+    "devices": {
+      "camera": "Camera",
+      "mic": "Microphone",
+      "no_camera": "No camera found",
+      "no_mic": "No microphone found",
+      "no_speaker": "No speaker found",
+      "speaker": "Speaker",
+      "title": "Microphone, camera and speaker"
+    },
+    "exit": {
+      "end_for_all_long": "End meeting for everyone",
+      "host_message": "End the meeting for everyone, or just leave yourself?",
+      "title": "Leave meeting"
+    },
+    "join": {
+      "join": "Join",
+      "meeting_id_hint": "Meeting ID",
+      "passcode_hint": "Passcode",
+      "title": "Join meeting",
+      "your_name_label": "Your name in the meeting"
+    },
+    "layout": {
+      "focus_view": "Focus (shared content only)",
+      "grid": "Grid",
+      "hide_self": "Hide my tile",
+      "large_grid": "Large grid (7x7)",
+      "menu": "Layout",
+      "show_self": "Show my tile",
+      "speaker_view": "Speaker"
+    },
+    "list": {
+      "copy_link": "Copy invite link",
+      "delete": "Delete meeting",
+      "delete_failed": "Couldn't delete the meeting",
+      "delete_failed_live": "An ongoing meeting must be ended first.",
+      "delete_message": "\"{title}\" will be removed from everyone's list.",
+      "delete_title": "Delete meeting?",
+      "description": "Description",
+      "edit_title": "Edit meeting",
+      "empty": "No meetings",
+      "join": "Join",
+      "join_meeting": "Join meeting",
+      "key_on_start": "Available when started",
+      "link_copied": "Invite link copied",
+      "load_failed": "Couldn't load meetings",
+      "new_meeting": "New meeting",
+      "not_started": "The host hasn't started the meeting yet",
+      "options": "Options",
+      "save_failed": "Couldn't save changes",
+      "schedule": "Schedule",
+      "start": "Start",
+      "start_failed": "Couldn't start the meeting",
+      "tab_live": "Live",
+      "tab_upcoming": "Upcoming",
+      "topic": "Meeting topic"
+    },
+    "livestream": {
+      "add": "+ Add destination",
+      "choose": "Choose destinations",
+      "choose_to_start": "Choose a destination to start",
+      "custom_key_hint": "The platform's stream key",
+      "custom_step1": "For TikTok, Twitch, Vimeo… or your own RTMP server.",
+      "custom_step2": "Copy the \"Server URL\" (starting with rtmp:// or rtmps://) and the \"Stream key\" from the platform's live dashboard.",
+      "delete_confirm": "Delete this destination?",
+      "error_capacity": "Too many livestreams are running right now, please try again later.",
+      "error_invalid": "Invalid key or server address.",
+      "error_not_allowed": "This meeting doesn't allow livestreaming.",
+      "error_not_found": "The selected destination wasn't found.",
+      "error_permission": "Only the host or co-hosts can livestream.",
+      "error_too_many": "Each meeting can stream to at most 3 destinations at once.",
+      "everyone_notice": "Everyone in the meeting will see a LIVE label and be told the meeting is being livestreamed.",
+      "facebook_key_hint": "Starts with FB-",
+      "facebook_step1": "Open Facebook Live Producer → click Go live, choose your profile or Page.",
+      "facebook_step2": "Choose \"Streaming software\" → copy the \"Stream key\".",
+      "facebook_step3": "Turn on \"Use a persistent stream key\" to save it once and reuse it later.",
+      "failure_connect": "Couldn't connect to the streaming platform. Please try again.",
+      "failure_key": "The stream key or server address is wrong or expired. Get a new key.",
+      "key_format_warning": "The key doesn't look right ({hint}). Check it before saving.",
+      "key_note": "Keys are encrypted and saved to your account, so you can reuse them in later meetings on both computer and phone.",
+      "key_placeholder": "Paste the stream key — {hint}",
+      "key_required": "Please paste the stream key.",
+      "live_notice_desc": "The meeting's video and audio are being streamed publicly to {platforms}.",
+      "live_notice_title": "This meeting is being livestreamed",
+      "live_now": "Live now",
+      "load_failed": "Couldn't load destinations.",
+      "name_placeholder": "Display name (e.g. My {platform} channel)",
+      "none": "No destinations yet.",
+      "open_key_page": "Open the key page ↗",
+      "platform_custom": "Other (RTMP)",
+      "save": "Save destination",
+      "save_failed": "Couldn't save the destination.",
+      "server_url_invalid": "Server URL must start with rtmp:// or rtmps://",
+      "server_url_placeholder": "Server URL (rtmp://… or rtmps://…)",
+      "start_count_one": "Start streaming ({count} destination)",
+      "start_count_other": "Start streaming ({count} destinations)",
+      "start_failed": "Couldn't start the livestream.",
+      "status_failed": "Error",
+      "status_live": "● Live",
+      "status_starting": "Connecting",
+      "status_stopped": "Stopped",
+      "status_stopping": "Stopping",
+      "stop": "Stop",
+      "stop_all": "Stop all",
+      "title": "Livestream",
+      "youtube_key_hint": "Format xxxx-xxxx-xxxx-xxxx-xxxx",
+      "youtube_step1": "Open YouTube Studio on a computer → click Create → Go live.",
+      "youtube_step2": "For your first livestream, YouTube needs about 24 hours to enable your channel.",
+      "youtube_step3": "Choose \"Streaming software\" → copy the \"Stream key\"."
+    },
+    "lobby": {
+      "admitted": "The host let you into the meeting",
+      "background": "Background",
+      "background_needs_camera": "Turn on the camera to choose a background",
+      "camera_is_off": "Camera off",
+      "camera_not_allowed": "The host hasn't allowed turning on the camera",
+      "camera_off": "Camera off",
+      "camera_on": "Camera on",
+      "cannot_join": "You can't join this meeting",
+      "default_title": "Meeting",
+      "full": "The meeting is full.",
+      "host": "Host: {name}",
+      "join_failed": "Couldn't join the meeting",
+      "join_here_too": "Join on this device",
+      "join_now": "Join now",
+      "loading": "Loading…",
+      "meeting_id": "ID: {id}",
+      "mic_not_allowed": "The host hasn't allowed turning on the mic",
+      "mic_off": "Mic off",
+      "mic_on": "Mic on",
+      "move_here": "Move to this device",
+      "not_found": "The meeting ID or passcode is wrong, or the meeting has ended.",
+      "other_device_message": "Move the meeting to this device, or join here too (for example to share your screen or use the camera here)?",
+      "other_device_title": "You're in this meeting on another device",
+      "rejected": "The host declined your request to join",
+      "start": "Start",
+      "try_again": "Please try again.",
+      "waiting_approval_short": "Waiting for approval…",
+      "waiting_note_short": "Waiting for the host to approve. You'll join automatically once admitted."
+    },
+    "participants": {
+      "action_failed": "Couldn't complete the action",
+      "action_failed_desc": "You may not have permission, or this person has left.",
+      "add_people": "Add people",
+      "added": "ADDED TO ROOM",
+      "ban": "Ban from meeting",
+      "ban_confirm": "Ban {name}? They'll be removed and can't rejoin this meeting.",
+      "co_host_section": "CO-HOST",
+      "copy_link": "Copy invite link",
+      "host_section": "HOST",
+      "in_meeting": "PARTICIPANTS",
+      "kick": "Remove from meeting",
+      "kick_confirm": "Remove {name} from the meeting? They can still rejoin.",
+      "link_copied": "Invite link copied",
+      "make_co_host_long": "Make co-host",
+      "mute": "Mute",
+      "mute_all_confirm": "Mute everyone (except the host and co-hosts)? They can still unmute themselves.",
+      "mute_all_failed": "Couldn't mute everyone",
+      "mute_all_pill": "Mute all",
+      "mute_all_title": "Mute all",
+      "no_invite_link": "This meeting has no invite link yet",
+      "options": "Options",
+      "permissions": "Participant permissions",
+      "permissions_hint": "Participants may (the host and co-hosts always can):",
+      "permissions_pill": "Permissions",
+      "remove_co_host": "Remove co-host",
+      "role_co_host": "Co-host",
+      "role_host": "Host",
+      "role_me": "me",
+      "stop_video": "Stop video",
+      "tab_in_room": "In meeting ({count})",
+      "tab_waiting": "Waiting room ({count})",
+      "title": "Participants"
+    },
+    "permission": {
+      "camera": "camera",
+      "camera_title": "Turn on camera",
+      "chat": "chat",
+      "chat_title": "Chat",
+      "mic": "mic",
+      "mic_title": "Turn on mic",
+      "record": "recording",
+      "record_title": "Record meeting",
+      "share": "screen sharing",
+      "share_title": "Share screen"
+    },
+    "reaction": {
+      "lower_hand": "Lower hand",
+      "raise_hand": "Raise hand"
+    },
+    "recording": {
+      "interrupted": "The recording was interrupted",
+      "saved": "Meeting recording saved",
+      "start_failed": "Couldn't start recording"
+    },
+    "room": {
+      "action_record": "record the meeting",
+      "action_share_content": "share content",
+      "action_share_screen": "share the screen",
+      "attachment": "[Attachment]",
+      "audio_off": "Mute audio",
+      "audio_on": "Unmute audio",
+      "badge_new": "{count} new",
+      "banned": "You have been banned from this meeting",
+      "being_recorded": "● Being recorded",
+      "close_whiteboard_first": "The whiteboard is open: close it before sharing your screen",
+      "co_host_granted": "You are now a co-host",
+      "co_host_revoked": "Your co-host role was removed",
+      "connecting": "Connecting to the meeting…",
+      "device_camera": "camera",
+      "device_other": "other device",
+      "exit_full_screen": "Exit full screen",
+      "extra_device": "You're also joined on this device.",
+      "extra_device_muted": "You're also joined on this device. Audio is off to avoid echo.",
+      "full_screen": "Full screen",
+      "host": "Host",
+      "joined_elsewhere": "Your account just joined a meeting on another device",
+      "kicked": "You were removed from the meeting",
+      "leave_room": "Leave",
+      "live_badge_title": "Livestreaming",
+      "meeting_ended": "The meeting has ended",
+      "moved_to_other_device": "The meeting was moved to another device",
+      "no_longer_in_meeting": "You are no longer in this meeting",
+      "not_allowed": "The host hasn't allowed you to {what}",
+      "opened_whiteboard": "{name} opened the whiteboard",
+      "others_recording_title": "{name} is recording the meeting",
+      "permission_change_failed": "Couldn't change permissions, please try again",
+      "permissions_granted": "The host allowed: {what}",
+      "permissions_revoked": "The host turned off: {what}",
+      "rec_badge_title": "Recording the meeting",
+      "reconnect_failed": "Couldn't reconnect to the meeting",
+      "reconnecting": "Network lost. Reconnecting…",
+      "session_expired": "The meeting session has expired, please rejoin",
+      "someone": "A participant",
+      "someone_lower": "a participant",
+      "someone_sharing": "Someone is already sharing their screen",
+      "spotlight_me": "You're spotlighted for everyone",
+      "spotlight_off": "{name} turned off the spotlight",
+      "spotlight_on": "Spotlight: {name}",
+      "started_recording": "{name} is recording the meeting",
+      "started_sharing": "{name} is sharing their screen",
+      "stopped_recording": "{name} stopped recording the meeting",
+      "stopped_sharing": "{name} stopped sharing their screen",
+      "turn_back_on_hint": "You can turn it back on when you need to speak.",
+      "turned_off_camera_by": "{name} turned off your camera",
+      "turned_off_mic_by": "{name} muted your mic",
+      "turned_off_mic_camera_by": "{name} turned off your mic and camera",
+      "you": "You"
+    },
+    "setup": {
+      "default_title": "Meeting",
+      "default_title_of": "{name}'s meeting"
+    },
+    "share": {
+      "app_windows": "Application windows",
+      "desktop": "Desktop",
+      "share": "Share",
+      "title": "Share screen"
+    },
+    "tile": {
+      "connecting": "Connecting…",
+      "joining": "Joining…",
+      "next_page": "Next page",
+      "options": "Options",
+      "pin_for_me": "Pin for me",
+      "pinned": "Pinned",
+      "prev_page": "Previous page",
+      "spotlight": "Spotlight",
+      "spotlight_all": "Spotlight for everyone",
+      "spotlight_off": "Remove spotlight",
+      "unpin": "Unpin",
+      "waiting_others": "Waiting for others to join…",
+      "you_sharing": "You're sharing your screen"
+    },
+    "toolbar": {
+      "audio": "Audio",
+      "background": "Background",
+      "camera": "Camera",
+      "chat": "Chat",
+      "chat_unread": "Chat ({count} new)",
+      "close_whiteboard": "Close whiteboard",
+      "devices": "Microphone, camera and speaker",
+      "end": "End",
+      "livestream": "Livestream",
+      "livestreaming": "Livestreaming",
+      "participants": "Participants",
+      "react": "React",
+      "record": "Record",
+      "settings": "Settings",
+      "share_screen": "Share screen",
+      "stop_recording": "Stop recording",
+      "stop_share": "Stop sharing",
+      "whiteboard": "Whiteboard"
+    },
+    "waiting": {
+      "admit_failed": "Couldn't admit",
+      "decline": "Decline",
+      "decline_failed": "Couldn't decline",
+      "disabled": "This meeting has no waiting room",
+      "is_waiting": "{name} is in the waiting room",
+      "let_in": "Let in",
+      "none_waiting": "No one is waiting",
+      "someone": "Someone"
+    },
+    "whiteboard": {
+      "close": "Close whiteboard",
+      "close_message": "The whiteboard will close for everyone and the drawing will be lost.",
+      "close_title": "Close the whiteboard?",
+      "let_everyone_draw": "Let everyone draw",
+      "lock_view_only": "Lock (view only)",
+      "only_owner_can_close": "Only the person who opened the whiteboard or the host can close it",
+      "opening": "Opening the whiteboard…",
+      "title": "Whiteboard · {name}",
+      "view_only": "View only"
+    }
+  },
+  "shared": {
+    "deep_link": {
+      "in_meeting_message": "Leave the current meeting, then open the invite link again (ID {id}).",
+      "in_meeting_title": "You're in a meeting",
+      "invalid": "Invalid invite link"
+    },
+    "form": {
+      "birthday": "Date of birth",
+      "country": "Country",
+      "email": "Email",
+      "first_name": "Last name",
+      "last_name": "First name",
+      "password": "Password",
+      "phone": "Phone number"
+    },
+    "main": {
+      "image_filter": "Images",
+      "pick_background_title": "Choose a background image",
+      "pick_recording_folder_title": "Choose a folder for recordings",
+      "save_recording_title": "Save meeting recording"
+    },
+    "recording": {
+      "free_space": "{size} GB left"
+    },
+    "screen_capture": {
+      "message": "macOS is blocking the app from sharing your screen. Go to System Settings → Privacy & Security → Screen Recording, turn it on for Vision 20, then restart the app.",
+      "open_system_settings": "Open System Settings",
+      "title": "Screen recording permission needed"
+    },
+    "share_overlay": {
+      "open_meeting": "Open meeting",
+      "sharing": "You're sharing your screen",
+      "stop_share": "Stop sharing"
+    },
+    "user_picker": {
+      "add": "Add",
+      "no_results": "No users found",
+      "remove": "Remove {name}",
+      "searching": "Searching…"
+    },
+    "validation": {
+      "confirm_password_required": "Please re-enter your password",
+      "email_invalid": "Invalid email",
+      "email_required": "Email is required",
+      "first_name_required": "Last name is required",
+      "last_name_required": "First name is required",
+      "password_min_length": "Password must be at least 6 characters",
+      "password_mismatch": "Passwords don't match",
+      "password_required": "Password is required"
+    }
   }
 }

@@ -2,6 +2,7 @@ import { Avatar } from '@/renderer/shared/components';
 import AgoraEngineService from '@/shared/services/Agora/AgoraEngineService';
 import Icon from 'assets/svg/icons';
 import { useLayoutEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   RenderModeType,
   VideoMirrorModeType,
@@ -27,6 +28,7 @@ export function VideoView({
   hideMic = false,
   connecting = false,
 }: VideoViewProps) {
+  const { t } = useTranslation();
   const isSetup = useRef(false);
   const localSource = isSharing
     ? VideoSourceType.VideoSourceScreen
@@ -122,7 +124,9 @@ export function VideoView({
         <Avatar url={avatar} radius={32} name={label} />
       )}
       {connecting && (
-        <div className="surface-view-connecting">Đang kết nối…</div>
+        <div className="surface-view-connecting">
+          {t('meeting.tile.connecting')}
+        </div>
       )}
       {!hideLabel && (
         <div className="surface-view-info">

@@ -1,3 +1,5 @@
+import i18n from '@/renderer/i18n';
+
 /**
  * Recording preferences from the meeting settings ("Ghi âm"): where the host's
  * recordings are saved, and which meetings start recording on their own.
@@ -51,4 +53,6 @@ export const takeAutoRecord = (meetingId: number) => {
 };
 
 export const formatFreeSpace = (bytes: number) =>
-  `${(bytes / 1024 ** 3).toFixed(2)} GB còn lại`;
+  i18n.t('shared.recording.free_space', {
+    size: (bytes / 1024 ** 3).toFixed(2),
+  });

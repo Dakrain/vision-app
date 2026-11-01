@@ -1,4 +1,308 @@
 {
+  "account": {
+    "change_password": {
+      "confirm_new": "Nhập lại mật khẩu mới",
+      "current": "Mật khẩu hiện tại",
+      "description": "Để thay đổi mật khẩu của bạn, vui lòng nhập mật khẩu hiện tại. Sau đó, bạn nhập mật khẩu mới và xác nhận lại lần nữa.",
+      "failed": "Không cập nhật được mật khẩu, vui lòng thử lại",
+      "length": "Mật khẩu mới phải từ 6 đến 20 ký tự",
+      "mismatch": "Mật khẩu nhập lại không khớp",
+      "submit": "Cập nhật mật khẩu",
+      "success": "Đã cập nhật mật khẩu",
+      "title": "Thay đổi mật khẩu của bạn",
+      "wrong_current": "Mật khẩu hiện tại không đúng"
+    },
+    "logout": {
+      "confirm_message": "Bạn có chắc chắn muốn đăng xuất không?"
+    },
+    "menu": {
+      "section_title": "TÀI KHOẢN",
+      "storage": "Bộ nhớ",
+      "storage_used": "Đã sử dụng {percent}%"
+    },
+    "packages": {
+      "back": "← Trở lại",
+      "coming_soon": "Sắp có",
+      "coming_soon_hint": "Thanh toán nâng cấp dung lượng sẽ có ở bản cập nhật sau",
+      "current": "Gói hiện tại",
+      "description": "Bạn sẽ nhận thêm dung lượng bộ nhớ và nhiều lợi ích bổ sung",
+      "free": "Miễn phí",
+      "terms": "Bằng cách chọn gói dung lượng, bạn đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư của Vision 20.",
+      "title": "Nâng cấp tài khoản để có thêm dung lượng lưu trữ"
+    },
+    "personal": {
+      "about_you": "Thông tin về bạn",
+      "avatar_changed": "Đã đổi ảnh đại diện",
+      "avatar_failed": "Không đổi được ảnh đại diện",
+      "avatar_unsupported": "Máy chủ chưa hỗ trợ đổi ảnh đại diện",
+      "birthday_required": "Vui lòng chọn ngày sinh",
+      "change_avatar": "Thay đổi",
+      "city": "Thành phố",
+      "city_hint": "Chọn thành phố",
+      "country_hint": "Chọn quốc gia",
+      "email_phone_taken": "Email hoặc số điện thoại đã được dùng cho tài khoản khác",
+      "gender": "Giới tính",
+      "gender_female": "Nữ",
+      "gender_hint": "Chọn giới tính",
+      "gender_male": "Nam",
+      "job": "Nghề nghiệp của bạn",
+      "name_required": "Vui lòng nhập đủ Họ và Tên",
+      "position": "Chức vụ của bạn",
+      "religion": "Tôn giáo của bạn",
+      "required_field": "{label} *",
+      "save_changes": "Lưu thay đổi",
+      "save_failed": "Không lưu được thông tin, vui lòng thử lại",
+      "saved": "Đã lưu thông tin cá nhân",
+      "talent": "Tài năng của bạn",
+      "title": "Thông tin cá nhân",
+      "uploading_avatar": "Đang tải ảnh lên…",
+      "vietnam": "Việt Nam"
+    },
+    "storage": {
+      "current_plan_description": "Hiện tại bạn đang sử dụng gói <b>{name}</b> với Dung lượng lưu trữ tối đa <b>{limit}</b>",
+      "current_title": "Bộ nhớ hiện tại",
+      "current_usage": "Mức sử dụng hiện tại của bạn:",
+      "devotional": "Dưỡng linh",
+      "documents": "Tài liệu",
+      "load_failed": "Không tải được thông tin bộ nhớ",
+      "music": "Âm nhạc",
+      "other": "Khác",
+      "upgrade": "Nâng cấp dung lượng",
+      "upgrade_title": "Nâng cấp bộ nhớ",
+      "video": "Video",
+      "vision_tv": "Vision TV"
+    },
+    "tab": {
+      "logout": "Đăng xuất",
+      "terms": "Điều khoản và Điều kiện"
+    },
+    "terms": {
+      "description": "Nội dung Điều khoản và Điều kiện của Vision 20 đang được cập nhật."
+    }
+  },
+  "auth": {
+    "error_try_later": "Có lỗi xảy ra, vui lòng thử lại sau",
+    "forgot": {
+      "change_failed": "Không đổi được mật khẩu, vui lòng thử lại",
+      "change_password": "Đổi mật khẩu",
+      "changed": "Đã đổi mật khẩu, mời bạn đăng nhập lại",
+      "code_format": "Mã xác nhận gồm 6 chữ số",
+      "code_invalid": "Mã xác nhận không đúng hoặc đã hết hạn",
+      "code_placeholder": "Mã xác nhận",
+      "code_sent": "Mã gồm 6 chữ số đã được gửi tới {email}.",
+      "code_title": "Nhập mã xác nhận",
+      "email_description": "Nhập email tài khoản để nhận mã xác nhận.",
+      "email_not_found": "Không tìm thấy tài khoản với email này",
+      "password_length": "Mật khẩu từ 6 đến 20 ký tự",
+      "password_title": "Đặt mật khẩu mới",
+      "title": "Quên mật khẩu"
+    },
+    "login": {
+      "fill_all": "Vui lòng nhập đầy đủ thông tin",
+      "forgot_password_question": "Quên mật khẩu?",
+      "hide_password": "Ẩn mật khẩu",
+      "no_account_question": "Bạn không có tài khoản?",
+      "privacy_cookie": "Chính sách bảo mật và Cookie",
+      "show_password": "Hiện mật khẩu",
+      "terms_of_service": "Điều khoản dịch vụ",
+      "terms_prefix": "Bằng việc đăng nhập, bạn đồng ý với ",
+      "title": "Đăng nhập",
+      "wrong_credentials": "Email hoặc mật khẩu không đúng"
+    },
+    "otp": {
+      "continue": "Tiếp tục"
+    },
+    "register": {
+      "birthday_hint": "Chọn ngày sinh",
+      "confirm_password": "Nhập lại mật khẩu",
+      "email_exists": "Email đã tồn tại",
+      "error": "Đã có lỗi xảy ra",
+      "have_account_question": "Bạn đã có tài khoản?",
+      "submit": "Đăng ký",
+      "success": "Đăng ký thành công",
+      "terms_prefix": "Bằng việc đăng ký, bạn đồng ý với ",
+      "title": "Tạo mới tài khoản"
+    },
+    "reset": {
+      "new_password": "Mật khẩu mới"
+    }
+  },
+  "call": {
+    "contact_fallback": "Liên hệ",
+    "errors": {
+      "already_in_call": "Bạn đang trong một cuộc gọi khác",
+      "call_failed": "Không gọi được",
+      "callee_busy": "Người nhận đang bận",
+      "join_failed": "Không vào được cuộc gọi",
+      "leave_meeting_first": "Hãy rời cuộc họp trước khi gọi"
+    },
+    "in_call": {
+      "answered_elsewhere": "Đã trả lời trên thiết bị khác",
+      "camera_off": "Tắt camera",
+      "camera_on": "Bật camera",
+      "connection_lost": "Mất kết nối",
+      "end": "Kết thúc",
+      "label": "Cuộc gọi",
+      "mic_off": "Tắt mic",
+      "mic_on": "Bật mic",
+      "peer_lost": "Mất kết nối với người kia",
+      "peer_reconnecting": "Người kia đang mất kết nối…",
+      "reconnecting": "Mất kết nối mạng. Đang kết nối lại…",
+      "you": "Bạn"
+    },
+    "incoming": {
+      "answer": "Trả lời",
+      "calling_you": "{name} đang gọi cho bạn",
+      "decline": "Từ chối",
+      "video_title": "Cuộc gọi video đến",
+      "voice_title": "Cuộc gọi thoại đến"
+    },
+    "missed": {
+      "called_you": "{name} đã gọi cho bạn",
+      "called_you_busy": "{name} đã gọi cho bạn lúc bạn đang bận",
+      "someone": "Một người"
+    },
+    "outgoing": {
+      "connecting": "Đang kết nối…",
+      "declined": "Người nhận từ chối cuộc gọi",
+      "ended": "Cuộc gọi đã kết thúc",
+      "redial": "Gọi lại",
+      "ringing": "Đang đổ chuông…",
+      "unanswered": "Không thể nhận cuộc gọi"
+    },
+    "trace": {
+      "call": "Gọi",
+      "call_back_title": "Gọi lại?",
+      "call_back_video_title": "Gọi video lại?",
+      "cancelled": "Cuộc gọi đã hủy",
+      "duration_min_sec": "{min} phút {sec} giây",
+      "duration_sec": "{sec} giây",
+      "missed": "Cuộc gọi nhỡ",
+      "rejected": "Cuộc gọi bị từ chối",
+      "tap_to_call_back": "Nhấn để gọi lại"
+    },
+    "type": {
+      "video": "Cuộc gọi video",
+      "voice": "Cuộc gọi thoại"
+    }
+  },
+  "chat": {
+    "actions": {
+      "copy": "Sao chép tin nhắn",
+      "failed": "Không thực hiện được, vui lòng thử lại",
+      "forward": "Chuyển tiếp",
+      "hidden": "Đã gỡ tin nhắn phía bạn",
+      "hide": "Gỡ tin nhắn phía bạn",
+      "menu": "Tác vụ tin nhắn",
+      "recall": "Thu hồi tin nhắn",
+      "recalled": "Đã thu hồi tin nhắn",
+      "reply": "Trả lời"
+    },
+    "conversations": {
+      "connecting": "Đang kết nối trò chuyện…",
+      "empty": "Chưa có cuộc trò chuyện nào",
+      "group": "Nhóm",
+      "not_found": "Không tìm thấy cuộc trò chuyện nào",
+      "open_failed": "Không mở được cuộc trò chuyện",
+      "placeholder": "Chọn một cuộc trò chuyện để bắt đầu nhắn tin",
+      "untitled": "Trò chuyện",
+      "you_prefix": "Bạn: "
+    },
+    "forward": {
+      "failed": "Không chuyển tiếp được, vui lòng thử lại",
+      "forwarded": "Đã chuyển tiếp",
+      "note_hint": "Tin nhắn ...",
+      "title": "Chuyển tiếp đến"
+    },
+    "group_create": {
+      "create_failed": "Không tạo được nhóm chat",
+      "create_group": "Tạo nhóm chat",
+      "member_search": "Gõ tên thành viên trong nhóm chat",
+      "min_members_hint": "Chọn ít nhất 2 thành viên",
+      "name_label": "Tên nhóm:",
+      "name_placeholder": "Gõ tên nhóm",
+      "no_users": "Không tìm thấy người dùng nào",
+      "search_more": "Gõ tên hoặc email để tìm thêm người",
+      "unpick": "Bỏ chọn"
+    },
+    "group_photo": {
+      "change": "Đổi ảnh nhóm",
+      "change_failed": "Không đổi được ảnh nhóm",
+      "changed": "Đã đổi ảnh nhóm",
+      "remove": "Xóa ảnh nhóm",
+      "remove_failed": "Không xóa được ảnh nhóm",
+      "title": "Ảnh nhóm",
+      "uploading": "Đang tải ảnh nhóm…"
+    },
+    "header": {
+      "video_call": "Gọi video",
+      "voice_call": "Gọi thoại"
+    },
+    "new_message": {
+      "direct": "Cuộc trò chuyện cá nhân",
+      "group": "Cuộc trò chuyện nhóm",
+      "group_draft": "Nhóm chat mới",
+      "no_match": "Không tìm thấy liên hệ. Người chưa có trong danh bạ: nhập email của họ.",
+      "searching": "Đang tìm…",
+      "to": "Đến:",
+      "to_placeholder": "Nhập tên liên hệ hoặc email"
+    },
+    "outbox": {
+      "resend": "Gửi lại",
+      "send_failed": "Không thể gửi tin nhắn"
+    },
+    "preview": {
+      "call": "[Cuộc gọi]",
+      "file": "[Tệp đính kèm]",
+      "image": "[Hình ảnh]",
+      "video_call": "📞 Cuộc gọi video",
+      "video_cancelled": "📞 Cuộc gọi video đã hủy",
+      "video_missed": "📵 Cuộc gọi video nhỡ",
+      "video_rejected": "📞 Cuộc gọi video bị từ chối",
+      "voice_call": "📞 Cuộc gọi thoại",
+      "voice_cancelled": "📞 Cuộc gọi thoại đã hủy",
+      "voice_missed": "📵 Cuộc gọi thoại nhỡ",
+      "voice_rejected": "📞 Cuộc gọi thoại bị từ chối"
+    },
+    "recalled": "Tin nhắn đã được thu hồi",
+    "screen": {
+      "attachment": "Tệp đính kèm",
+      "cancel_reply": "Hủy trả lời",
+      "composer_hint": "Nhắn tin ...",
+      "emoji": "Biểu tượng cảm xúc",
+      "image": "Hình ảnh",
+      "jump_latest": "Xem tin nhắn mới nhất",
+      "member_count_one": "{count} thành viên",
+      "member_count_other": "{count} thành viên",
+      "offline": "Không có kết nối internet",
+      "replying_to": "Đang trả lời {name}",
+      "send": "Gửi",
+      "send_file": "Gửi tệp",
+      "send_image": "Gửi ảnh",
+      "sending_file": "Đang gửi tệp…",
+      "you": "bạn"
+    },
+    "status": {
+      "seen": "Đã xem",
+      "sending": "Đang gửi",
+      "sent": "Đã gửi"
+    },
+    "tab": {
+      "contacts": "Danh bạ",
+      "conversations": "Trò chuyện",
+      "new_message": "Tin nhắn mới"
+    },
+    "time": {
+      "day_divider": "Ngày {day} tháng {month}, {year}",
+      "fri": "Thứ 6",
+      "mon": "Thứ 2",
+      "sat": "Thứ 7",
+      "sun": "Chủ nhật",
+      "thu": "Thứ 5",
+      "tue": "Thứ 3",
+      "wed": "Thứ 4"
+    }
+  },
   "common": {
     "back": "Quay lại",
     "cancel": "Hủy",
@@ -20,6 +324,49 @@
     "search": "Tìm kiếm",
     "version": "Phiên bản {version} ({build})"
   },
+  "contacts": {
+    "add_friend": {
+      "add": "Thêm liên hệ",
+      "email_invalid": "Email không hợp lệ",
+      "email_not_found": "Không tìm thấy tài khoản với email này",
+      "email_placeholder": "Email của người bạn muốn thêm",
+      "email_required": "Vui lòng nhập email",
+      "request_failed": "Không gửi được lời mời. Có thể hai bạn đã là bạn bè.",
+      "request_sent": "Đã gửi lời mời kết bạn",
+      "request_sent_desc": "{name} sẽ có trong Danh bạ khi chấp nhận lời mời.",
+      "send_request": "Gửi lời mời"
+    },
+    "empty": "Chưa có liên hệ nào",
+    "friend_requests": {
+      "accept": "Đồng ý",
+      "decline": "Từ chối",
+      "title_count": "Lời mời kết bạn ({count})"
+    },
+    "not_found_any": "Không tìm thấy liên hệ nào",
+    "section_header": "DANH BẠ"
+  },
+  "home": {
+    "menu": {
+      "account": "Tài khoản",
+      "settings": "Cài đặt",
+      "version": "Phiên bản {version}"
+    },
+    "nav": {
+      "chat": "Chat",
+      "home": "Trang chủ",
+      "meeting": "Cuộc họp",
+      "setting": "Cài đặt"
+    },
+    "page": {
+      "create_meeting": "Tạo cuộc họp mới",
+      "join_meeting": "Tham gia cuộc họp",
+      "schedule_description_after": " để có thể Bắt đầu cuộc họp tức thì hay Lên lịch cho cuộc họp.",
+      "schedule_description_before": "Nhấn vào ",
+      "schedule_title": "Lên lịch cho cuộc họp",
+      "welcome_description": "Đây là một vài gợi ý để bạn bắt đầu...",
+      "welcome_title": "Chào mừng đến với Vision 20"
+    }
+  },
   "language": {
     "current": "Ngôn ngữ mặc định: {name}",
     "en": "English",
@@ -27,5 +374,462 @@
     "title": "Ngôn ngữ",
     "vi": "Tiếng Việt",
     "zh": "中文 (简体)"
+  },
+  "meeting": {
+    "add_member": {
+      "add": "Thêm",
+      "add_failed": "Không thêm được người này (phòng có thể đã đủ người).",
+      "already_in": "Đã trong phòng",
+      "email_placeholder": "Nhập email người cần thêm",
+      "find": "Tìm",
+      "no_results": "Không tìm thấy người dùng nào",
+      "note": "Người được thêm sẽ nhận thông báo và có thể vào phòng mà không cần mật khẩu.",
+      "role_co_host": "Co-host",
+      "role_member": "Thành viên",
+      "search_failed": "Không tìm được người dùng, vui lòng thử lại.",
+      "title": "Thêm người vào phòng"
+    },
+    "background": {
+      "add_failed": "Không thêm được ảnh",
+      "add_image_plus": "+ Thêm ảnh",
+      "choose": "Chọn phông nền",
+      "delete_message": "Bạn có muốn xóa ảnh nền này?",
+      "delete_this": "Xóa ảnh này",
+      "delete_title": "Xóa phông nền",
+      "from_computer": "Ảnh từ máy của bạn",
+      "no_background": "Không dùng phông nền",
+      "not_used": "Không dùng",
+      "preset": "Phông nền {index}",
+      "your_image": "Ảnh của bạn"
+    },
+    "chat": {
+      "disabled_short": "Chủ phòng đã tắt chat",
+      "input_hint": "Nhập tin nhắn...",
+      "new_message": "Tin nhắn mới",
+      "reconnecting": "Mất kết nối chat. Đang kết nối lại… Tin nhắn mới sẽ hiện khi kết nối lại.",
+      "send": "Gửi",
+      "title": "Tin nhắn trong cuộc họp",
+      "visibility_note": "Tin nhắn chỉ hiển thị với những người tham gia cuộc họp và sẽ bị xóa khi cuộc họp kết thúc"
+    },
+    "create": {
+      "allow_camera": "Được phép mở Webcam",
+      "allow_chat": "Được phép Chat",
+      "allow_livestream": "Cho phép Livestream cuộc họp",
+      "allow_mic": "Được phép mở Micro",
+      "allow_record": "Được phép Ghi âm",
+      "allow_rejoin": "Cho phép người bị xóa tham gia lại",
+      "allow_share": "Cho phép mọi người chia sẻ màn hình",
+      "auto_record": "Tự động ghi âm khi cuộc họp bắt đầu",
+      "co_host": "Trao quyền Co-host",
+      "co_host_desc": "Co-host sẽ có quyền kiểm soát như Host nếu như Host không còn ở trong phòng. Trao quyền Co-host bằng cách thêm email của người được trao quyền",
+      "co_host_placeholder": "Nhập email người được trao quyền",
+      "create_failed": "Không tạo được cuộc họp",
+      "host": "Chủ trì cuộc họp",
+      "info_tab": "Thông tin cuộc họp",
+      "invite": "Mời thành viên tham gia cuộc họp của bạn",
+      "invite_placeholder": "Nhập email của thành viên",
+      "livestream": "Livestream cuộc họp",
+      "livestream_desc": "Livestream cuộc họp cho phép Host phát trực tiếp cuộc họp trên Facebook và Youtube thông qua tài khoản của Host. Đối với Facebook, Host có thể phát trực tiếp trên dòng thời gian Facebook của mình hoặc một nhóm hoặc trang mà Host là quản trị viên. Đối với Youtube, Host phát trực tiếp lên Kênh Youtube của họ.",
+      "max_participants": "Số lượng người tối đa",
+      "new_meeting": "Tạo cuộc họp mới",
+      "now": "Bây giờ",
+      "open": "Mở",
+      "participant_settings": "Cài đặt cho người tham dự",
+      "participant_settings_desc": "Cài đặt người tham dự cho phép Host kiểm soát các quyền của người tham dự trong cuộc họp",
+      "password": "Mật khẩu cuộc họp",
+      "password_placeholder": "Bỏ trống nếu muốn hệ thống tự động tạo mật khẩu",
+      "pick_date": "Chọn ngày",
+      "pick_future_time": "Chọn ngày và giờ bắt đầu trong tương lai",
+      "pick_time": "Chọn giờ",
+      "recording": "Ghi âm",
+      "recording_desc": "Ghi âm cho phép người dùng kiểm soát file ghi âm của mình",
+      "save_recordings_in": "Lưu bản ghi âm của tôi ở",
+      "schedule_failed": "Không lên lịch được cuộc họp",
+      "schedule_meeting": "Lên lịch cuộc họp",
+      "scheduled": "Đã lên lịch cuộc họp",
+      "settings_tab": "Cài đặt cuộc họp",
+      "share_screen": "Chia sẻ màn hình",
+      "share_screen_desc": "Cho phép người tham dự chia sẻ màn hình của họ trong cuộc họp",
+      "start_meeting": "Bắt đầu cuộc họp",
+      "start_time": "Thời gian bắt đầu",
+      "time_zone": "Múi giờ",
+      "topic": "Chủ đề cuộc họp",
+      "topic_placeholder": "Nhập chủ đề cuộc họp",
+      "waiting_room": "Kích hoạt phòng chờ xét duyệt"
+    },
+    "detail": {
+      "copy": "Copy",
+      "host": "Host",
+      "join_link": "Link tham gia",
+      "meeting_id": "ID cuộc họp",
+      "password": "Mật khẩu",
+      "start_time": "Thời gian bắt đầu",
+      "title_of": "{name}'s meeting"
+    },
+    "devices": {
+      "camera": "Camera",
+      "mic": "Micrô",
+      "no_camera": "Không tìm thấy camera",
+      "no_mic": "Không tìm thấy micrô",
+      "no_speaker": "Không tìm thấy loa",
+      "speaker": "Loa",
+      "title": "Micrô, camera và loa"
+    },
+    "exit": {
+      "end_for_all_long": "Kết thúc cuộc họp cho mọi người",
+      "host_message": "Kết thúc cuộc họp cho tất cả mọi người, hay chỉ mình bạn rời phòng?",
+      "title": "Thoát cuộc họp"
+    },
+    "join": {
+      "join": "Tham gia",
+      "meeting_id_hint": "Meeting ID",
+      "passcode_hint": "Passcode",
+      "title": "Tham gia cuộc họp",
+      "your_name_label": "Your name in the meeting"
+    },
+    "layout": {
+      "focus_view": "Tập trung (chỉ nội dung chia sẻ)",
+      "grid": "Lưới",
+      "hide_self": "Ẩn ô của tôi",
+      "large_grid": "Lưới lớn (7x7)",
+      "menu": "Bố cục",
+      "show_self": "Hiện ô của tôi",
+      "speaker_view": "Người nói"
+    },
+    "list": {
+      "copy_link": "Sao chép liên kết mời",
+      "delete": "Xóa cuộc họp",
+      "delete_failed": "Không xóa được cuộc họp",
+      "delete_failed_live": "Cuộc họp đang diễn ra phải được kết thúc trước.",
+      "delete_message": "\"{title}\" sẽ bị xóa khỏi danh sách của mọi người.",
+      "delete_title": "Xóa cuộc họp?",
+      "description": "Mô tả",
+      "edit_title": "Chỉnh sửa cuộc họp",
+      "empty": "Không có cuộc họp nào",
+      "join": "Tham gia",
+      "join_meeting": "Join meeting",
+      "key_on_start": "Có khi bắt đầu",
+      "link_copied": "Đã sao chép liên kết mời",
+      "load_failed": "Không tải được danh sách cuộc họp",
+      "new_meeting": "New meeting",
+      "not_started": "Chủ phòng chưa bắt đầu cuộc họp",
+      "options": "Tuỳ chọn",
+      "save_failed": "Không lưu được thay đổi",
+      "schedule": "Schedule",
+      "start": "Bắt đầu",
+      "start_failed": "Không bắt đầu được cuộc họp",
+      "tab_live": "Live",
+      "tab_upcoming": "Sắp diễn ra",
+      "topic": "Chủ đề cuộc họp"
+    },
+    "livestream": {
+      "add": "+ Thêm nơi phát",
+      "choose": "Chọn nơi phát",
+      "choose_to_start": "Chọn nơi phát để bắt đầu",
+      "custom_key_hint": "Stream key của nền tảng",
+      "custom_step1": "Dùng cho TikTok, Twitch, Vimeo… hoặc máy chủ RTMP riêng.",
+      "custom_step2": "Sao chép \"Server URL\" (bắt đầu bằng rtmp:// hoặc rtmps://) và \"Stream key\" từ trang quản lý live của nền tảng.",
+      "delete_confirm": "Xóa nơi phát này?",
+      "error_capacity": "Hệ thống đang có quá nhiều buổi phát trực tiếp, vui lòng thử lại sau.",
+      "error_invalid": "Khoá hoặc địa chỉ máy chủ không hợp lệ.",
+      "error_not_allowed": "Cuộc họp này không cho phép phát trực tiếp.",
+      "error_not_found": "Không tìm thấy nơi phát đã chọn.",
+      "error_permission": "Chỉ Host hoặc Co-host được phát trực tiếp.",
+      "error_too_many": "Mỗi cuộc họp chỉ phát tối đa 3 nơi cùng lúc.",
+      "everyone_notice": "Mọi người trong cuộc họp sẽ thấy nhãn LIVE và được thông báo rằng cuộc họp đang được phát trực tiếp.",
+      "facebook_key_hint": "Bắt đầu bằng FB-",
+      "facebook_step1": "Mở Facebook Live Producer → bấm Phát trực tiếp, chọn trang cá nhân hoặc Page của bạn.",
+      "facebook_step2": "Chọn \"Phần mềm phát trực tiếp\" (Streaming software) → sao chép \"Khoá luồng\".",
+      "facebook_step3": "Bật \"Sử dụng khoá luồng cố định\" để lưu một lần, dùng cho các lần sau.",
+      "failure_connect": "Không kết nối được tới nền tảng phát. Vui lòng thử lại.",
+      "failure_key": "Khoá phát trực tiếp hoặc địa chỉ máy chủ không đúng / đã hết hạn. Hãy lấy khoá mới.",
+      "key_format_warning": "Khoá có vẻ không đúng định dạng ({hint}). Hãy kiểm tra lại trước khi lưu.",
+      "key_note": "Khoá được mã hoá và lưu theo tài khoản của bạn, dùng lại được cho các cuộc họp sau trên cả máy tính và điện thoại.",
+      "key_placeholder": "Dán khoá phát trực tiếp — {hint}",
+      "key_required": "Vui lòng dán khoá phát trực tiếp.",
+      "live_notice_desc": "Hình ảnh và âm thanh của cuộc họp đang được phát công khai lên {platforms}.",
+      "live_notice_title": "Cuộc họp đang được phát trực tiếp",
+      "live_now": "Đang phát",
+      "load_failed": "Không tải được danh sách nơi phát.",
+      "name_placeholder": "Tên hiển thị (vd: Kênh {platform} của tôi)",
+      "none": "Chưa có nơi phát nào.",
+      "open_key_page": "Mở trang lấy khoá ↗",
+      "platform_custom": "Khác (RTMP)",
+      "save": "Lưu nơi phát",
+      "save_failed": "Không lưu được nơi phát.",
+      "server_url_invalid": "Server URL phải bắt đầu bằng rtmp:// hoặc rtmps://",
+      "server_url_placeholder": "Server URL (rtmp://… hoặc rtmps://…)",
+      "start_count_one": "Bắt đầu phát ({count} nơi)",
+      "start_count_other": "Bắt đầu phát ({count} nơi)",
+      "start_failed": "Không bắt đầu phát trực tiếp được.",
+      "status_failed": "Lỗi",
+      "status_live": "● Đang phát",
+      "status_starting": "Đang kết nối",
+      "status_stopped": "Đã dừng",
+      "status_stopping": "Đang dừng",
+      "stop": "Dừng",
+      "stop_all": "Dừng tất cả",
+      "title": "Phát trực tiếp",
+      "youtube_key_hint": "Dạng xxxx-xxxx-xxxx-xxxx-xxxx",
+      "youtube_step1": "Mở YouTube Studio trên máy tính → bấm Tạo → Phát trực tiếp.",
+      "youtube_step2": "Lần đầu phát trực tiếp, YouTube cần khoảng 24 giờ để kích hoạt kênh.",
+      "youtube_step3": "Chọn \"Phần mềm phát trực tiếp\" (Streaming software) → sao chép \"Khoá sự kiện phát trực tiếp\"."
+    },
+    "lobby": {
+      "admitted": "Chủ phòng đã cho bạn vào cuộc họp",
+      "background": "Phông nền",
+      "background_needs_camera": "Bật camera để chọn phông nền",
+      "camera_is_off": "Camera đang tắt",
+      "camera_not_allowed": "Chủ phòng chưa cho phép bật camera",
+      "camera_off": "Camera tắt",
+      "camera_on": "Camera bật",
+      "cannot_join": "Bạn không thể tham gia cuộc họp này",
+      "default_title": "Cuộc họp",
+      "full": "Cuộc họp đã đủ số người tham gia.",
+      "host": "Chủ trì: {name}",
+      "join_failed": "Không tham gia được cuộc họp",
+      "join_here_too": "Tham gia trên thiết bị này",
+      "join_now": "Tham gia ngay",
+      "loading": "Đang tải…",
+      "meeting_id": "ID: {id}",
+      "mic_not_allowed": "Chủ phòng chưa cho phép bật micro",
+      "mic_off": "Mic tắt",
+      "mic_on": "Mic bật",
+      "move_here": "Chuyển sang thiết bị này",
+      "not_found": "Mã cuộc họp hoặc mật khẩu không đúng, hoặc cuộc họp đã kết thúc.",
+      "other_device_message": "Chuyển cuộc họp sang thiết bị này, hay tham gia thêm (ví dụ để chia sẻ màn hình hoặc bật camera ở đây)?",
+      "other_device_title": "Bạn đang ở trong cuộc họp này trên thiết bị khác",
+      "rejected": "Chủ phòng đã từ chối yêu cầu tham gia của bạn",
+      "start": "Bắt đầu",
+      "try_again": "Vui lòng thử lại.",
+      "waiting_approval_short": "Đang chờ duyệt…",
+      "waiting_note_short": "Đang chờ chủ phòng duyệt. Bạn sẽ tự vào cuộc họp khi được cho phép."
+    },
+    "participants": {
+      "action_failed": "Không thực hiện được thao tác",
+      "action_failed_desc": "Bạn có thể không đủ quyền, hoặc người này đã rời phòng.",
+      "add_people": "Thêm người",
+      "added": "ĐÃ THÊM VÀO PHÒNG",
+      "ban": "Cấm tham gia cuộc họp",
+      "ban_confirm": "Cấm {name} tham gia? Họ sẽ bị đưa ra ngoài và không thể vào lại cuộc họp này.",
+      "co_host_section": "CO-HOST",
+      "copy_link": "Sao chép link mời",
+      "host_section": "HOST",
+      "in_meeting": "NGƯỜI THAM DỰ",
+      "kick": "Loại khỏi phòng",
+      "kick_confirm": "Mời {name} ra khỏi cuộc họp? Họ vẫn có thể tham gia lại.",
+      "link_copied": "Đã sao chép link mời",
+      "make_co_host_long": "Chuyển quyền thành Co-host",
+      "mute": "Tắt micro",
+      "mute_all_confirm": "Tắt micro của mọi thành viên (trừ Host và Co-host)? Mọi người vẫn tự bật lại được.",
+      "mute_all_failed": "Không tắt được micro của mọi người",
+      "mute_all_pill": "Mute all",
+      "mute_all_title": "Tắt micro tất cả",
+      "no_invite_link": "Cuộc họp chưa có link mời",
+      "options": "Tuỳ chọn",
+      "permissions": "Quyền của người tham dự",
+      "permissions_hint": "Người tham dự được phép (Host và Co-host luôn được phép):",
+      "permissions_pill": "Quyền",
+      "remove_co_host": "Thu hồi quyền Co-host",
+      "role_co_host": "Co-host",
+      "role_host": "Người chủ trì",
+      "role_me": "tôi",
+      "stop_video": "Tắt video",
+      "tab_in_room": "Đang trong phòng ({count})",
+      "tab_waiting": "Phòng chờ ({count})",
+      "title": "Người tham dự"
+    },
+    "permission": {
+      "camera": "bật camera",
+      "camera_title": "Bật camera",
+      "chat": "chat",
+      "chat_title": "Chat",
+      "mic": "bật micro",
+      "mic_title": "Bật micro",
+      "record": "ghi cuộc họp",
+      "record_title": "Ghi cuộc họp",
+      "share": "chia sẻ màn hình",
+      "share_title": "Chia sẻ màn hình"
+    },
+    "reaction": {
+      "lower_hand": "Hạ tay",
+      "raise_hand": "Giơ tay"
+    },
+    "recording": {
+      "interrupted": "Bản ghi bị gián đoạn",
+      "saved": "Đã lưu bản ghi cuộc họp",
+      "start_failed": "Không bắt đầu ghi được"
+    },
+    "room": {
+      "action_record": "ghi cuộc họp",
+      "action_share_content": "chia sẻ nội dung",
+      "action_share_screen": "chia sẻ màn hình",
+      "attachment": "[Tệp đính kèm]",
+      "audio_off": "Tắt âm thanh",
+      "audio_on": "Bật âm thanh",
+      "badge_new": "{count} mới",
+      "banned": "Bạn đã bị cấm tham gia cuộc họp này",
+      "being_recorded": "● Đang được ghi",
+      "close_whiteboard_first": "Đang mở bảng trắng: đóng bảng trước khi chia sẻ màn hình",
+      "co_host_granted": "Bạn đã được trao quyền Co-host",
+      "co_host_revoked": "Quyền Co-host của bạn đã được thu hồi",
+      "connecting": "Đang kết nối vào cuộc họp…",
+      "device_camera": "camera",
+      "device_other": "thiết bị khác",
+      "exit_full_screen": "Thoát toàn màn hình",
+      "extra_device": "Bạn đang tham gia thêm trên thiết bị này.",
+      "extra_device_muted": "Bạn đang tham gia thêm trên thiết bị này. Âm thanh đang tắt để tránh tiếng vọng.",
+      "full_screen": "Toàn màn hình",
+      "host": "Chủ phòng",
+      "joined_elsewhere": "Tài khoản của bạn vừa tham gia cuộc họp trên thiết bị khác",
+      "kicked": "Bạn đã được mời ra khỏi cuộc họp",
+      "leave_room": "Rời phòng",
+      "live_badge_title": "Đang phát trực tiếp",
+      "meeting_ended": "Cuộc họp đã kết thúc",
+      "moved_to_other_device": "Cuộc họp đã được chuyển sang thiết bị khác",
+      "no_longer_in_meeting": "Bạn không còn ở trong cuộc họp này",
+      "not_allowed": "Chủ phòng chưa cho phép {what}",
+      "opened_whiteboard": "{name} đã mở bảng trắng",
+      "others_recording_title": "{name} đang ghi cuộc họp",
+      "permission_change_failed": "Không đổi được quyền, vui lòng thử lại",
+      "permissions_granted": "Chủ phòng đã cho phép {what}",
+      "permissions_revoked": "Chủ phòng đã tắt quyền {what}",
+      "rec_badge_title": "Đang ghi cuộc họp",
+      "reconnect_failed": "Không thể kết nối lại cuộc họp",
+      "reconnecting": "Mất kết nối mạng. Đang kết nối lại…",
+      "session_expired": "Phiên họp đã hết hạn, vui lòng vào lại",
+      "someone": "Một người tham dự",
+      "someone_lower": "một người tham dự",
+      "someone_sharing": "Đang có người chia sẻ màn hình",
+      "spotlight_me": "Bạn đang được spotlight cho mọi người",
+      "spotlight_off": "{name} đã tắt spotlight",
+      "spotlight_on": "Spotlight: {name}",
+      "started_recording": "{name} đang ghi lại cuộc họp",
+      "started_sharing": "{name} đang chia sẻ màn hình",
+      "stopped_recording": "{name} đã dừng ghi cuộc họp",
+      "stopped_sharing": "{name} đã dừng chia sẻ màn hình",
+      "turn_back_on_hint": "Bạn có thể tự bật lại khi cần nói.",
+      "turned_off_camera_by": "{name} đã tắt camera của bạn",
+      "turned_off_mic_by": "{name} đã tắt micro của bạn",
+      "turned_off_mic_camera_by": "{name} đã tắt micro và camera của bạn",
+      "you": "Bạn"
+    },
+    "setup": {
+      "default_title": "Cuộc họp",
+      "default_title_of": "Cuộc họp của {name}"
+    },
+    "share": {
+      "app_windows": "Application windows",
+      "desktop": "Desktop",
+      "share": "Chia sẻ",
+      "title": "Chia sẻ màn hình"
+    },
+    "tile": {
+      "connecting": "Đang kết nối…",
+      "joining": "Đang tham gia…",
+      "next_page": "Trang sau",
+      "options": "Tuỳ chọn",
+      "pin_for_me": "Ghim cho tôi",
+      "pinned": "Đã ghim",
+      "prev_page": "Trang trước",
+      "spotlight": "Spotlight",
+      "spotlight_all": "Spotlight cho mọi người",
+      "spotlight_off": "Tắt spotlight",
+      "unpin": "Bỏ ghim",
+      "waiting_others": "Đang chờ mọi người tham gia…",
+      "you_sharing": "Bạn đang chia sẻ màn hình"
+    },
+    "toolbar": {
+      "audio": "Âm thanh",
+      "background": "Phông nền",
+      "camera": "Camera",
+      "chat": "Chat",
+      "chat_unread": "Chat ({count} tin mới)",
+      "close_whiteboard": "Đóng bảng trắng",
+      "devices": "Micrô, camera và loa",
+      "end": "Kết thúc",
+      "livestream": "Phát trực tiếp",
+      "livestreaming": "Đang phát trực tiếp",
+      "participants": "Người tham dự",
+      "react": "Thả cảm xúc",
+      "record": "Ghi cuộc họp",
+      "settings": "Cài đặt",
+      "share_screen": "Chia sẻ màn hình",
+      "stop_recording": "Dừng ghi",
+      "stop_share": "Dừng chia sẻ",
+      "whiteboard": "Bảng trắng"
+    },
+    "waiting": {
+      "admit_failed": "Không cho vào được",
+      "decline": "Từ chối",
+      "decline_failed": "Không từ chối được",
+      "disabled": "Phòng này không bật phòng chờ",
+      "is_waiting": "{name} đang chờ vào phòng",
+      "let_in": "Cho vào",
+      "none_waiting": "Chưa có ai đang chờ",
+      "someone": "Một người"
+    },
+    "whiteboard": {
+      "close": "Đóng bảng trắng",
+      "close_message": "Bảng trắng sẽ đóng với mọi người và nội dung đã vẽ sẽ mất.",
+      "close_title": "Đóng bảng trắng?",
+      "let_everyone_draw": "Cho mọi người vẽ",
+      "lock_view_only": "Khoá (chỉ xem)",
+      "only_owner_can_close": "Chỉ người mở bảng hoặc chủ phòng mới đóng được bảng trắng",
+      "opening": "Đang mở bảng trắng…",
+      "title": "Bảng trắng · {name}",
+      "view_only": "Chỉ xem"
+    }
+  },
+  "shared": {
+    "deep_link": {
+      "in_meeting_message": "Hãy rời cuộc họp hiện tại rồi mở lại link mời (ID {id}).",
+      "in_meeting_title": "Bạn đang trong một cuộc họp",
+      "invalid": "Link mời không hợp lệ"
+    },
+    "form": {
+      "birthday": "Ngày sinh",
+      "country": "Quốc gia",
+      "email": "Email",
+      "first_name": "Họ",
+      "last_name": "Tên",
+      "password": "Mật khẩu",
+      "phone": "Số điện thoại"
+    },
+    "main": {
+      "image_filter": "Ảnh",
+      "pick_background_title": "Chọn ảnh làm phông nền",
+      "pick_recording_folder_title": "Chọn thư mục lưu bản ghi",
+      "save_recording_title": "Lưu bản ghi cuộc họp"
+    },
+    "recording": {
+      "free_space": "{size} GB còn lại"
+    },
+    "screen_capture": {
+      "message": "macOS đang chặn ứng dụng chia sẻ màn hình. Vào Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Ghi màn hình (Screen Recording), bật quyền cho Vision 20, sau đó khởi động lại ứng dụng.",
+      "open_system_settings": "Mở Cài đặt hệ thống",
+      "title": "Cần cấp quyền ghi màn hình"
+    },
+    "share_overlay": {
+      "open_meeting": "Mở cuộc họp",
+      "sharing": "Bạn đang chia sẻ màn hình",
+      "stop_share": "Dừng chia sẻ"
+    },
+    "user_picker": {
+      "add": "Thêm",
+      "no_results": "Không tìm thấy người dùng nào",
+      "remove": "Bỏ {name}",
+      "searching": "Đang tìm…"
+    },
+    "validation": {
+      "confirm_password_required": "Vui lòng nhập lại mật khẩu",
+      "email_invalid": "Email không hợp lệ",
+      "email_required": "Email không được để trống",
+      "first_name_required": "Họ không được để trống",
+      "last_name_required": "Tên không được để trống",
+      "password_min_length": "Mật khẩu phải có ít nhất 6 ký tự",
+      "password_mismatch": "Mật khẩu không khớp",
+      "password_required": "Mật khẩu không được để trống"
+    }
   }
 }

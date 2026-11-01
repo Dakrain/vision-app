@@ -1,12 +1,16 @@
 import { MeetingUserTab } from './types';
 
-export const MEETING_USER_TABS: MeetingUserTab[] = [
+export const MEETING_USER_TABS: (MeetingUserTab & {
+  label:
+    | 'meeting.participants.tab_in_room'
+    | 'meeting.participants.tab_waiting';
+})[] = [
   {
-    label: 'Đang trong phòng',
+    label: 'meeting.participants.tab_in_room',
     value: 'active',
   },
   {
-    label: 'Phòng chờ',
+    label: 'meeting.participants.tab_waiting',
     value: 'pending',
   },
 ];

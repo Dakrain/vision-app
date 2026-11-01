@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Icon from '@/assets/svg/icons';
 import { MenuItemProps } from './type';
 import './MenuItem.scss';
@@ -11,6 +12,7 @@ export const MenuItem = memo(function MenuItem({
   caret,
   badge = 0,
 }: MenuItemProps) {
+  const { t } = useTranslation();
   return (
     <button
       onClick={onClick}
@@ -23,7 +25,10 @@ export const MenuItem = memo(function MenuItem({
         <span className="menu-item-icon">
           {typeof icon === 'string' ? <Icon name={icon} /> : icon}
           {badge > 0 && (
-            <span className="menu-item-badge" aria-label={`${badge} mới`}>
+            <span
+              className="menu-item-badge"
+              aria-label={t('meeting.room.badge_new', { count: badge })}
+            >
               {badge > 99 ? '99+' : badge}
             </span>
           )}

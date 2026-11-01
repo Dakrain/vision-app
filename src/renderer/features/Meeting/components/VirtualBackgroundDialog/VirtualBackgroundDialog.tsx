@@ -1,6 +1,7 @@
 import './VirtualBackgroundDialog.scss';
 import { Button } from '@/renderer/shared/components/Button';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Image, Modal, notification } from 'antd';
 import {
@@ -35,6 +36,7 @@ export function VirtualBackgroundDialog({
   open,
   onClose,
 }: VirtualBackgroundProps) {
+  const { t } = useTranslation();
   const [backgrounds, setBackgrounds] = useState<VirtualBackground[]>([]);
   const [customBackgrounds, setCustomBackgrounds] = useState<
     VirtualBackground[]
@@ -52,7 +54,8 @@ export function VirtualBackgroundDialog({
           return toBackground(
             imagePath,
             `vbg-${imageNumber}`,
-            `Phông nền ${imageNumber}`,
+            // The preset's number; labelled at render (see `labelOf`).
+            `${imageNumber}`,
           );
         }),
       );
@@ -66,7 +69,7 @@ export function VirtualBackgroundDialog({
   const loadCustomBackgrounds = useCallback(async () => {
     const files: string[] = await ipcRenderer.invoke('custom-backgrounds:list');
     setCustomBackgrounds(
-      files.map((file) => toBackground(file, file, 'Ảnh của bạn', true)),
+      files.map((file) => toBackground(file, file, '', true)),
     );
   }, []);
 
@@ -94,18 +97,21 @@ export function VirtualBackgroundDialog({
       );
       if (!file) return;
       await loadCustomBackgrounds();
-      setSelectedSource(toBackground(file, file, 'Ảnh của bạn', true));
+      setSelectedSource(toBackground(file, file, '', true));
     } catch (_) {
-      notification.error({ message: 'Không thêm được ảnh', placement: 'top' });
+      notification.error({
+        message: t('meeting.background.add_failed'),
+        placement: 'top',
+      });
     }
   };
 
   const removeCustomBackground = (source: VirtualBackground) => {
     Modal.confirm({
-      title: 'Xóa phông nền',
-      content: 'Bạn có muốn xóa ảnh nền này?',
-      okText: 'Xóa',
-      cancelText: 'Hủy',
+      title: t('meeting.background.delete_title'),
+      content: t('meeting.background.delete_message'),
+      okText: t('common.delete'),
+      cancelText: t('common.cancel'),
       onOk: async () => {
         await ipcRenderer.invoke('custom-backgrounds:remove', source.src);
         if (selectedSource?.id === source.id) setSelectedSource(null);
@@ -126,6 +132,12 @@ export function VirtualBackgroundDialog({
     onClose();
   };
 
+  const labelOf = (source: VirtualBackground) => {
+    if (source.id === NONE_ID) return t('meeting.background.not_used');
+    if (source.custom) return t('meeting.background.your_image');
+    return t('meeting.background.preset', { index: source.name });
+  };
+
   const renderItem = (source: VirtualBackground) => (
     <div
       key={source.id}
@@ -142,12 +154,12 @@ export function VirtualBackgroundDialog({
       }}
     >
       <div className="thumbnail">
-        <Image src={source.filePath} alt={source.name} preview={false} />
+        <Image src={source.filePath} alt={labelOf(source)} preview={false} />
         {source.custom && (
           <button
             type="button"
             className="remove-btn"
-            title="Xóa ảnh này"
+            title={t('meeting.background.delete_this')}
             onClick={(e) => {
               e.stopPropagation();
               removeCustomBackground(source);
@@ -157,7 +169,7 @@ export function VirtualBackgroundDialog({
           </button>
         )}
       </div>
-      <span className="source-name">{source.name}</span>
+      <span className="source-name">{labelOf(source)}</span>
     </div>
   );
 
@@ -165,7 +177,7 @@ export function VirtualBackgroundDialog({
     <div className={`modal-overlay ${open ? 'open' : ''}`}>
       <div className="modal-container">
         <div className="header">
-          <h3>Chọn phông nền</h3>
+          <h3>{t('meeting.background.choose')}</h3>
         </div>
 
         <div className="body">
@@ -181,7 +193,7 @@ export function VirtualBackgroundDialog({
                     type: 'none',
                     src: '',
                     filePath: '',
-                    name: 'Không dùng',
+                    name: '',
                   });
                 }
               }}
@@ -191,12 +203,16 @@ export function VirtualBackgroundDialog({
                   type: 'none',
                   src: '',
                   filePath: '',
-                  name: 'Không dùng',
+                  name: '',
                 })
               }
             >
-              <div className="thumbnail placeholder">Không dùng phông nền</div>
-              <span className="source-name">Không dùng</span>
+              <div className="thumbnail placeholder">
+                {t('meeting.background.no_background')}
+              </div>
+              <span className="source-name">
+                {t('meeting.background.not_used')}
+              </span>
             </div>
             <div
               className="source-item"
@@ -207,8 +223,12 @@ export function VirtualBackgroundDialog({
               }}
               onClick={addCustomBackground}
             >
-              <div className="thumbnail placeholder">+ Thêm ảnh</div>
-              <span className="source-name">Ảnh từ máy của bạn</span>
+              <div className="thumbnail placeholder">
+                {t('meeting.background.add_image_plus')}
+              </div>
+              <span className="source-name">
+                {t('meeting.background.from_computer')}
+              </span>
             </div>
             {customBackgrounds.map(renderItem)}
             {backgrounds.map(renderItem)}
@@ -218,13 +238,13 @@ export function VirtualBackgroundDialog({
         <div className="footer">
           <Button
             variant="primary"
-            title="Chọn phông nền"
+            title={t('meeting.background.choose')}
             onClick={apply}
             className="apply-btn"
           />
           <Button
             variant="outline"
-            title="Hủy"
+            title={t('common.cancel')}
             onClick={onClose}
             className="cancel-btn"
           />

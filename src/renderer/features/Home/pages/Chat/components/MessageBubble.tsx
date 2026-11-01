@@ -1,14 +1,16 @@
 import Icon from '@/assets/svg/icons';
-import { type Message, RECALLED_TEXT } from '@/shared/services/Firebase/chat';
+import i18n from '@/renderer/i18n';
+import type { Message } from '@/shared/services/Firebase/chat';
 import { Dropdown, Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   bubbleTime,
   fileSize,
   linkify,
   messageDate,
-  messageSummary,
+  messageSummaryText,
 } from '../chatFormat';
 
 export type MessageAction = 'reply' | 'forward' | 'copy' | 'hide' | 'recall';
@@ -25,26 +27,39 @@ interface Props {
 }
 
 const callText = (m: Message) => {
-  const kind = m.callKind === 'video' ? 'video' : 'thoại';
+  const callBack = i18n.t('call.trace.tap_to_call_back');
   switch (m.callOutcome) {
     case 'completed': {
       const s = m.callDurationSec ?? 0;
       const len =
-        s >= 60 ? `${Math.floor(s / 60)} phút ${s % 60} giây` : `${s} giây`;
-      return { title: `Cuộc gọi ${kind}`, sub: len, missed: false };
+        s >= 60
+          ? i18n.t('call.trace.duration_min_sec', {
+              min: Math.floor(s / 60),
+              sec: s % 60,
+            })
+          : i18n.t('call.trace.duration_sec', { sec: s });
+      const title =
+        m.callKind === 'video'
+          ? i18n.t('call.type.video')
+          : i18n.t('call.type.voice');
+      return { title, sub: len, missed: false };
     }
     case 'missed':
-      return { title: 'Cuộc gọi nhỡ', sub: 'Nhấn để gọi lại', missed: true };
+      return {
+        title: i18n.t('call.trace.missed'),
+        sub: callBack,
+        missed: true,
+      };
     case 'rejected':
       return {
-        title: 'Cuộc gọi bị từ chối',
-        sub: 'Nhấn để gọi lại',
+        title: i18n.t('call.trace.rejected'),
+        sub: callBack,
         missed: true,
       };
     default:
       return {
-        title: 'Cuộc gọi đã hủy',
-        sub: 'Nhấn để gọi lại',
+        title: i18n.t('call.trace.cancelled'),
+        sub: callBack,
         missed: false,
       };
   }
@@ -76,12 +91,14 @@ export const MessageBubble = memo(function MessageBubble({
   onCallBack,
   onMediaLoad,
 }: Props) {
+  // Re-renders this memoized bubble when the language changes.
+  const { t } = useTranslation();
   const time = bubbleTime(messageDate(m));
 
   if (m.recalled) {
     return (
       <div className={`chat-bubble recalled ${mine ? 'mine' : ''}`}>
-        <span className="chat-bubble-text">{RECALLED_TEXT}</span>
+        <span className="chat-bubble-text">{t('chat.recalled')}</span>
         <span className="chat-bubble-time">{time}</span>
       </div>
     );
@@ -100,9 +117,11 @@ export const MessageBubble = memo(function MessageBubble({
           if (!onCallBack) return;
           const video = m.callKind === 'video';
           Modal.confirm({
-            title: video ? 'Gọi video lại?' : 'Gọi lại?',
-            okText: 'Gọi',
-            cancelText: 'Hủy',
+            title: video
+              ? t('call.trace.call_back_video_title')
+              : t('call.trace.call_back_title'),
+            okText: t('call.trace.call'),
+            cancelText: t('common.cancel'),
             centered: true,
             onOk: () => onCallBack(video ? 'video' : 'audio'),
           });
@@ -125,7 +144,7 @@ export const MessageBubble = memo(function MessageBubble({
       >
         <img
           src={m.attachmentUrl}
-          alt={m.attachmentName ?? 'Hình ảnh'}
+          alt={m.attachmentName ?? t('chat.screen.image')}
           onLoad={onMediaLoad}
         />
       </a>
@@ -145,7 +164,7 @@ export const MessageBubble = memo(function MessageBubble({
           <Icon name={isPdf ? 'chatPdf' : 'chatPaperclip'} />
         </span>
         <span className="chat-bubble-file-text">
-          <span>{m.attachmentName ?? 'Tệp đính kèm'}</span>
+          <span>{m.attachmentName ?? t('chat.screen.attachment')}</span>
           {m.attachmentSize ? (
             <small>{fileSize(m.attachmentSize)}</small>
           ) : null}
@@ -157,13 +176,17 @@ export const MessageBubble = memo(function MessageBubble({
   }
 
   const items: MenuProps['items'] = [
-    { key: 'reply', label: 'Trả lời' },
-    ...(m.type !== 'call' ? [{ key: 'forward', label: 'Chuyển tiếp' }] : []),
-    ...(m.type === 'text' ? [{ key: 'copy', label: 'Sao chép tin nhắn' }] : []),
+    { key: 'reply', label: t('chat.actions.reply') },
+    ...(m.type !== 'call'
+      ? [{ key: 'forward', label: t('chat.actions.forward') }]
+      : []),
+    ...(m.type === 'text'
+      ? [{ key: 'copy', label: t('chat.actions.copy') }]
+      : []),
     { type: 'divider' as const },
-    { key: 'hide', label: 'Gỡ tin nhắn phía bạn' },
+    { key: 'hide', label: t('chat.actions.hide') },
     ...(mine && m.createdAt
-      ? [{ key: 'recall', label: 'Thu hồi tin nhắn' }]
+      ? [{ key: 'recall', label: t('chat.actions.recall') }]
       : []),
   ];
 
@@ -172,12 +195,14 @@ export const MessageBubble = memo(function MessageBubble({
       <div className={`chat-bubble ${mine ? 'mine' : ''} ${m.type}`}>
         {senderName && <span className="chat-bubble-sender">{senderName}</span>}
         {m.forwarded && (
-          <span className="chat-bubble-forwarded">Đã chuyển tiếp</span>
+          <span className="chat-bubble-forwarded">
+            {t('chat.forward.forwarded')}
+          </span>
         )}
         {m.replyTo && (
           <span className="chat-bubble-quote">
             <b>{m.replyTo.senderName}</b>
-            <span>{messageSummary(m.replyTo)}</span>
+            <span>{messageSummaryText(m.replyTo)}</span>
           </span>
         )}
         {content}
@@ -195,7 +220,7 @@ export const MessageBubble = memo(function MessageBubble({
         <button
           type="button"
           className="chat-bubble-more"
-          aria-label="Tác vụ tin nhắn"
+          aria-label={t('chat.actions.menu')}
         >
           <Icon name="meetingDots" />
         </button>

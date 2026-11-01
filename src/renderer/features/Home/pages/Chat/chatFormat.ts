@@ -1,4 +1,17 @@
-import type { Message } from '@/shared/services/Firebase/chat';
+import i18n from '@/renderer/i18n';
+import {
+  type Message,
+  localizedChatText,
+} from '@/shared/services/Firebase/chat';
+
+const LOCALES: Record<string, string> = {
+  vi: 'vi-VN',
+  en: 'en-US',
+  zh: 'zh-CN',
+};
+const locale = () => LOCALES[i18n.language] ?? 'vi-VN';
+
+const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
 const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
 
@@ -6,17 +19,16 @@ const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
 export const listTimeLabel = (d?: Date, now = new Date()) => {
   if (!d) return '';
   if (sameDay(d, now)) {
-    return d.toLocaleTimeString('vi-VN', {
+    return d.toLocaleTimeString(locale(), {
       hour: '2-digit',
       minute: '2-digit',
     });
   }
   const days = (now.getTime() - d.getTime()) / 86_400_000;
   if (days < 7) {
-    const day = d.getDay();
-    return day === 0 ? 'Chủ nhật' : `Thứ ${day + 1}`;
+    return i18n.t(`chat.time.${WEEKDAYS[d.getDay()]}`);
   }
-  return d.toLocaleDateString('vi-VN', {
+  return d.toLocaleDateString(locale(), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -25,11 +37,16 @@ export const listTimeLabel = (d?: Date, now = new Date()) => {
 
 /** Inside a bubble: "11:52". */
 export const bubbleTime = (d: Date) =>
-  d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
 
 /** Divider between days: "Ngày 30 tháng 3, 2021". */
 export const dayDivider = (d: Date) =>
-  `Ngày ${d.getDate()} tháng ${d.getMonth() + 1}, ${d.getFullYear()}`;
+  i18n.t('chat.time.day_divider', {
+    day: d.getDate(),
+    month: d.getMonth() + 1,
+    month_name: d.toLocaleDateString('en-US', { month: 'long' }),
+    year: d.getFullYear(),
+  });
 
 export const messageDate = (m: Message) =>
   m.createdAt ?? new Date(m.clientTimetoken);
@@ -44,7 +61,10 @@ export const fileSize = (bytes?: number) => {
   return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
 };
 
-/** Short text for a quoted/forwarded message. */
+/**
+ * Short text for a quoted/forwarded message, as stored in Firestore
+ * (Vietnamese for every client). On screen use [messageSummaryText].
+ */
 export const messageSummary = (m: Pick<Message, 'type' | 'text'>) => {
   switch (m.type) {
     case 'image':
@@ -57,6 +77,10 @@ export const messageSummary = (m: Pick<Message, 'type' | 'text'>) => {
       return m.text ?? '';
   }
 };
+
+/** [messageSummary] in the app's language. */
+export const messageSummaryText = (m: Pick<Message, 'type' | 'text'>) =>
+  localizedChatText(messageSummary(m));
 
 const URL_RE = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
 

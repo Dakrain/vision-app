@@ -8,12 +8,13 @@
  * Main → renderer: `share-overlay:stop` when the bar's stop is clicked.
  */
 import { BrowserWindow, ipcMain, screen } from 'electron';
+import { mainLanguage, onMainLanguageChange, tMain } from './i18n';
 
 const WIDTH = 420;
 const HEIGHT = 56;
 
-const html = `<!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><title>Vision20</title>
+const html = () => `<!doctype html>
+<html lang="${mainLanguage()}"><head><meta charset="utf-8"><title>Vision20</title>
 <style>
   html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
     font: 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -33,9 +34,9 @@ const html = `<!doctype html>
 </style></head>
 <body><div class="bar">
   <span class="dot"></span>
-  <span class="text">Bạn đang chia sẻ màn hình</span>
-  <button class="open" id="open">Mở cuộc họp</button>
-  <button class="stop" id="stop">Dừng chia sẻ</button>
+  <span class="text">${tMain('shared.share_overlay.sharing')}</span>
+  <button class="open" id="open">${tMain('shared.share_overlay.open_meeting')}</button>
+  <button class="stop" id="stop">${tMain('shared.share_overlay.stop_share')}</button>
 </div>
 <script>
   const { ipcRenderer } = require('electron');
@@ -44,6 +45,16 @@ const html = `<!doctype html>
 </script></body></html>`;
 
 let overlay: BrowserWindow | null = null;
+
+const loadOverlay = () =>
+  overlay?.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(html())}`,
+  );
+
+// The language changed while the bar is up: redraw it.
+onMainLanguageChange(() => {
+  if (overlay && !overlay.isDestroyed()) loadOverlay();
+});
 
 const restore = (mainWindow: BrowserWindow | null) => {
   if (!mainWindow || mainWindow.isDestroyed()) return;
@@ -88,7 +99,7 @@ const openOverlay = () => {
   overlay.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   // Not part of the shared picture.
   overlay.setContentProtection(true);
-  overlay.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+  loadOverlay();
   overlay.once('ready-to-show', () => overlay?.showInactive());
   overlay.on('closed', () => {
     overlay = null;

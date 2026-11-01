@@ -19,6 +19,7 @@ import {
 } from 'agora-electron-sdk';
 import Icon from 'assets/svg/icons';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { restoreVirtualBackground } from '@/renderer/shared/utils/virtualBackground';
 import { livestreamErrorCode } from '@/renderer/shared/hooks/useLivestream';
@@ -56,6 +57,7 @@ const allowedFor = (meeting?: Meeting) => {
  * waiting room I then stay here until the host approves, and enter on my own.
  */
 function MeetingLobby() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { withLoading } = useLoading();
@@ -104,9 +106,12 @@ function MeetingLobby() {
     if (!micAllowed) setEnableMic(false);
     if (!cameraAllowed) setEnableCamera(false);
   }, [settingsKnown, micAllowed, cameraAllowed]);
-  const notAllowed = (what: string) =>
+  const notAllowed = (what: 'mic' | 'camera') =>
     notification.warning({
-      message: `Chủ phòng chưa cho phép bật ${what}`,
+      message:
+        what === 'mic'
+          ? t('meeting.lobby.mic_not_allowed')
+          : t('meeting.lobby.camera_not_allowed'),
       placement: 'top',
     });
 
@@ -206,7 +211,7 @@ function MeetingLobby() {
 
   const toggleMic = () => {
     if (!enableMic && settingsKnown && !micAllowed) {
-      notAllowed('micro');
+      notAllowed('mic');
       return;
     }
     setEnableMic(!enableMic);
@@ -301,7 +306,7 @@ function MeetingLobby() {
           result.status !== MemberStatus.PENDING)
       ) {
         notification.warning({
-          message: 'Bạn không thể tham gia cuộc họp này',
+          message: t('meeting.lobby.cannot_join'),
           placement: 'top',
         });
         return;
@@ -315,15 +320,14 @@ function MeetingLobby() {
       if (next?.user?.status === MemberStatus.APPROVED) await enter(next);
     } catch (error) {
       const code = livestreamErrorCode(error);
-      let description = 'Vui lòng thử lại.';
+      let description = t('meeting.lobby.try_again');
       if (code === 'e_meeting_not_found') {
-        description =
-          'Mã cuộc họp hoặc mật khẩu không đúng, hoặc cuộc họp đã kết thúc.';
+        description = t('meeting.lobby.not_found');
       } else if (code === 'e_meeting_over_limit') {
-        description = 'Cuộc họp đã đủ số người tham gia.';
+        description = t('meeting.lobby.full');
       }
       notification.error({
-        message: 'Không tham gia được cuộc họp',
+        message: t('meeting.lobby.join_failed'),
         description,
         placement: 'top',
       });
@@ -372,7 +376,7 @@ function MeetingLobby() {
           stopped = true;
           setDetail(next);
           notification.success({
-            message: 'Chủ phòng đã cho bạn vào cuộc họp',
+            message: t('meeting.lobby.admitted'),
             placement: 'top',
           });
           enterRef.current(next);
@@ -381,7 +385,7 @@ function MeetingLobby() {
         if (stopped) return;
         stopped = true;
         notification.warning({
-          message: 'Chủ phòng đã từ chối yêu cầu tham gia của bạn',
+          message: t('meeting.lobby.rejected'),
           placement: 'top',
         });
         navigate('/home', { replace: true });
@@ -391,7 +395,7 @@ function MeetingLobby() {
       stopped = true;
       clearInterval(timer);
     };
-  }, [isWaiting, meetingId, navigate]);
+  }, [isWaiting, meetingId, navigate, t]);
 
   const room = detail?.room;
   const hostName = detail?.host?.fullName || room?.ownerFullName;
@@ -399,10 +403,10 @@ function MeetingLobby() {
   // A known meeting whose details are still loading: my role isn't known
   // yet (the label used to flip from "Tham gia ngay" to "Bắt đầu").
   const loadingDetail = !!meetingId && !detail;
-  let joinLabel = 'Tham gia ngay';
-  if (loadingDetail) joinLabel = 'Đang tải…';
-  else if (isWaiting) joinLabel = 'Đang chờ duyệt…';
-  else if (isHost) joinLabel = 'Bắt đầu';
+  let joinLabel = t('meeting.lobby.join_now');
+  if (loadingDetail) joinLabel = t('meeting.lobby.loading');
+  else if (isWaiting) joinLabel = t('meeting.lobby.waiting_approval_short');
+  else if (isHost) joinLabel = t('meeting.lobby.start');
 
   return (
     <div className="lobby">
@@ -424,7 +428,7 @@ function MeetingLobby() {
                 radius={48}
                 name={user?.fullName ?? ''}
               />
-              <span>Camera đang tắt</span>
+              <span>{t('meeting.lobby.camera_is_off')}</span>
             </div>
           )}
         </div>
@@ -435,7 +439,11 @@ function MeetingLobby() {
             onClick={toggleMic}
           >
             <Icon name={enableMic ? 'micOn' : 'micOff'} />
-            <span>{enableMic ? 'Mic bật' : 'Mic tắt'}</span>
+            <span>
+              {enableMic
+                ? t('meeting.lobby.mic_on')
+                : t('meeting.lobby.mic_off')}
+            </span>
           </button>
           <button
             type="button"
@@ -443,49 +451,63 @@ function MeetingLobby() {
             onClick={toggleCamera}
           >
             <Icon name={enableCamera ? 'cameraOn' : 'cameraOff'} />
-            <span>{enableCamera ? 'Camera bật' : 'Camera tắt'}</span>
+            <span>
+              {enableCamera
+                ? t('meeting.lobby.camera_on')
+                : t('meeting.lobby.camera_off')}
+            </span>
           </button>
           {/* A background only means something with the camera on. */}
           <button
             type="button"
             className="lobby-toggle"
             disabled={!enableCamera}
-            title={enableCamera ? undefined : 'Bật camera để chọn phông nền'}
+            title={
+              enableCamera
+                ? undefined
+                : t('meeting.lobby.background_needs_camera')
+            }
             onClick={() => setOpenBackground(true)}
           >
             <Icon name="lobbyBackground" />
-            <span>Phông nền</span>
+            <span>{t('meeting.lobby.background')}</span>
           </button>
         </div>
       </div>
 
       <div className="lobby-panel">
         <Typography.Title level={4} className="lobby-title">
-          {room?.title ?? 'Cuộc họp'}
+          {room?.title ?? t('meeting.lobby.default_title')}
         </Typography.Title>
         <div className="lobby-info">
-          {hostName && <span>Chủ trì: {hostName}</span>}
+          {hostName && (
+            <span>{t('meeting.lobby.host', { name: hostName })}</span>
+          )}
           {(room?.visionMeetingKey || meetingKey) && (
-            <span>ID: {room?.visionMeetingKey || meetingKey}</span>
+            <span>
+              {t('meeting.lobby.meeting_id', {
+                id: room?.visionMeetingKey || meetingKey,
+              })}
+            </span>
           )}
         </div>
 
         <div className="lobby-field">
-          <span>Camera</span>
+          <span>{t('meeting.devices.camera')}</span>
           <Select
             value={cameraId}
             options={options(cameras)}
             onChange={onSelectCamera}
-            notFoundContent="Không tìm thấy camera"
+            notFoundContent={t('meeting.devices.no_camera')}
           />
         </div>
         <div className="lobby-field">
-          <span>Micrô</span>
+          <span>{t('meeting.devices.mic')}</span>
           <Select
             value={micId}
             options={options(mics)}
             onChange={onSelectMic}
-            notFoundContent="Không tìm thấy micrô"
+            notFoundContent={t('meeting.devices.no_mic')}
           />
           <div className="lobby-meter">
             <div
@@ -495,19 +517,19 @@ function MeetingLobby() {
           </div>
         </div>
         <div className="lobby-field">
-          <span>Loa</span>
+          <span>{t('meeting.devices.speaker')}</span>
           <Select
             value={speakerId}
             options={options(speakers)}
             onChange={onSelectSpeaker}
-            notFoundContent="Không tìm thấy loa"
+            notFoundContent={t('meeting.devices.no_speaker')}
           />
         </div>
 
         {isWaiting && (
           <div className="lobby-waiting">
             <span className="lobby-waiting-dot" />
-            Đang chờ chủ phòng duyệt. Bạn sẽ tự vào cuộc họp khi được cho phép.
+            {t('meeting.lobby.waiting_note_short')}
           </div>
         )}
 
@@ -518,7 +540,11 @@ function MeetingLobby() {
             onClick={join}
             disabled={isWaiting || loadingDetail}
           />
-          <Button variant="outline" title="Hủy" onClick={cancel} />
+          <Button
+            variant="outline"
+            title={t('common.cancel')}
+            onClick={cancel}
+          />
         </div>
       </div>
       <VirtualBackgroundDialog
@@ -529,17 +555,16 @@ function MeetingLobby() {
         open={!!deviceChoice}
         centered
         footer={null}
-        title="Bạn đang ở trong cuộc họp này trên thiết bị khác"
+        title={t('meeting.lobby.other_device_title')}
         onCancel={() => setDeviceChoice(undefined)}
       >
         <Typography.Paragraph>
-          Chuyển cuộc họp sang thiết bị này, hay tham gia thêm (ví dụ để chia
-          sẻ màn hình hoặc bật camera ở đây)?
+          {t('meeting.lobby.other_device_message')}
         </Typography.Paragraph>
         <div className="lobby-device-choice">
           <Button
             variant="primary"
-            title="Chuyển sang thiết bị này"
+            title={t('meeting.lobby.move_here')}
             onClick={() => {
               const meeting = deviceChoice;
               setDeviceChoice(undefined);
@@ -548,7 +573,7 @@ function MeetingLobby() {
           />
           <Button
             variant="outline"
-            title="Tham gia trên thiết bị này"
+            title={t('meeting.lobby.join_here_too')}
             onClick={() => {
               const meeting = deviceChoice;
               setDeviceChoice(undefined);

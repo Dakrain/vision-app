@@ -3,6 +3,7 @@ import { useJoinMeeting } from '@/shared/hooks/useJoinMeeting';
 import { notification } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import i18n from '@/renderer/i18n';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -46,7 +47,7 @@ export function DeepLinkHandler() {
     const parsed = parseInviteLink(url);
     if (!parsed) {
       notification.error({
-        message: 'Link mời không hợp lệ',
+        message: i18n.t('shared.deep_link.invalid'),
         placement: 'top',
       });
       return;
@@ -67,8 +68,10 @@ export function DeepLinkHandler() {
     if (!user || !localStorage.getItem('token')) return; // after login
     if (location.pathname === '/meeting') {
       notification.info({
-        message: 'Bạn đang trong một cuộc họp',
-        description: `Hãy rời cuộc họp hiện tại rồi mở lại link mời (ID ${invite.meetingKey}).`,
+        message: i18n.t('shared.deep_link.in_meeting_title'),
+        description: i18n.t('shared.deep_link.in_meeting_message', {
+          id: invite.meetingKey,
+        }),
         placement: 'top',
       });
       setInvite(null);

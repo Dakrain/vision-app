@@ -7,6 +7,7 @@ import {
   conversationTitle,
   createGroupConversation,
   ensureDirectConversation,
+  localizedChatText,
   peerBackendId,
   profileOf,
 } from '@/shared/services/Firebase/chat';
@@ -15,6 +16,7 @@ import FriendService, {
 } from '@/shared/services/Friend/FriendService';
 import { Dropdown, notification, Spin } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { listTimeLabel } from './chatFormat';
 import { AddContactDialog } from './components/AddContactDialog';
 import { ChatAvatar } from './components/ChatAvatar';
@@ -40,10 +42,11 @@ function ConversationRow({
   active: boolean;
   onOpen: () => void;
 }) {
+  const { t } = useTranslation();
   const title = conversationTitle(c, me);
   const unread = c.unreadCounts[String(me)] ?? 0;
   let prefix = '';
-  if (c.lastMessageBy === myUid) prefix = 'Bạn: ';
+  if (c.lastMessageBy === myUid) prefix = t('chat.conversations.you_prefix');
   else if (c.type === 'group' && c.lastMessageBy) {
     const name = c.memberProfiles[c.lastMessageBy]?.displayName;
     if (name) prefix = `${name}: `;
@@ -57,7 +60,9 @@ function ConversationRow({
       <ChatAvatar conversation={c} me={me} size={48} />
       <span className="chat-row-item-text">
         <b>{title}</b>
-        <span>{c.lastMessage ? `${prefix}${c.lastMessage}` : ' '}</span>
+        <span>
+          {c.lastMessage ? `${prefix}${localizedChatText(c.lastMessage)}` : ' '}
+        </span>
       </span>
       <span className="chat-row-item-meta">
         <small>{listTimeLabel(c.lastMessageAt)}</small>
@@ -70,6 +75,7 @@ function ConversationRow({
 }
 
 function Chat() {
+  const { t } = useTranslation();
   const { me, conversations, activeConversationId, setActiveConversationId } =
     useSocial();
   const {
@@ -127,7 +133,7 @@ function Chat() {
       setActiveConversationId(id);
     } catch (_) {
       notification.error({
-        message: 'Không mở được cuộc trò chuyện',
+        message: t('chat.conversations.open_failed'),
         placement: 'top',
       });
     }
@@ -149,21 +155,23 @@ function Chat() {
       setActiveConversationId(id);
     } catch (_) {
       notification.error({
-        message: 'Không tạo được nhóm chat',
+        message: t('chat.group_create.create_failed'),
         placement: 'top',
       });
     }
   };
 
   if (!me) {
-    return <div className="chat-loading">Đang kết nối trò chuyện…</div>;
+    return (
+      <div className="chat-loading">{t('chat.conversations.connecting')}</div>
+    );
   }
 
   const shownConversations = conversations.filter(
     (c) =>
       !query.trim() ||
       matches(conversationTitle(c, me.backendId), query) ||
-      matches(c.lastMessage, query),
+      matches(localizedChatText(c.lastMessage), query),
   );
   const shownContacts = contacts.filter(
     (p) => matches(p.fullName, query) || matches(p.email, query),
@@ -179,7 +187,7 @@ function Chat() {
       await reloadContacts();
     } catch (_) {
       notification.error({
-        message: 'Không thực hiện được, vui lòng thử lại',
+        message: t('chat.actions.failed'),
         placement: 'top',
       });
     } finally {
@@ -192,7 +200,9 @@ function Chat() {
     requests.length > 0 && (
       <>
         <div className="chat-section-title">
-          Lời mời kết bạn ({requests.length})
+          {t('contacts.friend_requests.title_count', {
+            count: requests.length,
+          })}
         </div>
         {requests.map((p) => (
           <div key={`request-${p.id}`} className="chat-row-item contact">
@@ -212,19 +222,19 @@ function Chat() {
                 disabled={answering === p.friendId}
                 onClick={() => answer(p, true)}
               >
-                Đồng ý
+                {t('contacts.friend_requests.accept')}
               </button>
               <button
                 type="button"
                 disabled={answering === p.friendId}
                 onClick={() => answer(p, false)}
               >
-                Từ chối
+                {t('contacts.friend_requests.decline')}
               </button>
             </span>
           </div>
         ))}
-        <div className="chat-section-title">Danh bạ</div>
+        <div className="chat-section-title">{t('chat.tab.contacts')}</div>
       </>
     );
 
@@ -242,9 +252,7 @@ function Chat() {
           <>
             {renderRequests()}
             <div className="chat-empty">
-              {query.trim()
-                ? 'Không tìm thấy liên hệ nào'
-                : 'Chưa có liên hệ nào'}
+              {query.trim() ? t('contacts.not_found_any') : t('contacts.empty')}
             </div>
           </>
         );
@@ -280,12 +288,16 @@ function Chat() {
           <div className="chat-row-item draft active">
             <span className="chat-draft-avatar" />
             <span className="chat-row-item-text">
-              <b>{draft === 'group' ? 'Nhóm chat mới' : 'Tin nhắn mới'}</b>
+              <b>
+                {draft === 'group'
+                  ? t('chat.new_message.group_draft')
+                  : t('chat.tab.new_message')}
+              </b>
             </span>
             <button
               type="button"
               className="chat-draft-close"
-              aria-label="Hủy"
+              aria-label={t('common.cancel')}
               onClick={() => setDraft(undefined)}
             >
               <Icon name="meetingClose" />
@@ -308,8 +320,8 @@ function Chat() {
         {shownConversations.length === 0 && !drafting && (
           <div className="chat-empty">
             {query.trim()
-              ? 'Không tìm thấy cuộc trò chuyện nào'
-              : 'Chưa có cuộc trò chuyện nào'}
+              ? t('chat.conversations.not_found')
+              : t('chat.conversations.empty')}
           </div>
         )}
       </>
@@ -342,7 +354,7 @@ function Chat() {
     }
     return (
       <div className="chat-placeholder">
-        Chọn một cuộc trò chuyện để bắt đầu nhắn tin
+        {t('chat.conversations.placeholder')}
       </div>
     );
   };
@@ -357,7 +369,7 @@ function Chat() {
             aria-selected={tab === 'chats'}
             onClick={() => setTab('chats')}
           >
-            Trò chuyện
+            {t('chat.tab.conversations')}
           </button>
           <button
             type="button"
@@ -369,7 +381,7 @@ function Chat() {
               setDraft(undefined);
             }}
           >
-            Danh bạ
+            {t('chat.tab.contacts')}
           </button>
         </div>
         <div className="chat-toolbar">
@@ -379,7 +391,7 @@ function Chat() {
               className="chat-add-contact"
               onClick={() => setAddingContact(true)}
             >
-              Thêm liên hệ
+              {t('contacts.add_friend.add')}
             </button>
           )}
           {tab === 'chats' && (
@@ -390,8 +402,8 @@ function Chat() {
                 overlayClassName="chat-message-menu"
                 menu={{
                   items: [
-                    { key: 'direct', label: 'Cuộc trò chuyện cá nhân' },
-                    { key: 'group', label: 'Cuộc trò chuyện nhóm' },
+                    { key: 'direct', label: t('chat.new_message.direct') },
+                    { key: 'group', label: t('chat.new_message.group') },
                   ],
                   onClick: ({ key }) => {
                     setDraft(key as 'direct' | 'group');
@@ -399,7 +411,7 @@ function Chat() {
                   },
                 }}
               >
-                <button type="button" title="Tin nhắn mới">
+                <button type="button" title={t('chat.tab.new_message')}>
                   <Icon name="chatNotePencil" />
                 </button>
               </Dropdown>
@@ -409,7 +421,7 @@ function Chat() {
             <Icon name="chatSearch" />
             <input
               id="chat-search"
-              placeholder="Tìm kiếm"
+              placeholder={t('common.search')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />

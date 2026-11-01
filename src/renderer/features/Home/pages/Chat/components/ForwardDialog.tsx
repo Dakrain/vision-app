@@ -9,6 +9,7 @@ import {
 import type { Contact } from '@/shared/services/Friend/FriendService';
 import { Modal, message as toast } from 'antd';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { matches } from '../hooks';
 
 interface Props {
@@ -20,6 +21,7 @@ interface Props {
 
 /** "Chuyển tiếp đến": pick people, add an optional note, send. */
 export function ForwardDialog({ message, people, onClose }: Props) {
+  const { t } = useTranslation();
   const { me } = useSocial();
   const [query, setQuery] = useState('');
   const [picked, setPicked] = useState<number[]>([]);
@@ -75,13 +77,13 @@ export function ForwardDialog({ message, people, onClose }: Props) {
         }),
       );
       toast.open({
-        content: 'Đã chuyển tiếp',
+        content: t('chat.forward.forwarded'),
         className: 'chat-toast',
         duration: 2,
       });
       onClose();
     } catch (_) {
-      toast.error('Không chuyển tiếp được, vui lòng thử lại');
+      toast.error(t('chat.forward.failed'));
     } finally {
       setSending(false);
     }
@@ -100,8 +102,8 @@ export function ForwardDialog({ message, people, onClose }: Props) {
       className="chat-forward"
     >
       <div className="chat-forward-header">
-        <h2>Chuyển tiếp đến</h2>
-        <button type="button" aria-label="Đóng" onClick={onClose}>
+        <h2>{t('chat.forward.title')}</h2>
+        <button type="button" aria-label={t('common.close')} onClick={onClose}>
           <Icon name="meetingClose" />
         </button>
       </div>
@@ -109,12 +111,12 @@ export function ForwardDialog({ message, people, onClose }: Props) {
         <Icon name="chatSearch" />
         <input
           id="chat-forward-search"
-          placeholder="Tìm kiếm"
+          placeholder={t('common.search')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </label>
-      <div className="chat-forward-label">DANH BẠ</div>
+      <div className="chat-forward-label">{t('contacts.section_header')}</div>
       <div className="chat-forward-list">
         {shown.map((p) => (
           <button
@@ -139,12 +141,12 @@ export function ForwardDialog({ message, people, onClose }: Props) {
           </button>
         ))}
         {shown.length === 0 && (
-          <div className="chat-empty">Không tìm thấy liên hệ nào</div>
+          <div className="chat-empty">{t('contacts.not_found_any')}</div>
         )}
       </div>
       <div className="chat-forward-note">
         <input
-          placeholder="Tin nhắn ..."
+          placeholder={t('chat.forward.note_hint')}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           onKeyDown={(e) => {
@@ -153,7 +155,7 @@ export function ForwardDialog({ message, people, onClose }: Props) {
         />
         <button
           type="button"
-          aria-label="Gửi"
+          aria-label={t('chat.screen.send')}
           disabled={picked.length === 0 || sending}
           onClick={send}
         >

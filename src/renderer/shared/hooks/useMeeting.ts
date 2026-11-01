@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import i18n from '@/renderer/i18n';
 import { useAppDispatch, useAppSelector } from '@/renderer/store/hooks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ import {
   removeMeetingUser,
   resetMeetingState,
   setReaction,
-  userReaction
+  userReaction,
 } from '@/renderer/features/Meeting/store/slice';
 
 import {
@@ -19,7 +20,7 @@ import {
   fetchAllMeetingData,
   fetchChats,
   startShareScreen,
-  stopShareScreen
+  stopShareScreen,
 } from '@/renderer/features/Meeting/store/action';
 import {
   selectMeetingDetail,
@@ -118,14 +119,16 @@ export const useMeeting = () => {
   // The RTC/RTM handlers below are registered once, so they call through
   // this ref to always reach the latest state.
   const connectionHandler = useRef<
-    (source: 'rtc' | 'rtm', state: number | string, reason: number | string) => void
+    (
+      source: 'rtc' | 'rtm',
+      state: number | string,
+      reason: number | string,
+    ) => void
   >(() => {});
   const [enableCamera, setEnableCamera] = useState(true);
   const [enableMic, setEnableMic] = useState(true);
   const [shareScreen, setShareScreen] = useState(false);
-  const [sources, setSources] = useState<ScreenCaptureSourceInfo[]>(
-    [],
-  );
+  const [sources, setSources] = useState<ScreenCaptureSourceInfo[]>([]);
   const [isSharing, setIsSharing] = useState(false);
   // A second device starts with the room's audio off (it sits next to the
   // first one: hearing the meeting twice would echo).
@@ -149,15 +152,18 @@ export const useMeeting = () => {
 
   // Filled in below, once the role and room settings are known.
   const permissionsRef = useRef<RoomPermissions>();
-  const warnNotAllowed = (what: string) =>
+  const warnNotAllowed = (what: 'mic' | 'camera') =>
     notification.warning({
-      message: `Chủ phòng chưa cho phép bật ${what}`,
+      message:
+        what === 'mic'
+          ? i18n.t('meeting.lobby.mic_not_allowed')
+          : i18n.t('meeting.lobby.camera_not_allowed'),
       placement: 'top',
     });
 
   const toggleMic = () => {
     if (!enableMic && permissionsRef.current?.mic === false) {
-      warnNotAllowed('micro');
+      warnNotAllowed('mic');
       return;
     }
     setEnableMic(!enableMic);
@@ -302,7 +308,9 @@ export const useMeeting = () => {
 
     const kind = bubbleKind(reaction);
     if (kind) {
-      setBubbles((prev) => addBubble(prev, makeBubble(kind, 'Bạn')));
+      setBubbles((prev) =>
+        addBubble(prev, makeBubble(kind, i18n.t('meeting.room.you'))),
+      );
       reactionRestore.current.schedule(() =>
         sendReaction(handRaisedRef.current ? 'HAND' : 'NONE'),
       );
@@ -345,7 +353,7 @@ export const useMeeting = () => {
     () => ({
       onJoinChannelSuccess(connection: any) {
         if (fromAux(connection)) return;
-        console.log("🚀 ~ onJoinChannelSuccess ~ connection:", connection)
+        console.log('🚀 ~ onJoinChannelSuccess ~ connection:', connection);
         setIsConnected(true);
         // Report volumes every 300ms (smoothed) for speaker detection.
         AgoraEngineService.enableAudioVolumeIndication(300, 3, true);
@@ -381,7 +389,7 @@ export const useMeeting = () => {
 
       onUserJoined(connection: any, remoteUid: any) {
         if (fromAux(connection)) return;
-        console.log("🚀 ~ onUserJoined ~ connection:", connection)
+        console.log('🚀 ~ onUserJoined ~ connection:', connection);
         if (remoteUid === ownAuxUid.current) {
           // My own camera-while-sharing connection: not someone else.
           AgoraEngineService.muteRemoteVideoStream(remoteUid, true);
@@ -399,7 +407,7 @@ export const useMeeting = () => {
 
       onUserOffline(connection: any, remoteUid: any, reason: any) {
         if (fromAux(connection)) return;
-        console.log("🚀 ~ onUserOffline ~ connection:", connection)
+        console.log('🚀 ~ onUserOffline ~ connection:', connection);
         setRemoteUsers((prevUsers) =>
           prevUsers.filter((user) => user !== remoteUid),
         );
@@ -431,12 +439,12 @@ export const useMeeting = () => {
 
       onUserMuteAudio(connection: any, remoteUid: any, muted: any) {
         if (fromAux(connection)) return;
-        console.log("🚀 ~ onUserMuteAudio ~ connection:", connection)
+        console.log('🚀 ~ onUserMuteAudio ~ connection:', connection);
         dispatch(remoteUserMutedAudio({ agUid: remoteUid, muted }));
       },
       onUserMuteVideo(connection: any, remoteUid: any, muted: any) {
         if (fromAux(connection)) return;
-        console.log("🚀 ~ onUserMuteVideo ~ connection:", connection)
+        console.log('🚀 ~ onUserMuteVideo ~ connection:', connection);
         setUidVideoOff((prev) =>
           prev[remoteUid] === !!muted
             ? prev
@@ -446,7 +454,7 @@ export const useMeeting = () => {
       },
 
       onRemoteAudioStats(connection: any, stats: any) {
-      console.log("🚀 ~ useMeeting ~ connection:", connection)
+        console.log('🚀 ~ useMeeting ~ connection:', connection);
       },
       onConnectionStateChanged(connection: any, state: any, reason: any) {
         if (fromAux(connection)) return;
@@ -454,7 +462,7 @@ export const useMeeting = () => {
       },
 
       onError(err: any, msg: any) {
-        console.log("🚀 ~ onError ~ err:", err, msg)
+        console.log('🚀 ~ onError ~ err:', err, msg);
         setIsError(true);
       },
 
@@ -493,7 +501,12 @@ export const useMeeting = () => {
         );
       },
       onLocalVideoStateChanged(source: any, state: any, reason: any) {
-        console.log("🚀 ~ onLocalVideoStateChanged ~ source:", source, state, reason);
+        console.log(
+          '🚀 ~ onLocalVideoStateChanged ~ source:',
+          source,
+          state,
+          reason,
+        );
       },
       onRemoteAudioStateChanged(
         connection: any,
@@ -502,7 +515,7 @@ export const useMeeting = () => {
         _reason: any,
         _elapsed: any,
       ) {
-        console.log("🚀 ~ onRemoteAudioStateChanged ~ connection:", connection);
+        console.log('🚀 ~ onRemoteAudioStateChanged ~ connection:', connection);
       },
     }),
     [dispatch, meetingId],
@@ -785,8 +798,7 @@ export const useMeeting = () => {
     chat: memberMay(roomSettings?.muteAllChat, 1),
     share: memberMay(roomSettings?.multipleShareScreen, 0),
     record: memberMay(roomSettings?.isRecording, 0),
-    livestream:
-      canManageMembers && (roomSettings?.allowLivestream ?? 1) === 1,
+    livestream: canManageMembers && (roomSettings?.allowLivestream ?? 1) === 1,
   };
   permissionsRef.current = permissions;
   const canManageLivestream = permissions.livestream;
@@ -1041,7 +1053,9 @@ export const useMeeting = () => {
       whiteboardSync.open(board.id);
       if (!whiteboard) {
         notification.info({
-          message: `${sender?.fullName ?? 'Một người tham dự'} đã mở bảng trắng`,
+          message: i18n.t('meeting.room.opened_whiteboard', {
+            name: sender?.fullName ?? i18n.t('meeting.room.someone'),
+          }),
           placement: 'top',
           duration: 3,
         });
@@ -1068,7 +1082,7 @@ export const useMeeting = () => {
       setBubbles((prev) =>
         addBubble(
           prev,
-          makeBubble(kind, sender?.fullName ?? 'Một người tham dự'),
+          makeBubble(kind, sender?.fullName ?? i18n.t('meeting.room.someone')),
         ),
       );
       return;
@@ -1194,23 +1208,27 @@ export const useMeeting = () => {
     // Tell members what changed (host/co-host set it themselves).
     if (!canManageMembers) {
       const labels: [keyof RoomPermissions, string][] = [
-        ['mic', 'bật micro'],
-        ['camera', 'bật camera'],
-        ['chat', 'chat'],
-        ['share', 'chia sẻ màn hình'],
-        ['record', 'ghi cuộc họp'],
+        ['mic', i18n.t('meeting.permission.mic')],
+        ['camera', i18n.t('meeting.permission.camera')],
+        ['chat', i18n.t('meeting.permission.chat')],
+        ['share', i18n.t('meeting.permission.share')],
+        ['record', i18n.t('meeting.permission.record')],
       ];
       const gained = labels.filter(([k]) => !before[k] && permissions[k]);
       const lost = labels.filter(([k]) => before[k] && !permissions[k]);
       if (gained.length > 0) {
         notification.info({
-          message: `Chủ phòng đã cho phép ${gained.map(([, l]) => l).join(', ')}`,
+          message: i18n.t('meeting.room.permissions_granted', {
+            what: gained.map(([, l]) => l).join(', '),
+          }),
           placement: 'top',
         });
       }
       if (lost.length > 0) {
         notification.warning({
-          message: `Chủ phòng đã tắt quyền ${lost.map(([, l]) => l).join(', ')}`,
+          message: i18n.t('meeting.room.permissions_revoked', {
+            what: lost.map(([, l]) => l).join(', '),
+          }),
           placement: 'top',
         });
       }
@@ -1258,7 +1276,10 @@ export const useMeeting = () => {
     );
     if (subType === 'END_MEETING') {
       const ended = () => {
-        notification.info({ message: 'Cuộc họp đã kết thúc', placement: 'top' });
+        notification.info({
+          message: i18n.t('meeting.room.meeting_ended'),
+          placement: 'top',
+        });
         goHome();
       };
       if (sender?.role === MeetingRole.HOST) {
@@ -1283,9 +1304,12 @@ export const useMeeting = () => {
         sharing ? senderUid : current === senderUid ? undefined : current,
       );
       notification.info({
-        message: `${sender?.fullName ?? 'Một người tham dự'} ${
-          sharing ? 'đang chia sẻ màn hình' : 'đã dừng chia sẻ màn hình'
-        }`,
+        message: i18n.t(
+          sharing
+            ? 'meeting.room.started_sharing'
+            : 'meeting.room.stopped_sharing',
+          { name: sender?.fullName ?? i18n.t('meeting.room.someone') },
+        ),
         placement: 'top',
         duration: 3,
       });
@@ -1307,9 +1331,12 @@ export const useMeeting = () => {
       if (changed || recording) {
         notification[recording ? 'warning' : 'info']({
           key: `recording-${senderUid}`,
-          message: `${sender?.fullName ?? 'Một người tham dự'} ${
-            recording ? 'đang ghi lại cuộc họp' : 'đã dừng ghi cuộc họp'
-          }`,
+          message: i18n.t(
+            recording
+              ? 'meeting.room.started_recording'
+              : 'meeting.room.stopped_recording',
+            { name: sender?.fullName ?? i18n.t('meeting.room.someone') },
+          ),
           placement: 'top',
           duration: 3,
         });
@@ -1324,10 +1351,14 @@ export const useMeeting = () => {
       if (uid === spotlightUid) return;
       setSpotlightUid(uid);
       const target = meetingUsers.find((u) => u.agUid === uid);
-      let message = `${sender?.fullName ?? 'Chủ phòng'} đã tắt spotlight`;
-      if (uid === myUid) message = 'Bạn đang được spotlight cho mọi người';
+      let message = i18n.t('meeting.room.spotlight_off', {
+        name: sender?.fullName ?? i18n.t('meeting.room.host'),
+      });
+      if (uid === myUid) message = i18n.t('meeting.room.spotlight_me');
       else if (uid)
-        message = `Spotlight: ${target?.fullName ?? 'một người tham dự'}`;
+        message = i18n.t('meeting.room.spotlight_on', {
+          name: target?.fullName ?? i18n.t('meeting.room.someone_lower'),
+        });
       notification.info({ message, placement: 'top', duration: 3 });
       return;
     }
@@ -1360,12 +1391,18 @@ export const useMeeting = () => {
           }),
         );
       }
-      const what = [audio && 'micro', video && 'camera']
-        .filter(Boolean)
-        .join(' và ');
+      let key:
+        | 'meeting.room.turned_off_mic_by'
+        | 'meeting.room.turned_off_camera_by'
+        | 'meeting.room.turned_off_mic_camera_by' =
+        'meeting.room.turned_off_mic_camera_by';
+      if (!video) key = 'meeting.room.turned_off_mic_by';
+      else if (!audio) key = 'meeting.room.turned_off_camera_by';
       notification.warning({
-        message: `${sender?.fullName ?? 'Chủ phòng'} đã tắt ${what} của bạn`,
-        description: 'Bạn có thể tự bật lại khi cần nói.',
+        message: i18n.t(key, {
+          name: sender?.fullName ?? i18n.t('meeting.room.host'),
+        }),
+        description: i18n.t('meeting.room.turn_back_on_hint'),
         placement: 'top',
       });
     };
@@ -1383,8 +1420,8 @@ export const useMeeting = () => {
         if (targetsMe) {
           notification.error({
             message: content?.banned
-              ? 'Bạn đã bị cấm tham gia cuộc họp này'
-              : 'Bạn đã được mời ra khỏi cuộc họp',
+              ? i18n.t('meeting.room.banned')
+              : i18n.t('meeting.room.kicked'),
             placement: 'top',
           });
           goHome();
@@ -1399,8 +1436,8 @@ export const useMeeting = () => {
           notification.info({
             message:
               Number(content?.role) === MeetingRole.CO_HOST
-                ? 'Bạn đã được trao quyền Co-host'
-                : 'Quyền Co-host của bạn đã được thu hồi',
+                ? i18n.t('meeting.room.co_host_granted')
+                : i18n.t('meeting.room.co_host_revoked'),
             placement: 'top',
           });
         }
@@ -1448,7 +1485,6 @@ export const useMeeting = () => {
     }
   }, [meetingId, client, goHome]);
 
-
   // ---- Connection loss. Agora reconnects RTC and RTM on its own; the app
   // shows that it is retrying, resyncs once back, and only leaves the room
   // when reconnecting is impossible.
@@ -1467,7 +1503,7 @@ export const useMeeting = () => {
     MeetingService.fetchMeetingDetail(Number(meetingId))
       .then((meeting) => {
         if (meeting?.room?.status === MEETING_STATUS_ENDED) {
-          leaveWithMessage('Cuộc họp đã kết thúc');
+          leaveWithMessage(i18n.t('meeting.room.meeting_ended'));
         }
         return meeting;
       })
@@ -1480,7 +1516,7 @@ export const useMeeting = () => {
           }
         })();
         if (status === 400 || status === 403 || status === 404) {
-          leaveWithMessage('Bạn không còn ở trong cuộc họp này');
+          leaveWithMessage(i18n.t('meeting.room.no_longer_in_meeting'));
         }
       });
   }, [meetingId, refreshUsers, leaveWithMessage]);
@@ -1541,18 +1577,18 @@ export const useMeeting = () => {
           switch (reason) {
             case ConnectionChangedReasonType.ConnectionChangedSameUidLogin:
               // Same uid in this very channel: the meeting moved there.
-              leaveWithMessage('Cuộc họp đã được chuyển sang thiết bị khác');
+              leaveWithMessage(i18n.t('meeting.room.moved_to_other_device'));
               break;
             case ConnectionChangedReasonType.ConnectionChangedBannedByServer:
             case ConnectionChangedReasonType.ConnectionChangedRejectedByServer:
-              leaveWithMessage('Bạn đã bị mời ra khỏi cuộc họp');
+              leaveWithMessage(i18n.t('meeting.room.kicked'));
               break;
             case ConnectionChangedReasonType.ConnectionChangedInvalidToken:
             case ConnectionChangedReasonType.ConnectionChangedTokenExpired:
-              leaveWithMessage('Phiên họp đã hết hạn, vui lòng vào lại');
+              leaveWithMessage(i18n.t('meeting.room.session_expired'));
               break;
             default:
-              leaveWithMessage('Không thể kết nối lại cuộc họp');
+              leaveWithMessage(i18n.t('meeting.room.reconnect_failed'));
           }
           break;
         case ConnectionStateType.ConnectionStateDisconnected:
@@ -1578,9 +1614,7 @@ export const useMeeting = () => {
     if (reason === 'REMOTE_LOGIN') {
       // RTM logins are per account, not per meeting: this account joined a
       // meeting on another device — this one (a transfer) or another.
-      leaveWithMessage(
-        'Tài khoản của bạn vừa tham gia cuộc họp trên thiết bị khác',
-      );
+      leaveWithMessage(i18n.t('meeting.room.joined_elsewhere'));
       return;
     }
     // Anything else leaves chat silently dead: log in and join again (the
@@ -1613,74 +1647,77 @@ export const useMeeting = () => {
           meetingDetail?.room?.channelName || '',
         );
         channel.current = newChannel;
-        newChannel.on('ChannelMessage', (message: RtmMessage, memberId: string) => {
-          const data = message as RtmTextMessage;
-          if (data) {
-            let rtmMessage: AgoraRtmMessage;
-            try {
-              rtmMessage = JSON.parse(data.text);
-            } catch (_) {
-              return;
-            }
-            if (rtmMessage.message_type === 'NEW_CHAT') {
-              const chat: MeetingChat = camelizeKeys(
-                rtmMessage.message_content ?? {},
-              );
-              // Only real chat rows, posted by the sender itself (uids are
-              // 700000 + user id): no blank bubbles, no speaking for others.
-              if (
-                chat.id &&
-                Number(memberId) === 700000 + Number(chat.userId)
-              ) {
-                dispatch(addChat(chat));
+        newChannel.on(
+          'ChannelMessage',
+          (message: RtmMessage, memberId: string) => {
+            const data = message as RtmTextMessage;
+            if (data) {
+              let rtmMessage: AgoraRtmMessage;
+              try {
+                rtmMessage = JSON.parse(data.text);
+              } catch (_) {
+                return;
               }
-            } else if (rtmMessage.message_type === 'ACTION') {
-              switch (rtmMessage.message_sub_type) {
-                case 'LIVESTREAM_STATE':
-                  // Host started/stopped a livestream: refresh the LIVE badge.
-                  setLivestreamSignal((value) => value + 1);
-                  break;
+              if (rtmMessage.message_type === 'NEW_CHAT') {
+                const chat: MeetingChat = camelizeKeys(
+                  rtmMessage.message_content ?? {},
+                );
+                // Only real chat rows, posted by the sender itself (uids are
+                // 700000 + user id): no blank bubbles, no speaking for others.
+                if (
+                  chat.id &&
+                  Number(memberId) === 700000 + Number(chat.userId)
+                ) {
+                  dispatch(addChat(chat));
+                }
+              } else if (rtmMessage.message_type === 'ACTION') {
+                switch (rtmMessage.message_sub_type) {
+                  case 'LIVESTREAM_STATE':
+                    // Host started/stopped a livestream: refresh the LIVE badge.
+                    setLivestreamSignal((value) => value + 1);
+                    break;
 
-                case 'END_MEETING':
-                case 'SCREEN_SHARE':
-                case 'MUTE_USER':
-                case 'MUTE_ALL':
-                case 'KICK_USER':
-                case 'ROLE_CHANGED':
-                case 'MEMBERS_CHANGED':
-                case 'SETTINGS_CHANGED':
-                case 'SPOTLIGHT':
-                case 'RECORDING':
-                  handleHostCommand.current(
-                    rtmMessage.message_sub_type,
-                    rtmMessage.message_content,
-                    Number(memberId),
-                  );
-                  break;
+                  case 'END_MEETING':
+                  case 'SCREEN_SHARE':
+                  case 'MUTE_USER':
+                  case 'MUTE_ALL':
+                  case 'KICK_USER':
+                  case 'ROLE_CHANGED':
+                  case 'MEMBERS_CHANGED':
+                  case 'SETTINGS_CHANGED':
+                  case 'SPOTLIGHT':
+                  case 'RECORDING':
+                    handleHostCommand.current(
+                      rtmMessage.message_sub_type,
+                      rtmMessage.message_content,
+                      Number(memberId),
+                    );
+                    break;
 
-                case 'WHITEBOARD':
-                case 'WB_ELEMENTS':
-                case 'WB_SYNC':
-                  handleWhiteboardMessage.current(
-                    rtmMessage.message_sub_type,
-                    rtmMessage.message_content,
-                    Number(memberId),
-                  );
-                  break;
+                  case 'WHITEBOARD':
+                  case 'WB_ELEMENTS':
+                  case 'WB_SYNC':
+                    handleWhiteboardMessage.current(
+                      rtmMessage.message_sub_type,
+                      rtmMessage.message_content,
+                      Number(memberId),
+                    );
+                    break;
 
-                case 'ROOM_REACTION':
-                  handleReaction.current(
-                    String(rtmMessage.message_content),
-                    Number(memberId),
-                  );
-                  break;
+                  case 'ROOM_REACTION':
+                    handleReaction.current(
+                      String(rtmMessage.message_content),
+                      Number(memberId),
+                    );
+                    break;
 
-                default:
-                  break;
+                  default:
+                    break;
+                }
               }
             }
-          }
-        });
+          },
+        );
         // RTM's own presence set: incremental updates between the periodic
         // getMembers() snapshot above. Companion devices log in under their
         // own agUid; aux (presenter camera) connections never log into RTM.

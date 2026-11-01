@@ -1,6 +1,7 @@
 import authService from '@/renderer/shared/services/Auth/AuthService';
 import { Input, Modal, notification } from 'antd';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EMAIL_REGEX } from '../Register/validation';
 
 type Step = 'email' | 'code' | 'password';
@@ -16,6 +17,7 @@ type Props = {
  * (the same three API calls as mobile).
  */
 export function ForgotPasswordDialog({ open, initialEmail, onClose }: Props) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState(initialEmail ?? '');
   const [code, setCode] = useState('');
@@ -51,29 +53,29 @@ export function ForgotPasswordDialog({ open, initialEmail, onClose }: Props) {
     if (step === 'email') {
       const value = email.trim();
       if (!EMAIL_REGEX.test(value)) {
-        setError('Email không hợp lệ');
+        setError(t('shared.validation.email_invalid'));
         return;
       }
       run(async () => {
         await authService.forgotPassword(value);
         setStep('code');
-      }, 'Không tìm thấy tài khoản với email này');
+      }, t('auth.forgot.email_not_found'));
     } else if (step === 'code') {
       if (!/^\d{6}$/.test(code.trim())) {
-        setError('Mã xác nhận gồm 6 chữ số');
+        setError(t('auth.forgot.code_format'));
         return;
       }
       run(async () => {
         setReset(await authService.verifyResetCode(email.trim(), code.trim()));
         setStep('password');
-      }, 'Mã xác nhận không đúng hoặc đã hết hạn');
+      }, t('auth.forgot.code_invalid'));
     } else {
       if (password.length < 6 || password.length > 20) {
-        setError('Mật khẩu từ 6 đến 20 ký tự');
+        setError(t('auth.forgot.password_length'));
         return;
       }
       if (password !== confirm) {
-        setError('Mật khẩu không khớp');
+        setError(t('shared.validation.password_mismatch'));
         return;
       }
       run(async () => {
@@ -84,26 +86,30 @@ export function ForgotPasswordDialog({ open, initialEmail, onClose }: Props) {
           confirmPassword: confirm,
         });
         notification.success({
-          message: 'Đã đổi mật khẩu, mời bạn đăng nhập lại',
+          message: t('auth.forgot.changed'),
           placement: 'top',
         });
         close();
-      }, 'Không đổi được mật khẩu, vui lòng thử lại');
+      }, t('auth.forgot.change_failed'));
     }
   };
 
   const titles: Record<Step, string> = {
-    email: 'Quên mật khẩu',
-    code: 'Nhập mã xác nhận',
-    password: 'Đặt mật khẩu mới',
+    email: t('auth.forgot.title'),
+    code: t('auth.forgot.code_title'),
+    password: t('auth.forgot.password_title'),
   };
 
   return (
     <Modal
       open={open}
       title={titles[step]}
-      okText={step === 'password' ? 'Đổi mật khẩu' : 'Tiếp tục'}
-      cancelText="Hủy"
+      okText={
+        step === 'password'
+          ? t('auth.forgot.change_password')
+          : t('auth.otp.continue')
+      }
+      cancelText={t('common.cancel')}
       confirmLoading={busy}
       onOk={next}
       onCancel={close}
@@ -112,11 +118,11 @@ export function ForgotPasswordDialog({ open, initialEmail, onClose }: Props) {
     >
       {step === 'email' && (
         <>
-          <p>Nhập email tài khoản để nhận mã xác nhận.</p>
+          <p>{t('auth.forgot.email_description')}</p>
           <Input
             autoFocus
             type="email"
-            placeholder="Email"
+            placeholder={t('shared.form.email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onPressEnter={next}
@@ -125,12 +131,12 @@ export function ForgotPasswordDialog({ open, initialEmail, onClose }: Props) {
       )}
       {step === 'code' && (
         <>
-          <p>Mã gồm 6 chữ số đã được gửi tới {email.trim()}.</p>
+          <p>{t('auth.forgot.code_sent', { email: email.trim() })}</p>
           <Input
             autoFocus
             inputMode="numeric"
             maxLength={6}
-            placeholder="Mã xác nhận"
+            placeholder={t('auth.forgot.code_placeholder')}
             value={code}
             onChange={(e) => setCode(e.target.value)}
             onPressEnter={next}
@@ -141,13 +147,13 @@ export function ForgotPasswordDialog({ open, initialEmail, onClose }: Props) {
         <>
           <Input.Password
             autoFocus
-            placeholder="Mật khẩu mới"
+            placeholder={t('auth.reset.new_password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <Input.Password
             style={{ marginTop: 12 }}
-            placeholder="Nhập lại mật khẩu"
+            placeholder={t('auth.register.confirm_password')}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             onPressEnter={next}

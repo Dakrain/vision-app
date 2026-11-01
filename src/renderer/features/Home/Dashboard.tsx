@@ -8,6 +8,7 @@ import {
 import { Badge, Divider, Dropdown, Layout } from 'antd';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { selectAuth } from '../../shared/store/auth/selector';
@@ -29,6 +30,7 @@ const { ipcRenderer } = window.require('electron');
 let lastMenu = 'home';
 
 function Dashboard() {
+  const { t } = useTranslation();
   useEffect(() => {
     // Only out of the small login window: coming back from a meeting it
     // snapped a resized or moved window back to 1366x768, centred.
@@ -146,15 +148,19 @@ function Dashboard() {
               overlayClassName="home-account-menu"
               menu={{
                 items: [
-                  { key: 'account', label: 'Tài khoản' },
-                  { key: 'settings', label: 'Cài đặt' },
+                  { key: 'account', label: t('home.menu.account') },
+                  { key: 'settings', label: t('home.menu.settings') },
                   { type: 'divider' },
-                  { key: 'logout', label: 'Đăng xuất', danger: true },
+                  {
+                    key: 'logout',
+                    label: t('account.tab.logout'),
+                    danger: true,
+                  },
                   ...(version
                     ? [
                         {
                           key: 'version',
-                          label: `Phiên bản ${version}`,
+                          label: t('home.menu.version', { version }),
                           disabled: true,
                         },
                       ]
@@ -177,18 +183,18 @@ function Dashboard() {
             </Dropdown>
           </div>
           <MenuItem
-            label="Home"
+            label={t('home.nav.home')}
             icon="home"
             activeIcon="homeActive"
             isActive={activeMenu.toLowerCase() === 'home'}
-            onClick={(label: string) => setActiveMenu(label)}
+            onClick={() => setActiveMenu('home')}
           />
           <MenuItem
-            label="Meeting"
+            label={t('home.nav.meeting')}
             icon="homeMeeting"
             activeIcon="homeMeetingActive"
             isActive={activeMenu.toLowerCase() === 'meeting'}
-            onClick={(label: string) => setActiveMenu(label)}
+            onClick={() => setActiveMenu('meeting')}
           />
           <Badge
             count={unreadTotal}
@@ -197,22 +203,22 @@ function Dashboard() {
             rootClassName="home-layout__menu-badge"
           >
             <MenuItem
-              label="Chat"
+              label={t('home.nav.chat')}
               icon="homeChat"
               activeIcon="homeChatActive"
               isActive={activeMenu.toLowerCase() === 'chat'}
-              onClick={(label: string) => setActiveMenu(label)}
+              onClick={() => setActiveMenu('chat')}
             />
           </Badge>
         </div>
 
         <div className="home-layout__setting-container">
           <MenuItem
-            label="Setting"
+            label={t('home.nav.setting')}
             icon="homeSetting"
             activeIcon="homeSettingActive"
             isActive={activeMenu.toLowerCase() === 'setting'}
-            onClick={(label: string) => setActiveMenu(label)}
+            onClick={() => setActiveMenu('setting')}
           />
         </div>
       </Sider>

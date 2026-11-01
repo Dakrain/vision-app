@@ -1,6 +1,7 @@
 import { Avatar, Dropdown, Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './MeetingUser.scss';
 import {
   MeetingUser as MeetingUserType,
@@ -16,20 +17,24 @@ export type MemberAction =
   | 'kick'
   | 'ban';
 
-const ACTION_LABEL: Record<MemberAction, string> = {
-  muteAudio: 'Tắt micro',
-  muteVideo: 'Tắt video',
-  makeCohost: 'Chuyển quyền thành Co-host',
-  removeCohost: 'Thu hồi quyền Co-host',
-  kick: 'Loại khỏi phòng',
-  ban: 'Cấm tham gia cuộc họp',
-};
+const ACTION_LABEL = {
+  muteAudio: 'meeting.participants.mute',
+  muteVideo: 'meeting.participants.stop_video',
+  makeCohost: 'meeting.participants.make_co_host_long',
+  removeCohost: 'meeting.participants.remove_co_host',
+  kick: 'meeting.participants.kick',
+  ban: 'meeting.participants.ban',
+} as const satisfies Record<MemberAction, string>;
 
 // Destructive actions ask first.
-const CONFIRM: Partial<Record<MemberAction, (name: string) => string>> = {
-  kick: (name) => `Mời ${name} ra khỏi cuộc họp? Họ vẫn có thể tham gia lại.`,
-  ban: (name) =>
-    `Cấm ${name} tham gia? Họ sẽ bị đưa ra ngoài và không thể vào lại cuộc họp này.`,
+const CONFIRM: Partial<
+  Record<
+    MemberAction,
+    'meeting.participants.kick_confirm' | 'meeting.participants.ban_confirm'
+  >
+> = {
+  kick: 'meeting.participants.kick_confirm',
+  ban: 'meeting.participants.ban_confirm',
 };
 
 interface MeetingUserProps {
@@ -57,6 +62,7 @@ export function MeetingUser({
   actions = [],
   onAction,
 }: MeetingUserProps) {
+  const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const run = (action: MemberAction) => {
@@ -66,11 +72,11 @@ export function MeetingUser({
       return;
     }
     Modal.confirm({
-      title: ACTION_LABEL[action],
-      content: confirm(user.fullName ?? ''),
-      okText: ACTION_LABEL[action],
+      title: t(ACTION_LABEL[action]),
+      content: t(confirm, { name: user.fullName ?? '' }),
+      okText: t(ACTION_LABEL[action]),
       okButtonProps: { danger: true },
-      cancelText: 'Hủy',
+      cancelText: t('common.cancel'),
       onOk: () => onAction?.(user, action),
     });
   };
@@ -81,15 +87,15 @@ export function MeetingUser({
     ...(i > 0 ? [{ type: 'divider' as const, key: `d-${action}` }] : []),
     {
       key: action,
-      label: ACTION_LABEL[action],
+      label: t(ACTION_LABEL[action]),
       danger: action === 'kick' || action === 'ban',
     },
   ]);
 
   const roles = [
-    user.role === MeetingRole.HOST && 'Người chủ trì',
-    user.role === MeetingRole.CO_HOST && 'Co-host',
-    isMe && 'tôi',
+    user.role === MeetingRole.HOST && t('meeting.participants.role_host'),
+    user.role === MeetingRole.CO_HOST && t('meeting.participants.role_co_host'),
+    isMe && t('meeting.participants.role_me'),
   ].filter(Boolean);
 
   let micIcon = 'memberMicOff';
@@ -117,7 +123,7 @@ export function MeetingUser({
           <button
             type="button"
             className="meeting-user-icon clickable"
-            title="Tắt micro"
+            title={t('meeting.participants.mute')}
             onClick={() => run('muteAudio')}
           >
             <Icon name={micIcon} />
@@ -146,7 +152,7 @@ export function MeetingUser({
             <button
               type="button"
               className="meeting-user-icon clickable"
-              title="Tuỳ chọn"
+              title={t('meeting.participants.options')}
             >
               <Icon name="memberDots" />
             </button>

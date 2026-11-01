@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import i18n from '@/renderer/i18n';
 import { fetchUserInfo, login } from './action';
 import INITIAL_STATE from './constants';
 
@@ -34,12 +35,12 @@ export const authSlice = createSlice({
       if (error.status === 422) {
         state.error = {
           code: '422',
-          message: 'Email hoặc mật khẩu không đúng',
+          message: i18n.t('auth.login.wrong_credentials'),
         };
       } else {
         state.error = {
           code: 'UNKNOWN',
-          message: 'Có lỗi xảy ra, vui lòng thử lại sau',
+          message: i18n.t('auth.error_try_later'),
         };
       }
     });

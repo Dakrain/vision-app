@@ -1,6 +1,7 @@
 import { Avatar } from '@/renderer/shared/components';
 import { VideoView } from '@/renderer/features/Meeting/components/VideoView/VideoView';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCall } from './CallProvider';
 import './CallOverlay.scss';
 
@@ -39,6 +40,7 @@ function useRingTone(active: boolean) {
 
 /** Full-window UI for the current 1:1 call, on top of any screen. */
 export function CallOverlay() {
+  const { t } = useTranslation();
   const call = useCall();
   const [now, setNow] = useState(Date.now());
   useRingTone(call.phase === 'incoming');
@@ -52,17 +54,19 @@ export function CallOverlay() {
   if (call.phase === 'idle') return null;
 
   const isVideo = call.call?.callType === 'video';
-  const peerName = call.peer?.name ?? 'Liên hệ';
+  const peerName = call.peer?.name ?? t('call.contact_fallback');
   let status = '';
   switch (call.phase) {
     case 'placing':
-      status = 'Đang kết nối…';
+      status = t('call.outgoing.connecting');
       break;
     case 'outgoing':
-      status = 'Đang đổ chuông…';
+      status = t('call.outgoing.ringing');
       break;
     case 'incoming':
-      status = isVideo ? 'Cuộc gọi video đến' : 'Cuộc gọi thoại đến';
+      status = isVideo
+        ? t('call.incoming.video_title')
+        : t('call.incoming.voice_title');
       break;
     case 'ended':
       status = call.endMessage ?? '';
@@ -75,7 +79,11 @@ export function CallOverlay() {
     call.phase === 'connected' && isVideo && call.remoteUid !== undefined;
 
   return (
-    <div className="call-overlay" role="dialog" aria-label="Cuộc gọi">
+    <div
+      className="call-overlay"
+      role="dialog"
+      aria-label={t('call.in_call.label')}
+    >
       {/* VideoView forces `position: relative` on itself: the placement
           lives on a wrapper. */}
       {showRemoteVideo ? (
@@ -105,7 +113,7 @@ export function CallOverlay() {
             avatar=""
             enableVideo
             enableAudio={call.micOn}
-            label="Bạn"
+            label={t('call.in_call.you')}
             debug={false}
           />
         </div>
@@ -116,8 +124,8 @@ export function CallOverlay() {
       {(call.reconnecting || call.peerLost) && (
         <div className="call-overlay-banner">
           {call.reconnecting
-            ? 'Mất kết nối mạng. Đang kết nối lại…'
-            : 'Người kia đang mất kết nối…'}
+            ? t('call.in_call.reconnecting')
+            : t('call.in_call.peer_reconnecting')}
         </div>
       )}
 
@@ -129,7 +137,7 @@ export function CallOverlay() {
               className="call-btn toggle"
               onClick={call.dismiss}
             >
-              Hủy
+              {t('common.cancel')}
             </button>
             <button
               type="button"
@@ -139,7 +147,7 @@ export function CallOverlay() {
                 call.startCall(call.peer, isVideo ? 'video' : 'audio')
               }
             >
-              Gọi lại
+              {t('call.outgoing.redial')}
             </button>
           </>
         )}
@@ -151,14 +159,14 @@ export function CallOverlay() {
                 className="call-btn decline"
                 onClick={call.decline}
               >
-                Từ chối
+                {t('call.incoming.decline')}
               </button>
               <button
                 type="button"
                 className="call-btn accept"
                 onClick={call.accept}
               >
-                Trả lời
+                {t('call.incoming.answer')}
               </button>
             </>
           ) : (
@@ -169,7 +177,9 @@ export function CallOverlay() {
                   className={`call-btn toggle ${call.micOn ? '' : 'off'}`}
                   onClick={call.toggleMic}
                 >
-                  {call.micOn ? 'Tắt mic' : 'Bật mic'}
+                  {call.micOn
+                    ? t('call.in_call.mic_off')
+                    : t('call.in_call.mic_on')}
                 </button>
               )}
               {call.phase === 'connected' && isVideo && (
@@ -178,7 +188,9 @@ export function CallOverlay() {
                   className={`call-btn toggle ${call.cameraOn ? '' : 'off'}`}
                   onClick={call.toggleCamera}
                 >
-                  {call.cameraOn ? 'Tắt camera' : 'Bật camera'}
+                  {call.cameraOn
+                    ? t('call.in_call.camera_off')
+                    : t('call.in_call.camera_on')}
                 </button>
               )}
               <button
@@ -186,7 +198,9 @@ export function CallOverlay() {
                 className="call-btn decline"
                 onClick={call.hangUp}
               >
-                {call.phase === 'connected' ? 'Kết thúc' : 'Hủy'}
+                {call.phase === 'connected'
+                  ? t('call.in_call.end')
+                  : t('common.cancel')}
               </button>
             </>
           ))}

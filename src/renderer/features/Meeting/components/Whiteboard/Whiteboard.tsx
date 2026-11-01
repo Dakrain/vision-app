@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Modal } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { Excalidraw } from '@excalidraw/excalidraw';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import '@excalidraw/excalidraw/index.css';
@@ -8,6 +9,13 @@ import type {
   WhiteboardSync,
 } from '@/renderer/shared/utils/whiteboardSync';
 import './Whiteboard.scss';
+
+// Excalidraw's own UI follows the app language.
+const EXCALIDRAW_LANG: Record<string, string> = {
+  vi: 'vi-VN',
+  en: 'en',
+  zh: 'zh-CN',
+};
 
 type Props = {
   sync: WhiteboardSync;
@@ -35,6 +43,7 @@ export default function Whiteboard({
   onToggleLock,
   onClose,
 }: Props) {
+  const { t, i18n } = useTranslation();
   const api = useRef<ExcalidrawImperativeAPI>();
 
   // Closing wipes the board for everyone: ask first unless it's empty.
@@ -44,11 +53,11 @@ export default function Whiteboard({
       return;
     }
     Modal.confirm({
-      title: 'Đóng bảng trắng?',
-      content: 'Bảng trắng sẽ đóng với mọi người và nội dung đã vẽ sẽ mất.',
-      okText: 'Đóng',
+      title: t('meeting.whiteboard.close_title'),
+      content: t('meeting.whiteboard.close_message'),
+      okText: t('common.close'),
       okButtonProps: { danger: true },
-      cancelText: 'Hủy',
+      cancelText: t('common.cancel'),
       centered: true,
       onOk: onClose,
     });
@@ -67,16 +76,22 @@ export default function Whiteboard({
     <div className="whiteboard">
       <div className="whiteboard-bar">
         <span className="whiteboard-title">
-          Bảng trắng · {ownerName}
-          {locked && <span className="whiteboard-locked">Chỉ xem</span>}
+          {t('meeting.whiteboard.title', { name: ownerName })}
+          {locked && (
+            <span className="whiteboard-locked">
+              {t('meeting.whiteboard.view_only')}
+            </span>
+          )}
         </span>
         {canControl && (
           <div className="whiteboard-actions">
             <button type="button" onClick={onToggleLock}>
-              {locked ? 'Cho mọi người vẽ' : 'Khoá (chỉ xem)'}
+              {locked
+                ? t('meeting.whiteboard.let_everyone_draw')
+                : t('meeting.whiteboard.lock_view_only')}
             </button>
             <button type="button" className="danger" onClick={confirmClose}>
-              Đóng bảng trắng
+              {t('meeting.whiteboard.close')}
             </button>
           </div>
         )}
@@ -96,7 +111,7 @@ export default function Whiteboard({
             }
           }}
           viewModeEnabled={!canEdit}
-          langCode="vi-VN"
+          langCode={EXCALIDRAW_LANG[i18n.language] ?? 'vi-VN'}
           UIOptions={{
             canvasActions: {
               loadScene: false,

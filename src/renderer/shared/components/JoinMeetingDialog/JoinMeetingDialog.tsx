@@ -3,6 +3,7 @@ import { useJoinMeeting } from '@/shared/hooks/useJoinMeeting';
 import { selectAuth } from '@/shared/store/auth';
 import { Modal } from 'antd';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import './JoinMeetingDialog.scss';
 
@@ -13,6 +14,7 @@ interface Props {
 
 /** Join by meeting ID + passcode (Figma "Join a meeting by Meeting ID"). */
 export function JoinMeetingDialog({ onClose, open }: Props) {
+  const { t } = useTranslation();
   const user = useSelector(selectAuth);
   const [meetingId, setMeetingId] = useState('');
   const [passcode, setPasscode] = useState('');
@@ -51,11 +53,11 @@ export function JoinMeetingDialog({ onClose, open }: Props) {
         }}
       >
         <div className="join-meeting-header">
-          <h2>Tham gia cuộc họp</h2>
+          <h2>{t('meeting.join.title')}</h2>
           <button
             type="button"
             className="join-meeting-close"
-            aria-label="Đóng"
+            aria-label={t('common.close')}
             onClick={onClose}
           >
             <Icon name="meetingClose" />
@@ -64,10 +66,10 @@ export function JoinMeetingDialog({ onClose, open }: Props) {
         <div className="join-meeting-cards">
           <div className="join-meeting-card top">
             <label className="join-meeting-field" htmlFor="join-meeting-id">
-              <span>Meeting ID</span>
+              <span>{t('meeting.join.meeting_id_hint')}</span>
               <input
                 id="join-meeting-id"
-                placeholder="Meeting ID"
+                placeholder={t('meeting.join.meeting_id_hint')}
                 value={meetingId}
                 onChange={(e) => setMeetingId(e.target.value)}
               />
@@ -76,10 +78,10 @@ export function JoinMeetingDialog({ onClose, open }: Props) {
               className="join-meeting-field"
               htmlFor="join-meeting-passcode"
             >
-              <span>Passcode</span>
+              <span>{t('meeting.join.passcode_hint')}</span>
               <input
                 id="join-meeting-passcode"
-                placeholder="Passcode"
+                placeholder={t('meeting.join.passcode_hint')}
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
               />
@@ -87,7 +89,9 @@ export function JoinMeetingDialog({ onClose, open }: Props) {
           </div>
           <div className="join-meeting-card bottom">
             <label className="join-meeting-field" htmlFor="join-meeting-name">
-              <span className="regular">Your name in the meeting</span>
+              <span className="regular">
+                {t('meeting.join.your_name_label')}
+              </span>
               <input
                 id="join-meeting-name"
                 value={user.user?.fullName || ''}
@@ -101,7 +105,7 @@ export function JoinMeetingDialog({ onClose, open }: Props) {
           className="join-meeting-submit"
           disabled={!canJoin}
         >
-          Tham gia
+          {t('meeting.join.join')}
         </button>
       </form>
     </Modal>

@@ -2,6 +2,7 @@ import FriendService from '@/shared/services/Friend/FriendService';
 import MeetingService from '@/shared/services/Meeting/MeetingService';
 import { Input, Modal, notification } from 'antd';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EMAIL_REGEX } from '@/renderer/features/Auth/pages/Register/validation';
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
  * mobile ("Kết bạn → Bằng email"). They show up in Danh bạ once they accept.
  */
 export function AddContactDialog({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string>();
   const [sending, setSending] = useState(false);
@@ -27,11 +29,11 @@ export function AddContactDialog({ open, onClose }: Props) {
   const send = async () => {
     const wanted = email.trim().toLowerCase();
     if (!wanted) {
-      setError('Vui lòng nhập email');
+      setError(t('contacts.add_friend.email_required'));
       return;
     }
     if (!EMAIL_REGEX.test(wanted)) {
-      setError('Email không hợp lệ');
+      setError(t('contacts.add_friend.email_invalid'));
       return;
     }
     setSending(true);
@@ -41,18 +43,20 @@ export function AddContactDialog({ open, onClose }: Props) {
         (u) => u.email?.toLowerCase() === wanted,
       );
       if (!user?.id) {
-        setError('Không tìm thấy tài khoản với email này');
+        setError(t('contacts.add_friend.email_not_found'));
         return;
       }
       await FriendService.sendRequest(user.id);
       notification.success({
-        message: 'Đã gửi lời mời kết bạn',
-        description: `${user.fullName ?? wanted} sẽ có trong Danh bạ khi chấp nhận lời mời.`,
+        message: t('contacts.add_friend.request_sent'),
+        description: t('contacts.add_friend.request_sent_desc', {
+          name: user.fullName ?? wanted,
+        }),
         placement: 'top',
       });
       close();
     } catch (_) {
-      setError('Không gửi được lời mời. Có thể hai bạn đã là bạn bè.');
+      setError(t('contacts.add_friend.request_failed'));
     } finally {
       setSending(false);
     }
@@ -61,9 +65,9 @@ export function AddContactDialog({ open, onClose }: Props) {
   return (
     <Modal
       open={open}
-      title="Thêm liên hệ"
-      okText="Gửi lời mời"
-      cancelText="Hủy"
+      title={t('contacts.add_friend.add')}
+      okText={t('contacts.add_friend.send_request')}
+      cancelText={t('common.cancel')}
       confirmLoading={sending}
       onOk={send}
       onCancel={close}
@@ -73,7 +77,7 @@ export function AddContactDialog({ open, onClose }: Props) {
       <Input
         autoFocus
         type="email"
-        placeholder="Email của người bạn muốn thêm"
+        placeholder={t('contacts.add_friend.email_placeholder')}
         value={email}
         status={error ? 'error' : undefined}
         onChange={(e) => {

@@ -1,4 +1,308 @@
 {
+  "account": {
+    "change_password": {
+      "confirm_new": "确认新密码",
+      "current": "当前密码",
+      "description": "如需修改密码，请先输入当前密码，然后输入新密码并再次确认。",
+      "failed": "无法更新密码，请重试",
+      "length": "新密码长度须为 6 到 20 个字符",
+      "mismatch": "两次输入的密码不一致",
+      "submit": "更新密码",
+      "success": "密码已更新",
+      "title": "修改密码",
+      "wrong_current": "当前密码不正确"
+    },
+    "logout": {
+      "confirm_message": "确定要退出登录吗？"
+    },
+    "menu": {
+      "section_title": "账号",
+      "storage": "存储空间",
+      "storage_used": "已使用 {percent}%"
+    },
+    "packages": {
+      "back": "← 返回",
+      "coming_soon": "即将推出",
+      "coming_soon_hint": "存储升级付款将在后续版本中推出",
+      "current": "当前套餐",
+      "description": "你将获得更多存储空间和额外权益",
+      "free": "免费",
+      "terms": "选择存储套餐即表示你同意 Vision 20 的服务条款和隐私政策。",
+      "title": "升级账号以获取更多存储空间"
+    },
+    "personal": {
+      "about_you": "关于你",
+      "avatar_changed": "头像已更换",
+      "avatar_failed": "无法更换头像",
+      "avatar_unsupported": "服务器暂不支持更换头像",
+      "birthday_required": "请选择出生日期",
+      "change_avatar": "更换",
+      "city": "城市",
+      "city_hint": "选择城市",
+      "country_hint": "选择国家",
+      "email_phone_taken": "该邮箱或电话号码已被其他账号使用",
+      "gender": "性别",
+      "gender_female": "女",
+      "gender_hint": "选择性别",
+      "gender_male": "男",
+      "job": "你的职业",
+      "name_required": "请填写姓和名",
+      "position": "你的职务",
+      "religion": "你的宗教信仰",
+      "required_field": "{label} *",
+      "save_changes": "保存更改",
+      "save_failed": "无法保存信息，请重试",
+      "saved": "个人信息已保存",
+      "talent": "你的才能",
+      "title": "个人信息",
+      "uploading_avatar": "正在上传照片…",
+      "vietnam": "越南"
+    },
+    "storage": {
+      "current_plan_description": "你当前使用的是 <b>{name}</b> 套餐，最大存储空间为 <b>{limit}</b>",
+      "current_title": "当前存储",
+      "current_usage": "你当前的使用量：",
+      "devotional": "灵修",
+      "documents": "文档",
+      "load_failed": "无法加载存储信息",
+      "music": "音乐",
+      "other": "其他",
+      "upgrade": "升级存储空间",
+      "upgrade_title": "升级存储空间",
+      "video": "视频",
+      "vision_tv": "Vision TV"
+    },
+    "tab": {
+      "logout": "退出登录",
+      "terms": "条款与条件"
+    },
+    "terms": {
+      "description": "Vision 20 的条款与条件正在更新中。"
+    }
+  },
+  "auth": {
+    "error_try_later": "出错了，请稍后重试",
+    "forgot": {
+      "change_failed": "无法修改密码，请重试",
+      "change_password": "修改密码",
+      "changed": "密码已修改，请重新登录",
+      "code_format": "验证码为 6 位数字",
+      "code_invalid": "验证码错误或已过期",
+      "code_placeholder": "验证码",
+      "code_sent": "6 位验证码已发送至 {email}。",
+      "code_title": "输入验证码",
+      "email_description": "输入账号邮箱以接收验证码。",
+      "email_not_found": "未找到使用该邮箱的账号",
+      "password_length": "密码长度为 6 到 20 个字符",
+      "password_title": "设置新密码",
+      "title": "忘记密码"
+    },
+    "login": {
+      "fill_all": "请填写完整信息",
+      "forgot_password_question": "忘记密码？",
+      "hide_password": "隐藏密码",
+      "no_account_question": "还没有账号？",
+      "privacy_cookie": "隐私与 Cookie 政策",
+      "show_password": "显示密码",
+      "terms_of_service": "服务条款",
+      "terms_prefix": "登录即表示你同意",
+      "title": "登录",
+      "wrong_credentials": "邮箱或密码错误"
+    },
+    "otp": {
+      "continue": "继续"
+    },
+    "register": {
+      "birthday_hint": "选择出生日期",
+      "confirm_password": "确认密码",
+      "email_exists": "该邮箱已被注册",
+      "error": "出错了",
+      "have_account_question": "已有账号？",
+      "submit": "注册",
+      "success": "注册成功",
+      "terms_prefix": "注册即表示你同意",
+      "title": "创建新账号"
+    },
+    "reset": {
+      "new_password": "新密码"
+    }
+  },
+  "call": {
+    "contact_fallback": "联系人",
+    "errors": {
+      "already_in_call": "你正在进行另一通话",
+      "call_failed": "无法呼叫",
+      "callee_busy": "对方正忙",
+      "join_failed": "无法加入通话",
+      "leave_meeting_first": "请先离开会议再拨打电话"
+    },
+    "in_call": {
+      "answered_elsewhere": "已在其他设备上接听",
+      "camera_off": "关闭摄像头",
+      "camera_on": "开启摄像头",
+      "connection_lost": "连接已断开",
+      "end": "结束",
+      "label": "通话",
+      "mic_off": "静音",
+      "mic_on": "取消静音",
+      "peer_lost": "与对方的连接已断开",
+      "peer_reconnecting": "对方网络连接中断…",
+      "reconnecting": "网络已断开，正在重新连接…",
+      "you": "你"
+    },
+    "incoming": {
+      "answer": "接听",
+      "calling_you": "{name} 正在呼叫你",
+      "decline": "拒绝",
+      "video_title": "视频来电",
+      "voice_title": "语音来电"
+    },
+    "missed": {
+      "called_you": "{name} 给你打过电话",
+      "called_you_busy": "{name} 在你忙碌时给你打过电话",
+      "someone": "有人"
+    },
+    "outgoing": {
+      "connecting": "正在连接…",
+      "declined": "对方拒绝了通话",
+      "ended": "通话已结束",
+      "redial": "重拨",
+      "ringing": "正在响铃…",
+      "unanswered": "对方无法接听"
+    },
+    "trace": {
+      "call": "呼叫",
+      "call_back_title": "回拨？",
+      "call_back_video_title": "视频回拨？",
+      "cancelled": "通话已取消",
+      "duration_min_sec": "{min} 分 {sec} 秒",
+      "duration_sec": "{sec} 秒",
+      "missed": "未接来电",
+      "rejected": "通话被拒绝",
+      "tap_to_call_back": "点击回拨"
+    },
+    "type": {
+      "video": "视频通话",
+      "voice": "语音通话"
+    }
+  },
+  "chat": {
+    "actions": {
+      "copy": "复制消息",
+      "failed": "操作失败，请重试",
+      "forward": "转发",
+      "hidden": "已为你删除该消息",
+      "hide": "仅对自己删除",
+      "menu": "消息操作",
+      "recall": "撤回消息",
+      "recalled": "消息已撤回",
+      "reply": "回复"
+    },
+    "conversations": {
+      "connecting": "正在连接聊天…",
+      "empty": "暂无聊天",
+      "group": "群组",
+      "not_found": "未找到聊天",
+      "open_failed": "无法打开对话",
+      "placeholder": "选择一个对话开始聊天",
+      "untitled": "聊天",
+      "you_prefix": "我："
+    },
+    "forward": {
+      "failed": "转发失败，请重试",
+      "forwarded": "已转发",
+      "note_hint": "消息 ...",
+      "title": "转发给"
+    },
+    "group_create": {
+      "create_failed": "无法创建群聊",
+      "create_group": "创建群聊",
+      "member_search": "输入群成员姓名",
+      "min_members_hint": "请至少选择 2 名成员",
+      "name_label": "群名称：",
+      "name_placeholder": "输入群名称",
+      "no_users": "未找到用户",
+      "search_more": "输入姓名或邮箱查找更多人",
+      "unpick": "取消选择"
+    },
+    "group_photo": {
+      "change": "更换群头像",
+      "change_failed": "无法更换群头像",
+      "changed": "群头像已更新",
+      "remove": "删除群头像",
+      "remove_failed": "无法删除群头像",
+      "title": "群头像",
+      "uploading": "正在上传群头像…"
+    },
+    "header": {
+      "video_call": "视频通话",
+      "voice_call": "语音通话"
+    },
+    "new_message": {
+      "direct": "私聊",
+      "group": "群聊",
+      "group_draft": "新群聊",
+      "no_match": "未找到联系人。不在通讯录中的人：请输入其邮箱。",
+      "searching": "正在搜索…",
+      "to": "收件人：",
+      "to_placeholder": "输入联系人姓名或邮箱"
+    },
+    "outbox": {
+      "resend": "重新发送",
+      "send_failed": "消息发送失败"
+    },
+    "preview": {
+      "call": "[通话]",
+      "file": "[附件]",
+      "image": "[图片]",
+      "video_call": "📞 视频通话",
+      "video_cancelled": "📞 视频通话已取消",
+      "video_missed": "📵 未接视频通话",
+      "video_rejected": "📞 视频通话被拒绝",
+      "voice_call": "📞 语音通话",
+      "voice_cancelled": "📞 语音通话已取消",
+      "voice_missed": "📵 未接语音通话",
+      "voice_rejected": "📞 语音通话被拒绝"
+    },
+    "recalled": "此消息已撤回",
+    "screen": {
+      "attachment": "附件",
+      "cancel_reply": "取消回复",
+      "composer_hint": "发消息 ...",
+      "emoji": "表情",
+      "image": "图片",
+      "jump_latest": "查看最新消息",
+      "member_count_one": "{count} 名成员",
+      "member_count_other": "{count} 名成员",
+      "offline": "无网络连接",
+      "replying_to": "正在回复 {name}",
+      "send": "发送",
+      "send_file": "发送文件",
+      "send_image": "发送图片",
+      "sending_file": "正在发送文件…",
+      "you": "你"
+    },
+    "status": {
+      "seen": "已读",
+      "sending": "发送中",
+      "sent": "已发送"
+    },
+    "tab": {
+      "contacts": "通讯录",
+      "conversations": "聊天",
+      "new_message": "新消息"
+    },
+    "time": {
+      "day_divider": "{year}年{month}月{day}日",
+      "fri": "周五",
+      "mon": "周一",
+      "sat": "周六",
+      "sun": "周日",
+      "thu": "周四",
+      "tue": "周二",
+      "wed": "周三"
+    }
+  },
   "common": {
     "back": "返回",
     "cancel": "取消",
@@ -20,6 +324,49 @@
     "search": "搜索",
     "version": "版本 {version} ({build})"
   },
+  "contacts": {
+    "add_friend": {
+      "add": "添加联系人",
+      "email_invalid": "邮箱格式无效",
+      "email_not_found": "未找到使用此邮箱的账户",
+      "email_placeholder": "要添加的人的邮箱",
+      "email_required": "请输入邮箱",
+      "request_failed": "无法发送邀请，你们可能已经是好友。",
+      "request_sent": "已发送好友请求",
+      "request_sent_desc": "{name} 接受邀请后将出现在通讯录中。",
+      "send_request": "发送邀请"
+    },
+    "empty": "暂无联系人",
+    "friend_requests": {
+      "accept": "接受",
+      "decline": "拒绝",
+      "title_count": "好友请求（{count}）"
+    },
+    "not_found_any": "未找到联系人",
+    "section_header": "通讯录"
+  },
+  "home": {
+    "menu": {
+      "account": "账号",
+      "settings": "设置",
+      "version": "版本 {version}"
+    },
+    "nav": {
+      "chat": "聊天",
+      "home": "首页",
+      "meeting": "会议",
+      "setting": "设置"
+    },
+    "page": {
+      "create_meeting": "新建会议",
+      "join_meeting": "加入会议",
+      "schedule_description_after": "，即可立即开始会议或安排会议。",
+      "schedule_description_before": "点击",
+      "schedule_title": "安排会议",
+      "welcome_description": "以下内容可帮助你快速上手...",
+      "welcome_title": "欢迎使用 Vision 20"
+    }
+  },
   "language": {
     "current": "语言：{name}",
     "en": "English",
@@ -27,5 +374,462 @@
     "title": "语言",
     "vi": "Tiếng Việt",
     "zh": "中文 (简体)"
+  },
+  "meeting": {
+    "add_member": {
+      "add": "添加",
+      "add_failed": "无法添加此人（会议可能已满）。",
+      "already_in": "已在会议中",
+      "email_placeholder": "输入要添加的人的邮箱",
+      "find": "查找",
+      "no_results": "未找到用户",
+      "note": "被添加的人会收到通知，无需密码即可加入。",
+      "role_co_host": "联合主持人",
+      "role_member": "成员",
+      "search_failed": "无法搜索用户，请重试。",
+      "title": "添加成员"
+    },
+    "background": {
+      "add_failed": "无法添加图片",
+      "add_image_plus": "+ 添加图片",
+      "choose": "选择背景",
+      "delete_message": "要删除此背景图片吗？",
+      "delete_this": "删除此图片",
+      "delete_title": "删除背景",
+      "from_computer": "来自你电脑的图片",
+      "no_background": "不使用背景",
+      "not_used": "不使用",
+      "preset": "背景 {index}",
+      "your_image": "你的图片"
+    },
+    "chat": {
+      "disabled_short": "主持人已关闭聊天",
+      "input_hint": "输入消息...",
+      "new_message": "新消息",
+      "reconnecting": "聊天连接已断开。正在重新连接… 重新连接后将显示新消息。",
+      "send": "发送",
+      "title": "会议消息",
+      "visibility_note": "消息仅对会议参与者可见，会议结束后将被删除"
+    },
+    "create": {
+      "allow_camera": "允许开启摄像头",
+      "allow_chat": "允许聊天",
+      "allow_livestream": "允许直播会议",
+      "allow_mic": "允许开启麦克风",
+      "allow_record": "允许录制",
+      "allow_rejoin": "允许被移出的人重新加入",
+      "allow_share": "允许所有人共享屏幕",
+      "auto_record": "会议开始时自动录制",
+      "co_host": "指定联合主持人",
+      "co_host_desc": "主持人离开会议时，联合主持人将拥有主持人的控制权。添加对方邮箱即可指定联合主持人",
+      "co_host_placeholder": "输入联合主持人的邮箱",
+      "create_failed": "无法创建会议",
+      "host": "会议主持人",
+      "info_tab": "会议信息",
+      "invite": "邀请成员加入你的会议",
+      "invite_placeholder": "输入成员邮箱",
+      "livestream": "会议直播",
+      "livestream_desc": "会议直播可让主持人通过自己的账号将会议直播到 Facebook 和 YouTube。在 Facebook 上，主持人可以直播到自己的时间线，或其管理的群组或公共主页。在 YouTube 上，主持人直播到自己的频道。",
+      "max_participants": "最大人数",
+      "new_meeting": "新建会议",
+      "now": "现在",
+      "open": "打开",
+      "participant_settings": "参会者设置",
+      "participant_settings_desc": "参会者设置可让主持人控制参会者在会议中的权限",
+      "password": "会议密码",
+      "password_placeholder": "留空将自动生成密码",
+      "pick_date": "选择日期",
+      "pick_future_time": "请选择未来的开始日期和时间",
+      "pick_time": "选择时间",
+      "recording": "录制",
+      "recording_desc": "录制功能可让你管理自己的录制文件",
+      "save_recordings_in": "录制文件保存位置",
+      "schedule_failed": "无法预约会议",
+      "schedule_meeting": "预约会议",
+      "scheduled": "已预约会议",
+      "settings_tab": "会议设置",
+      "share_screen": "共享屏幕",
+      "share_screen_desc": "允许参会者在会议中共享屏幕",
+      "start_meeting": "开始会议",
+      "start_time": "开始时间",
+      "time_zone": "时区",
+      "topic": "会议主题",
+      "topic_placeholder": "输入会议主题",
+      "waiting_room": "启用等候室"
+    },
+    "detail": {
+      "copy": "复制",
+      "host": "主持人",
+      "join_link": "加入链接",
+      "meeting_id": "会议 ID",
+      "password": "密码",
+      "start_time": "开始时间",
+      "title_of": "{name} 的会议"
+    },
+    "devices": {
+      "camera": "摄像头",
+      "mic": "麦克风",
+      "no_camera": "未找到摄像头",
+      "no_mic": "未找到麦克风",
+      "no_speaker": "未找到扬声器",
+      "speaker": "扬声器",
+      "title": "麦克风、摄像头和扬声器"
+    },
+    "exit": {
+      "end_for_all_long": "为所有人结束会议",
+      "host_message": "为所有人结束会议，还是仅你自己离开？",
+      "title": "退出会议"
+    },
+    "join": {
+      "join": "加入",
+      "meeting_id_hint": "会议 ID",
+      "passcode_hint": "密码",
+      "title": "加入会议",
+      "your_name_label": "你在会议中的名字"
+    },
+    "layout": {
+      "focus_view": "专注（仅共享内容）",
+      "grid": "网格",
+      "hide_self": "隐藏我的画面",
+      "large_grid": "大网格（7x7）",
+      "menu": "布局",
+      "show_self": "显示我的画面",
+      "speaker_view": "演讲者"
+    },
+    "list": {
+      "copy_link": "复制邀请链接",
+      "delete": "删除会议",
+      "delete_failed": "无法删除会议",
+      "delete_failed_live": "进行中的会议需先结束。",
+      "delete_message": "“{title}”将从所有人的列表中删除。",
+      "delete_title": "删除会议？",
+      "description": "描述",
+      "edit_title": "编辑会议",
+      "empty": "暂无会议",
+      "join": "加入",
+      "join_meeting": "加入会议",
+      "key_on_start": "开始后生成",
+      "link_copied": "已复制邀请链接",
+      "load_failed": "无法加载会议列表",
+      "new_meeting": "新建会议",
+      "not_started": "主持人尚未开始会议",
+      "options": "选项",
+      "save_failed": "无法保存更改",
+      "schedule": "预约",
+      "start": "开始",
+      "start_failed": "无法开始会议",
+      "tab_live": "进行中",
+      "tab_upcoming": "即将开始",
+      "topic": "会议主题"
+    },
+    "livestream": {
+      "add": "+ 添加直播平台",
+      "choose": "选择直播平台",
+      "choose_to_start": "选择直播平台以开始",
+      "custom_key_hint": "平台的串流密钥",
+      "custom_step1": "适用于 TikTok、Twitch、Vimeo… 或自有 RTMP 服务器。",
+      "custom_step2": "从平台的直播管理页复制“Server URL”（以 rtmp:// 或 rtmps:// 开头）和“Stream key”。",
+      "delete_confirm": "删除此直播平台？",
+      "error_capacity": "当前直播过多，请稍后重试。",
+      "error_invalid": "密钥或服务器地址无效。",
+      "error_not_allowed": "此会议不允许直播。",
+      "error_not_found": "未找到所选直播平台。",
+      "error_permission": "只有主持人或联合主持人可以直播。",
+      "error_too_many": "每个会议最多可同时直播到 3 个平台。",
+      "everyone_notice": "会议中的所有人都会看到 LIVE 标签，并收到会议正在直播的通知。",
+      "facebook_key_hint": "以 FB- 开头",
+      "facebook_step1": "打开 Facebook Live Producer → 点击“开始直播”，选择你的个人主页或公共主页。",
+      "facebook_step2": "选择“直播软件”（Streaming software）→ 复制“串流密钥”。",
+      "facebook_step3": "开启“使用固定串流密钥”，保存一次即可重复使用。",
+      "failure_connect": "无法连接到直播平台，请重试。",
+      "failure_key": "直播密钥或服务器地址错误或已过期，请获取新密钥。",
+      "key_format_warning": "密钥格式似乎不正确（{hint}），请在保存前检查。",
+      "key_note": "密钥会加密保存到你的账号，可在之后的会议中于电脑和手机上重复使用。",
+      "key_placeholder": "粘贴直播密钥 — {hint}",
+      "key_required": "请粘贴直播密钥。",
+      "live_notice_desc": "会议的画面和声音正在公开直播到 {platforms}。",
+      "live_notice_title": "会议正在直播",
+      "live_now": "直播中",
+      "load_failed": "无法加载直播平台列表。",
+      "name_placeholder": "显示名称（例如：我的 {platform} 频道）",
+      "none": "暂无直播平台。",
+      "open_key_page": "打开获取密钥页面 ↗",
+      "platform_custom": "其他（RTMP）",
+      "save": "保存直播平台",
+      "save_failed": "无法保存直播平台。",
+      "server_url_invalid": "Server URL 必须以 rtmp:// 或 rtmps:// 开头",
+      "server_url_placeholder": "Server URL（rtmp://… 或 rtmps://…）",
+      "start_count_one": "开始直播（{count} 个平台）",
+      "start_count_other": "开始直播（{count} 个平台）",
+      "start_failed": "无法开始直播。",
+      "status_failed": "错误",
+      "status_live": "● 直播中",
+      "status_starting": "连接中",
+      "status_stopped": "已停止",
+      "status_stopping": "正在停止",
+      "stop": "停止",
+      "stop_all": "全部停止",
+      "title": "直播",
+      "youtube_key_hint": "格式 xxxx-xxxx-xxxx-xxxx-xxxx",
+      "youtube_step1": "在电脑上打开 YouTube Studio → 点击“创建” → “开始直播”。",
+      "youtube_step2": "首次直播时，YouTube 需要约 24 小时来启用频道。",
+      "youtube_step3": "选择“直播软件”（Streaming software）→ 复制“直播密钥”。"
+    },
+    "lobby": {
+      "admitted": "主持人已允许您进入会议",
+      "background": "背景",
+      "background_needs_camera": "开启摄像头以选择背景",
+      "camera_is_off": "摄像头已关",
+      "camera_not_allowed": "主持人尚未允许开启摄像头",
+      "camera_off": "摄像头关",
+      "camera_on": "摄像头开",
+      "cannot_join": "你无法加入此会议",
+      "default_title": "会议",
+      "full": "会议人数已满。",
+      "host": "主持人：{name}",
+      "join_failed": "无法加入会议",
+      "join_here_too": "在此设备上加入",
+      "join_now": "立即加入",
+      "loading": "加载中…",
+      "meeting_id": "ID：{id}",
+      "mic_not_allowed": "主持人尚未允许开启麦克风",
+      "mic_off": "麦克风关",
+      "mic_on": "麦克风开",
+      "move_here": "转移到此设备",
+      "not_found": "会议号或密码错误，或会议已结束。",
+      "other_device_message": "将会议转移到此设备，还是在此设备上同时加入（例如在这里共享屏幕或开启摄像头）？",
+      "other_device_title": "您已在其他设备上参加此会议",
+      "rejected": "主持人拒绝了你的加入请求",
+      "start": "开始",
+      "try_again": "请重试。",
+      "waiting_approval_short": "等待批准…",
+      "waiting_note_short": "正在等待主持人批准。获准后你将自动进入会议。"
+    },
+    "participants": {
+      "action_failed": "无法完成操作",
+      "action_failed_desc": "你可能没有权限，或此人已离开。",
+      "add_people": "添加人员",
+      "added": "已添加到会议室",
+      "ban": "禁止加入会议",
+      "ban_confirm": "禁止 {name} 加入？对方将被移出且无法再加入此会议。",
+      "co_host_section": "联合主持人",
+      "copy_link": "复制邀请链接",
+      "host_section": "主持人",
+      "in_meeting": "参会者",
+      "kick": "移出会议",
+      "kick_confirm": "将 {name} 移出会议？对方仍可重新加入。",
+      "link_copied": "已复制邀请链接",
+      "make_co_host_long": "设为联合主持人",
+      "mute": "静音",
+      "mute_all_confirm": "将所有成员静音（主持人和联合主持人除外）？成员仍可自行取消静音。",
+      "mute_all_failed": "无法将所有人静音",
+      "mute_all_pill": "全部静音",
+      "mute_all_title": "全部静音",
+      "no_invite_link": "此会议还没有邀请链接",
+      "options": "选项",
+      "permissions": "参会者权限",
+      "permissions_hint": "参会者可以（主持人和联合主持人始终可以）：",
+      "permissions_pill": "权限",
+      "remove_co_host": "撤销联合主持人",
+      "role_co_host": "联合主持人",
+      "role_host": "主持人",
+      "role_me": "我",
+      "stop_video": "关闭视频",
+      "tab_in_room": "会议中（{count}）",
+      "tab_waiting": "等候室（{count}）",
+      "title": "参会者"
+    },
+    "permission": {
+      "camera": "开启摄像头",
+      "camera_title": "开启摄像头",
+      "chat": "聊天",
+      "chat_title": "聊天",
+      "mic": "开启麦克风",
+      "mic_title": "开启麦克风",
+      "record": "录制会议",
+      "record_title": "录制会议",
+      "share": "共享屏幕",
+      "share_title": "共享屏幕"
+    },
+    "reaction": {
+      "lower_hand": "放下手",
+      "raise_hand": "举手"
+    },
+    "recording": {
+      "interrupted": "录制已中断",
+      "saved": "会议录制已保存",
+      "start_failed": "无法开始录制"
+    },
+    "room": {
+      "action_record": "录制会议",
+      "action_share_content": "共享内容",
+      "action_share_screen": "共享屏幕",
+      "attachment": "[附件]",
+      "audio_off": "关闭声音",
+      "audio_on": "开启声音",
+      "badge_new": "{count} 条新消息",
+      "banned": "您已被禁止加入此会议",
+      "being_recorded": "● 正在被录制",
+      "close_whiteboard_first": "白板已打开：请先关闭白板再共享屏幕",
+      "co_host_granted": "您已成为联合主持人",
+      "co_host_revoked": "您的联合主持人身份已被撤销",
+      "connecting": "正在连接会议…",
+      "device_camera": "摄像头",
+      "device_other": "其他设备",
+      "exit_full_screen": "退出全屏",
+      "extra_device": "您也在此设备上加入了会议。",
+      "extra_device_muted": "您也在此设备上加入了会议。为避免回声，音频已关闭。",
+      "full_screen": "全屏",
+      "host": "主持人",
+      "joined_elsewhere": "您的账号刚刚在其他设备上加入了会议",
+      "kicked": "您已被移出会议",
+      "leave_room": "离开",
+      "live_badge_title": "正在直播",
+      "meeting_ended": "会议已结束",
+      "moved_to_other_device": "会议已转移到其他设备",
+      "no_longer_in_meeting": "您已不在此会议中",
+      "not_allowed": "主持人尚未允许{what}",
+      "opened_whiteboard": "{name} 打开了白板",
+      "others_recording_title": "{name} 正在录制会议",
+      "permission_change_failed": "无法更改权限，请重试",
+      "permissions_granted": "主持人已允许{what}",
+      "permissions_revoked": "主持人已关闭{what}权限",
+      "rec_badge_title": "正在录制会议",
+      "reconnect_failed": "无法重新连接会议",
+      "reconnecting": "网络已断开。正在重新连接…",
+      "session_expired": "会议会话已过期，请重新加入",
+      "someone": "一位参会者",
+      "someone_lower": "一位参会者",
+      "someone_sharing": "已有人在共享屏幕",
+      "spotlight_me": "您已被设为所有人的聚焦画面",
+      "spotlight_off": "{name} 已取消聚焦",
+      "spotlight_on": "聚焦：{name}",
+      "started_recording": "{name} 正在录制会议",
+      "started_sharing": "{name} 正在共享屏幕",
+      "stopped_recording": "{name} 已停止录制会议",
+      "stopped_sharing": "{name} 已停止共享屏幕",
+      "turn_back_on_hint": "需要发言时你可以自行重新开启。",
+      "turned_off_camera_by": "{name} 关闭了你的摄像头",
+      "turned_off_mic_by": "{name} 关闭了你的麦克风",
+      "turned_off_mic_camera_by": "{name} 关闭了你的麦克风和摄像头",
+      "you": "你"
+    },
+    "setup": {
+      "default_title": "会议",
+      "default_title_of": "{name} 的会议"
+    },
+    "share": {
+      "app_windows": "应用窗口",
+      "desktop": "桌面",
+      "share": "共享",
+      "title": "共享屏幕"
+    },
+    "tile": {
+      "connecting": "正在连接…",
+      "joining": "正在加入…",
+      "next_page": "下一页",
+      "options": "选项",
+      "pin_for_me": "为我置顶",
+      "pinned": "已置顶",
+      "prev_page": "上一页",
+      "spotlight": "聚焦",
+      "spotlight_all": "为所有人聚焦",
+      "spotlight_off": "取消聚焦",
+      "unpin": "取消置顶",
+      "waiting_others": "正在等待其他人加入…",
+      "you_sharing": "你正在共享屏幕"
+    },
+    "toolbar": {
+      "audio": "音频",
+      "background": "背景",
+      "camera": "摄像头",
+      "chat": "聊天",
+      "chat_unread": "聊天（{count} 条新消息）",
+      "close_whiteboard": "关闭白板",
+      "devices": "麦克风、摄像头和扬声器",
+      "end": "结束",
+      "livestream": "直播",
+      "livestreaming": "正在直播",
+      "participants": "参会者",
+      "react": "表情",
+      "record": "录制会议",
+      "settings": "设置",
+      "share_screen": "共享屏幕",
+      "stop_recording": "停止录制",
+      "stop_share": "停止共享",
+      "whiteboard": "白板"
+    },
+    "waiting": {
+      "admit_failed": "无法准许进入",
+      "decline": "拒绝",
+      "decline_failed": "无法拒绝",
+      "disabled": "此会议未开启等候室",
+      "is_waiting": "{name} 正在等候室中",
+      "let_in": "准许进入",
+      "none_waiting": "暂无人等候",
+      "someone": "有人"
+    },
+    "whiteboard": {
+      "close": "关闭白板",
+      "close_message": "白板将对所有人关闭，已绘制的内容将丢失。",
+      "close_title": "关闭白板？",
+      "let_everyone_draw": "允许所有人绘制",
+      "lock_view_only": "锁定（仅查看）",
+      "only_owner_can_close": "只有打开白板的人或主持人可以关闭白板",
+      "opening": "正在打开白板…",
+      "title": "白板 · {name}",
+      "view_only": "仅查看"
+    }
+  },
+  "shared": {
+    "deep_link": {
+      "in_meeting_message": "请先离开当前会议，再重新打开邀请链接（ID {id}）。",
+      "in_meeting_title": "你正在会议中",
+      "invalid": "邀请链接无效"
+    },
+    "form": {
+      "birthday": "出生日期",
+      "country": "国家",
+      "email": "邮箱",
+      "first_name": "姓",
+      "last_name": "名",
+      "password": "密码",
+      "phone": "电话号码"
+    },
+    "main": {
+      "image_filter": "图片",
+      "pick_background_title": "选择背景图片",
+      "pick_recording_folder_title": "选择录制文件保存位置",
+      "save_recording_title": "保存会议录制"
+    },
+    "recording": {
+      "free_space": "剩余 {size} GB"
+    },
+    "screen_capture": {
+      "message": "macOS 正在阻止应用共享屏幕。请前往“系统设置”→“隐私与安全性”→“录屏与系统录音”（Screen Recording），为 Vision 20 开启权限，然后重新启动应用。",
+      "open_system_settings": "打开系统设置",
+      "title": "需要屏幕录制权限"
+    },
+    "share_overlay": {
+      "open_meeting": "打开会议",
+      "sharing": "你正在共享屏幕",
+      "stop_share": "停止共享"
+    },
+    "user_picker": {
+      "add": "添加",
+      "no_results": "未找到用户",
+      "remove": "移除 {name}",
+      "searching": "正在搜索…"
+    },
+    "validation": {
+      "confirm_password_required": "请再次输入密码",
+      "email_invalid": "邮箱无效",
+      "email_required": "邮箱不能为空",
+      "first_name_required": "姓不能为空",
+      "last_name_required": "名不能为空",
+      "password_min_length": "密码至少需要6个字符",
+      "password_mismatch": "两次输入的密码不一致",
+      "password_required": "密码不能为空"
+    }
   }
 }

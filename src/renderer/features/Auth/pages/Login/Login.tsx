@@ -2,6 +2,7 @@
 import './Login.scss';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import appLogo from 'assets/images/app_logo.png';
 import { useAppSelector } from '@/renderer/store/hooks';
 import useLoading from '@/renderer/shared/hooks/useLoading';
@@ -17,6 +18,7 @@ const { ipcRenderer } = window.require('electron');
 const isDev = process.env.NODE_ENV === 'development';
 
 function Login() {
+  const { t } = useTranslation();
   const { dispatchWithLoading } = useLoading();
   const navigate = useNavigate();
   const isAuth = useAppSelector(selectIsAuth);
@@ -34,7 +36,7 @@ function Login() {
 
   const handleLogin = () => {
     if (!email || !password) {
-      message.error('Vui lòng nhập đầy đủ thông tin');
+      message.error(t('auth.login.fill_all'));
       return;
     }
     dispatchWithLoading(
@@ -49,24 +51,24 @@ function Login() {
     <div className="login-container">
       <div className="login-form">
         <img src={appLogo} alt="Vision Logo" className="logo" />
-        <h1 className="title">Đăng nhập</h1>
+        <h1 className="title">{t('auth.login.title')}</h1>
         <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">{t('shared.form.email')}</label>
           <input
             type="email"
             id="email"
-            placeholder="Email"
+            placeholder={t('shared.form.email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password">Mật khẩu</label>
+          <label htmlFor="password">{t('shared.form.password')}</label>
           <div className="password-input">
             <input
               type={isPasswordVisible ? 'text' : 'password'}
               id="password"
-              placeholder="Mật khẩu"
+              placeholder={t('shared.form.password')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -75,7 +77,11 @@ function Login() {
               // Same as Register: Figma only has the slashed eye, lit up
               // while the text shows (the old <i> had no icon at all).
               className={`toggle-password${isPasswordVisible ? ' visible' : ''}`}
-              aria-label={isPasswordVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-label={
+                isPasswordVisible
+                  ? t('auth.login.hide_password')
+                  : t('auth.login.show_password')
+              }
               aria-pressed={isPasswordVisible}
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             >
@@ -83,13 +89,19 @@ function Login() {
             </button>
           </div>
           {/* Under the pair it is about, not between the two fields. */}
-          {error && <div className="error">{error.message}</div>}
+          {error && (
+            <div className="error">
+              {error.code === '422'
+                ? t('auth.login.wrong_credentials')
+                : t('auth.error_try_later')}
+            </div>
+          )}
           <button
             type="button"
             className="forgot-password"
             onClick={() => setForgotOpen(true)}
           >
-            Quên mật khẩu?
+            {t('auth.login.forgot_password_question')}
           </button>
         </div>
       </div>
@@ -100,24 +112,25 @@ function Login() {
           onClick={handleLogin}
           disabled={!email || !password}
         >
-          Đăng nhập
+          {t('auth.login.title')}
         </button>
 
         <p className="terms">
           {/* No terms pages exist yet (these linked to google.com, which
               replaced the whole app window). */}
-          Bằng việc đăng nhập, bạn đồng ý với <b>Điều khoản dịch vụ</b>,{' '}
-          <b>Chính sách bảo mật và Cookie</b>
+          {t('auth.login.terms_prefix')}
+          <b>{t('auth.login.terms_of_service')}</b>,{' '}
+          <b>{t('auth.login.privacy_cookie')}</b>
         </p>
 
         <div className="register-prompt">
-          Bạn không có tài khoản?{' '}
+          {t('auth.login.no_account_question')}{' '}
           <button
             type="button"
             className="link-button"
             onClick={() => navigate('/register')}
           >
-            Đăng ký
+            {t('auth.register.submit')}
           </button>
         </div>
       </div>

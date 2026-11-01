@@ -11,6 +11,7 @@ import { useAppDispatch } from '@/renderer/store';
 import { DatePicker, Select, message as toast } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChangePasswordDialog } from '../ChangePasswordDialog';
 
 interface Form {
@@ -86,6 +87,7 @@ interface Props {
 
 /** "Thông tin cá nhân" (Figma 10946:59797). */
 export function PersonalInfo({ user }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const initial = useMemo(() => fromUser(user), [user]);
   const [form, setForm] = useState<Form>(initial);
@@ -143,11 +145,11 @@ export function PersonalInfo({ user }: Props) {
   const save = async () => {
     if (!user.id) return;
     if (!form.firstName.trim() || !form.lastName.trim()) {
-      toast.warning('Vui lòng nhập đủ Họ và Tên');
+      toast.warning(t('account.personal.name_required'));
       return;
     }
     if (!form.birthday) {
-      toast.warning('Vui lòng chọn ngày sinh');
+      toast.warning(t('account.personal.birthday_required'));
       return;
     }
     setSaving(true);
@@ -155,7 +157,7 @@ export function PersonalInfo({ user }: Props) {
       await putProfile();
       // Job only goes through PATCH (as on mobile).
       await UserService.patchProfile(user.id, { job: form.job.trim() });
-      toast.success('Đã lưu thông tin cá nhân');
+      toast.success(t('account.personal.saved'));
       reload();
     } catch (e) {
       let rule = '';
@@ -167,8 +169,8 @@ export function PersonalInfo({ user }: Props) {
       }
       toast.error(
         rule.startsWith('email') || rule.startsWith('phone')
-          ? 'Email hoặc số điện thoại đã được dùng cho tài khoản khác'
-          : 'Không lưu được thông tin, vui lòng thử lại',
+          ? t('account.personal.email_phone_taken')
+          : t('account.personal.save_failed'),
       );
     } finally {
       setSaving(false);
@@ -177,20 +179,20 @@ export function PersonalInfo({ user }: Props) {
 
   const changeAvatar = async (file?: File) => {
     if (!file || !user.id) return;
-    const hide = toast.loading('Đang tải ảnh lên…');
+    const hide = toast.loading(t('account.personal.uploading_avatar'));
     try {
       const media = await uploadMedia(file);
       const saved = await putProfile({ avatar: media.id });
       // A server without avatar support ignores the field: say so instead
       // of claiming success.
       if (Number(saved?.avatar) !== media.id) {
-        toast.error('Máy chủ chưa hỗ trợ đổi ảnh đại diện');
+        toast.error(t('account.personal.avatar_unsupported'));
         return;
       }
-      toast.success('Đã đổi ảnh đại diện');
+      toast.success(t('account.personal.avatar_changed'));
       reload();
     } catch (_) {
-      toast.error('Không đổi được ảnh đại diện');
+      toast.error(t('account.personal.avatar_failed'));
     } finally {
       hide();
     }
@@ -226,22 +228,38 @@ export function PersonalInfo({ user }: Props) {
           }}
         />
         <button type="button" onClick={() => fileRef.current?.click()}>
-          Thay đổi
+          {t('account.personal.change_avatar')}
         </button>
       </div>
 
       <div className="settings-form">
         <section>
-          <h2>Thông tin cá nhân</h2>
+          <h2>{t('account.personal.title')}</h2>
           <div className="settings-row">
-            <Field label="Họ *">{text('firstName')}</Field>
-            <Field label="Tên *">{text('lastName')}</Field>
+            <Field
+              label={t('account.personal.required_field', {
+                label: t('shared.form.first_name'),
+              })}
+            >
+              {text('firstName')}
+            </Field>
+            <Field
+              label={t('account.personal.required_field', {
+                label: t('shared.form.last_name'),
+              })}
+            >
+              {text('lastName')}
+            </Field>
           </div>
-          <Field label="Ngày sinh *">
+          <Field
+            label={t('account.personal.required_field', {
+              label: t('shared.form.birthday'),
+            })}
+          >
             <DatePicker
               variant="borderless"
               format="DD / MM / YYYY"
-              placeholder="Chọn ngày sinh"
+              placeholder={t('auth.register.birthday_hint')}
               value={form.birthday ? dayjs.unix(form.birthday) : null}
               onChange={(d: Dayjs | null) =>
                 set('birthday', d ? d.startOf('day').unix() : 0)
@@ -249,37 +267,37 @@ export function PersonalInfo({ user }: Props) {
               disabledDate={(d) => d.isAfter(dayjs())}
             />
           </Field>
-          <Field label="Giới tính">
+          <Field label={t('account.personal.gender')}>
             <Select
               variant="borderless"
-              placeholder="Chọn giới tính"
+              placeholder={t('account.personal.gender_hint')}
               // Anything but 1/0 (e.g. 2 from registration) is "not chosen".
               value={
                 form.gender === 0 || form.gender === 1 ? form.gender : undefined
               }
               onChange={(v) => set('gender', v)}
               options={[
-                { value: 1, label: 'Nam' },
-                { value: 0, label: 'Nữ' },
+                { value: 1, label: t('account.personal.gender_male') },
+                { value: 0, label: t('account.personal.gender_female') },
               ]}
             />
           </Field>
           {/* The sign-in identifier: shown, not edited here. */}
-          <Field label="Email">
+          <Field label={t('shared.form.email')}>
             <input value={form.email} readOnly className="readonly" />
           </Field>
-          <Field label="Số điện thoại">
+          <Field label={t('shared.form.phone')}>
             <span className="settings-phone">
               {form.phoneCode && <em>(+{form.phoneCode.replace('+', '')})</em>}
               {text('phone')}
             </span>
           </Field>
-          <Field label="Quốc gia">
+          <Field label={t('shared.form.country')}>
             <Select
               variant="borderless"
               showSearch
               filterOption={searchLabel}
-              placeholder="Chọn quốc gia"
+              placeholder={t('account.personal.country_hint')}
               value={form.countryId || undefined}
               onChange={(v: number) => {
                 const c = countries.find((x) => x.id === v);
@@ -292,16 +310,19 @@ export function PersonalInfo({ user }: Props) {
               }}
               options={countries.map((c) => ({
                 value: c.id,
-                label: c.countryCode === 'vn' ? 'Việt Nam' : c.countryName,
+                label:
+                  c.countryCode === 'vn'
+                    ? t('account.personal.vietnam')
+                    : c.countryName,
               }))}
             />
           </Field>
-          <Field label="Thành phố">
+          <Field label={t('account.personal.city')}>
             <Select
               variant="borderless"
               showSearch
               filterOption={searchLabel}
-              placeholder="Chọn thành phố"
+              placeholder={t('account.personal.city_hint')}
               disabled={!cities.length}
               value={form.prefectureId || undefined}
               onChange={(v: number) => set('prefectureId', v)}
@@ -311,16 +332,16 @@ export function PersonalInfo({ user }: Props) {
         </section>
 
         <section>
-          <h2>Tài khoản</h2>
+          <h2>{t('home.menu.account')}</h2>
           <Field
-            label="Mật khẩu"
+            label={t('shared.form.password')}
             extra={
               <button
                 type="button"
                 className="settings-link"
                 onClick={() => setPasswordOpen(true)}
               >
-                Đổi mật khẩu
+                {t('auth.forgot.change_password')}
               </button>
             }
           >
@@ -329,11 +350,15 @@ export function PersonalInfo({ user }: Props) {
         </section>
 
         <section>
-          <h2>Thông tin về bạn</h2>
-          <Field label="Tôn giáo của bạn">{text('religion')}</Field>
-          <Field label="Nghề nghiệp của bạn">{text('job')}</Field>
-          <Field label="Chức vụ của bạn">{text('position')}</Field>
-          <Field label="Tài năng của bạn">{text('forte')}</Field>
+          <h2>{t('account.personal.about_you')}</h2>
+          <Field label={t('account.personal.religion')}>
+            {text('religion')}
+          </Field>
+          <Field label={t('account.personal.job')}>{text('job')}</Field>
+          <Field label={t('account.personal.position')}>
+            {text('position')}
+          </Field>
+          <Field label={t('account.personal.talent')}>{text('forte')}</Field>
         </section>
       </div>
 
@@ -345,7 +370,7 @@ export function PersonalInfo({ user }: Props) {
             onClick={() => setForm(initial)}
             disabled={saving}
           >
-            Hủy
+            {t('common.cancel')}
           </button>
           <button
             type="button"
@@ -353,7 +378,7 @@ export function PersonalInfo({ user }: Props) {
             onClick={save}
             disabled={saving}
           >
-            Lưu thay đổi
+            {t('account.personal.save_changes')}
           </button>
         </div>
       )}

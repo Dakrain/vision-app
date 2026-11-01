@@ -2,6 +2,7 @@ import { useAppSelector } from '@/renderer/store/hooks';
 import { selectAuth } from '@/shared/store/auth/selector';
 import Icon from '@/assets/svg/icons';
 import { type JSX, type ReactNode, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LogoutDialog } from './LogoutDialog';
 import { Language, useCurrentLanguageLabel } from './panes/Language';
 import { Packages } from './panes/Packages';
@@ -54,6 +55,7 @@ function MenuRow({
 
 /** Account settings (Figma "Account setting / …", 10946:59797 and siblings). */
 function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
+  const { t } = useTranslation();
   const languageLabel = useCurrentLanguageLabel();
   const { user } = useAppSelector(selectAuth);
   const [upgrading, setUpgrading] = useState(false);
@@ -99,34 +101,34 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
   return (
     <div className="settings-page">
       <nav className="settings-menu">
-        <h3>TÀI KHOẢN</h3>
+        <h3>{t('account.menu.section_title')}</h3>
         <div>
           <MenuRow
             icon={<Icon name="settingProfile" />}
             color="#0064ff"
-            title="Thông tin cá nhân"
+            title={t('account.personal.title')}
             active={section === 'profile'}
             onClick={() => onSectionChange('profile')}
           />
           <MenuRow
             icon={<Icon name="settingSdcard" />}
             color="#ff5a5a"
-            title="Bộ nhớ"
-            subtitle={`Đã sử dụng ${usedPercent}%`}
+            title={t('account.menu.storage')}
+            subtitle={t('account.menu.storage_used', { percent: usedPercent })}
             active={section === 'storage'}
             onClick={() => onSectionChange('storage')}
           />
           <MenuRow
             icon={<Icon name="settingNote" />}
             color="#1ec88c"
-            title="Điều khoản và Điều kiện"
+            title={t('account.tab.terms')}
             active={section === 'terms'}
             onClick={() => onSectionChange('terms')}
           />
           <MenuRow
             icon={<Icon name="settingGlobe" />}
             color="#7850dc"
-            title="Ngôn ngữ"
+            title={t('language.title')}
             subtitle={languageLabel}
             active={section === 'language'}
             onClick={() => onSectionChange('language')}
@@ -136,10 +138,14 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
         <MenuRow
           icon={<Icon name="settingSignout" />}
           color="#ff3c3c"
-          title="Đăng xuất"
+          title={t('account.tab.logout')}
           onClick={() => setLogoutOpen(true)}
         />
-        {version && <p className="settings-version">Phiên bản {version}</p>}
+        {version && (
+          <p className="settings-version">
+            {t('home.menu.version', { version })}
+          </p>
+        )}
       </nav>
       <main className="settings-content">{renderPane()}</main>
       <LogoutDialog

@@ -1,0 +1,199 @@
+{
+  "chat": {
+    "tab": {
+      "conversations": "Chats",
+      "contacts": "Contacts",
+      "new_message": "New message"
+    },
+    "conversations": {
+      "empty": "No conversations yet",
+      "not_found": "No conversations found",
+      "group": "Group",
+      "untitled": "Chat",
+      "you_prefix": "You: ",
+      "open_failed": "Couldn't open the conversation",
+      "connecting": "Connecting to chat…",
+      "placeholder": "Select a conversation to start messaging"
+    },
+    "new_message": {
+      "direct": "Direct chat",
+      "group": "Group chat",
+      "group_draft": "New group chat",
+      "to": "To:",
+      "to_placeholder": "Enter a contact name or email",
+      "searching": "Searching…",
+      "no_match": "No contacts found. For someone not in your contacts, enter their email."
+    },
+    "group_create": {
+      "create_failed": "Couldn't create the group chat",
+      "name_label": "Group name:",
+      "name_placeholder": "Enter a group name",
+      "min_members_hint": "Select at least 2 members",
+      "create_group": "Create group chat",
+      "unpick": "Remove",
+      "member_search": "Type the names of group members",
+      "no_users": "No users found",
+      "search_more": "Type a name or email to find more people"
+    },
+    "time": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "day_divider": "{month_name} {day}, {year}"
+    },
+    "recalled": "This message was unsent",
+    "preview": {
+      "image": "[Image]",
+      "file": "[Attachment]",
+      "call": "[Call]",
+      "voice_call": "📞 Voice call",
+      "video_call": "📞 Video call",
+      "voice_missed": "📵 Missed voice call",
+      "video_missed": "📵 Missed video call",
+      "voice_rejected": "📞 Voice call declined",
+      "video_rejected": "📞 Video call declined",
+      "voice_cancelled": "📞 Voice call cancelled",
+      "video_cancelled": "📞 Video call cancelled"
+    },
+    "screen": {
+      "replying_to": "Replying to {name}",
+      "offline": "No internet connection",
+      "attachment": "Attachment",
+      "image": "Image",
+      "you": "you",
+      "cancel_reply": "Cancel reply",
+      "send_file": "Send file",
+      "send_image": "Send photo",
+      "composer_hint": "Message ...",
+      "emoji": "Emoji",
+      "send": "Send",
+      "sending_file": "Sending file…",
+      "member_count_one": "{count} member",
+      "member_count_other": "{count} members",
+      "jump_latest": "Jump to latest message"
+    },
+    "header": {
+      "voice_call": "Voice call",
+      "video_call": "Video call"
+    },
+    "status": {
+      "sending": "Sending",
+      "sent": "Sent",
+      "seen": "Seen"
+    },
+    "outbox": {
+      "resend": "Resend",
+      "send_failed": "Couldn't send message"
+    },
+    "actions": {
+      "reply": "Reply",
+      "forward": "Forward",
+      "copy": "Copy message",
+      "hide": "Remove for you",
+      "recall": "Unsend message",
+      "hidden": "Message removed for you",
+      "recalled": "Message unsent",
+      "failed": "Couldn't do that, please try again",
+      "menu": "Message actions"
+    },
+    "forward": {
+      "title": "Forward to",
+      "forwarded": "Forwarded",
+      "failed": "Couldn't forward, please try again",
+      "note_hint": "Message ..."
+    },
+    "group_photo": {
+      "title": "Group photo",
+      "remove": "Remove group photo",
+      "remove_failed": "Couldn't remove group photo",
+      "changed": "Group photo updated",
+      "change_failed": "Couldn't change group photo",
+      "change": "Change group photo",
+      "uploading": "Uploading group photo…"
+    }
+  },
+  "contacts": {
+    "add_friend": {
+      "add": "Add contact",
+      "email_required": "Please enter an email",
+      "email_invalid": "Invalid email",
+      "email_not_found": "No account found with this email",
+      "request_sent": "Friend request sent",
+      "request_sent_desc": "{name} will appear in Contacts once they accept.",
+      "request_failed": "Couldn't send the request. You may already be friends.",
+      "send_request": "Send request",
+      "email_placeholder": "Email of the person you want to add"
+    },
+    "empty": "No contacts yet",
+    "not_found_any": "No contacts found",
+    "section_header": "CONTACTS",
+    "friend_requests": {
+      "title_count": "Friend requests ({count})",
+      "accept": "Accept",
+      "decline": "Decline"
+    }
+  },
+  "call": {
+    "type": {
+      "voice": "Voice call",
+      "video": "Video call"
+    },
+    "trace": {
+      "missed": "Missed call",
+      "rejected": "Call declined",
+      "cancelled": "Call cancelled",
+      "tap_to_call_back": "Click to call back",
+      "duration_min_sec": "{min} min {sec} sec",
+      "duration_sec": "{sec} sec",
+      "call_back_title": "Call back?",
+      "call_back_video_title": "Video call back?",
+      "call": "Call"
+    },
+    "contact_fallback": "Contact",
+    "outgoing": {
+      "connecting": "Connecting…",
+      "ringing": "Ringing…",
+      "redial": "Call again",
+      "declined": "The recipient declined the call",
+      "unanswered": "The call couldn't be answered",
+      "ended": "Call ended"
+    },
+    "incoming": {
+      "answer": "Answer",
+      "decline": "Decline",
+      "voice_title": "Incoming voice call",
+      "video_title": "Incoming video call",
+      "calling_you": "{name} is calling you"
+    },
+    "in_call": {
+      "label": "Call",
+      "you": "You",
+      "reconnecting": "Network lost. Reconnecting…",
+      "peer_reconnecting": "The other person lost connection…",
+      "end": "End",
+      "peer_lost": "Lost connection to the other person",
+      "connection_lost": "Connection lost",
+      "mic_off": "Mute",
+      "mic_on": "Unmute",
+      "camera_off": "Camera off",
+      "camera_on": "Camera on",
+      "answered_elsewhere": "Answered on another device"
+    },
+    "missed": {
+      "someone": "Someone",
+      "called_you": "{name} called you",
+      "called_you_busy": "{name} called you while you were busy"
+    },
+    "errors": {
+      "callee_busy": "The recipient is busy",
+      "already_in_call": "You're already in another call",
+      "leave_meeting_first": "Leave the meeting before calling",
+      "call_failed": "Couldn't place the call",
+      "join_failed": "Couldn't join the call"
+    }
+  }
+}

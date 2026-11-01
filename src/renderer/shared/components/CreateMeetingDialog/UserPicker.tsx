@@ -1,6 +1,7 @@
 import { MeetingService } from '@/shared/services/Meeting';
 import type { User } from '@/shared/types/user';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Avatar } from '../Avatar/Avatar';
 
 interface Props {
@@ -21,6 +22,7 @@ export function UserPicker({
   onChange,
   excludeIds = [],
 }: Props) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<User[]>([]);
   const [open, setOpen] = useState(false);
@@ -100,7 +102,7 @@ export function UserPicker({
           disabled={!query.trim()}
           onClick={addTyped}
         >
-          Thêm
+          {t('shared.user_picker.add')}
         </button>
       </div>
       {showList && (
@@ -126,7 +128,9 @@ export function UserPicker({
           ))}
           {offered.length === 0 && (
             <div className="user-picker-empty">
-              {searching ? 'Đang tìm…' : 'Không tìm thấy người dùng nào'}
+              {searching
+                ? t('shared.user_picker.searching')
+                : t('shared.user_picker.no_results')}
             </div>
           )}
         </div>
@@ -138,7 +142,9 @@ export function UserPicker({
               {user.fullName || user.email}
               <button
                 type="button"
-                aria-label={`Bỏ ${user.fullName || user.email}`}
+                aria-label={t('shared.user_picker.remove', {
+                  name: user.fullName || user.email,
+                })}
                 onClick={() => onChange(value.filter((u) => u.id !== user.id))}
               >
                 ×

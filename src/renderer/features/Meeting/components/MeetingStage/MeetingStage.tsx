@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Dropdown } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { MeetingUser } from '@/renderer/shared/types/meeting';
 import type { VisibleStreams } from '@/renderer/shared/hooks/useRemoteVideoSubscriptions';
@@ -86,12 +87,12 @@ type Props = {
   overlay?: ReactNode;
 };
 
-const ACTION_LABEL: Record<TileMenuAction, string> = {
-  pin: 'Ghim cho tôi',
-  unpin: 'Bỏ ghim',
-  spotlight: 'Spotlight cho mọi người',
-  unspotlight: 'Tắt spotlight',
-};
+const ACTION_LABEL = {
+  pin: 'meeting.tile.pin_for_me',
+  unpin: 'meeting.tile.unpin',
+  spotlight: 'meeting.tile.spotlight_all',
+  unspotlight: 'meeting.tile.spotlight_off',
+} as const satisfies Record<TileMenuAction, string>;
 
 /** Grid shape for a gallery page: as square as the tile count allows. */
 const gridFor = (n: number) => {
@@ -131,6 +132,7 @@ export function MeetingStage({
   renderTile,
   overlay,
 }: Props) {
+  const { t } = useTranslation();
   const board = content !== undefined && content !== null;
   // Focus only differs from speaker view while something is shared.
   const focus = view === 'focus' && (sharingUid !== undefined || board);
@@ -191,7 +193,7 @@ export function MeetingStage({
   const current = Math.min(page, pages - 1);
   const hero = board
     ? undefined
-    : others.find((u) => u.agUid === heroUid) ?? others[0];
+    : (others.find((u) => u.agUid === heroUid) ?? others[0]);
   const rest = sortBy(
     // The presenter's camera has its own floating tile.
     others.filter((u) => u !== hero && u !== presenterCam),
@@ -247,8 +249,8 @@ export function MeetingStage({
   const frame = (user: MeetingUser, className: string) => {
     const actions = tileActions?.(user) ?? [];
     let tag: string | undefined;
-    if (user.agUid === spotlightUid) tag = 'Spotlight';
-    else if (user.agUid === pinnedUid) tag = 'Đã ghim';
+    if (user.agUid === spotlightUid) tag = t('meeting.tile.spotlight');
+    else if (user.agUid === pinnedUid) tag = t('meeting.tile.pinned');
     return (
       <div
         key={user.agUid}
@@ -265,7 +267,7 @@ export function MeetingStage({
             menu={{
               items: actions.map((action) => ({
                 key: action,
-                label: ACTION_LABEL[action],
+                label: t(ACTION_LABEL[action]),
               })),
               onClick: ({ key }) => onTileAction?.(user, key as TileMenuAction),
             }}
@@ -273,8 +275,8 @@ export function MeetingStage({
             <button
               type="button"
               className="meeting-stage-menu"
-              title="Tuỳ chọn"
-              aria-label="Tuỳ chọn"
+              title={t('meeting.tile.options')}
+              aria-label={t('meeting.tile.options')}
             >
               <Icon name="memberDots" />
             </button>
@@ -295,9 +297,11 @@ export function MeetingStage({
           </div>
         )}
         {selfSharing && (
-          <div className="meeting-stage-sharing">Bạn đang chia sẻ màn hình</div>
+          <div className="meeting-stage-sharing">
+            {t('meeting.tile.you_sharing')}
+          </div>
         )}
-        <p className="meeting-stage-hint">Đang chờ mọi người tham gia…</p>
+        <p className="meeting-stage-hint">{t('meeting.tile.waiting_others')}</p>
         {overlay}
       </div>
     );
@@ -348,7 +352,7 @@ export function MeetingStage({
           <div className="meeting-stage-pager">
             <button
               type="button"
-              aria-label="Trang trước"
+              aria-label={t('meeting.tile.prev_page')}
               disabled={current === 0}
               onClick={() => setPage(current - 1)}
             >
@@ -362,7 +366,7 @@ export function MeetingStage({
             ))}
             <button
               type="button"
-              aria-label="Trang sau"
+              aria-label={t('meeting.tile.next_page')}
               disabled={current === pages - 1}
               onClick={() => setPage(current + 1)}
             >
@@ -382,7 +386,9 @@ export function MeetingStage({
     >
       {stage}
       {selfSharing && (
-        <div className="meeting-stage-sharing">Bạn đang chia sẻ màn hình</div>
+        <div className="meeting-stage-sharing">
+          {t('meeting.tile.you_sharing')}
+        </div>
       )}
       {self && !hideSelf && !focus && !board && (
         <div className={`meeting-stage-self${selfSpeaking ? ' speaking' : ''}`}>

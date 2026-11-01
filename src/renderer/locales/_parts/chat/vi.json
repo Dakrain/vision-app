@@ -1,0 +1,199 @@
+{
+  "chat": {
+    "tab": {
+      "conversations": "Trò chuyện",
+      "contacts": "Danh bạ",
+      "new_message": "Tin nhắn mới"
+    },
+    "conversations": {
+      "empty": "Chưa có cuộc trò chuyện nào",
+      "not_found": "Không tìm thấy cuộc trò chuyện nào",
+      "group": "Nhóm",
+      "untitled": "Trò chuyện",
+      "you_prefix": "Bạn: ",
+      "open_failed": "Không mở được cuộc trò chuyện",
+      "connecting": "Đang kết nối trò chuyện…",
+      "placeholder": "Chọn một cuộc trò chuyện để bắt đầu nhắn tin"
+    },
+    "new_message": {
+      "direct": "Cuộc trò chuyện cá nhân",
+      "group": "Cuộc trò chuyện nhóm",
+      "group_draft": "Nhóm chat mới",
+      "to": "Đến:",
+      "to_placeholder": "Nhập tên liên hệ hoặc email",
+      "searching": "Đang tìm…",
+      "no_match": "Không tìm thấy liên hệ. Người chưa có trong danh bạ: nhập email của họ."
+    },
+    "group_create": {
+      "create_failed": "Không tạo được nhóm chat",
+      "name_label": "Tên nhóm:",
+      "name_placeholder": "Gõ tên nhóm",
+      "min_members_hint": "Chọn ít nhất 2 thành viên",
+      "create_group": "Tạo nhóm chat",
+      "unpick": "Bỏ chọn",
+      "member_search": "Gõ tên thành viên trong nhóm chat",
+      "no_users": "Không tìm thấy người dùng nào",
+      "search_more": "Gõ tên hoặc email để tìm thêm người"
+    },
+    "time": {
+      "sun": "Chủ nhật",
+      "mon": "Thứ 2",
+      "tue": "Thứ 3",
+      "wed": "Thứ 4",
+      "thu": "Thứ 5",
+      "fri": "Thứ 6",
+      "sat": "Thứ 7",
+      "day_divider": "Ngày {day} tháng {month}, {year}"
+    },
+    "recalled": "Tin nhắn đã được thu hồi",
+    "preview": {
+      "image": "[Hình ảnh]",
+      "file": "[Tệp đính kèm]",
+      "call": "[Cuộc gọi]",
+      "voice_call": "📞 Cuộc gọi thoại",
+      "video_call": "📞 Cuộc gọi video",
+      "voice_missed": "📵 Cuộc gọi thoại nhỡ",
+      "video_missed": "📵 Cuộc gọi video nhỡ",
+      "voice_rejected": "📞 Cuộc gọi thoại bị từ chối",
+      "video_rejected": "📞 Cuộc gọi video bị từ chối",
+      "voice_cancelled": "📞 Cuộc gọi thoại đã hủy",
+      "video_cancelled": "📞 Cuộc gọi video đã hủy"
+    },
+    "screen": {
+      "replying_to": "Đang trả lời {name}",
+      "offline": "Không có kết nối internet",
+      "attachment": "Tệp đính kèm",
+      "image": "Hình ảnh",
+      "you": "bạn",
+      "cancel_reply": "Hủy trả lời",
+      "send_file": "Gửi tệp",
+      "send_image": "Gửi ảnh",
+      "composer_hint": "Nhắn tin ...",
+      "emoji": "Biểu tượng cảm xúc",
+      "send": "Gửi",
+      "sending_file": "Đang gửi tệp…",
+      "member_count_one": "{count} thành viên",
+      "member_count_other": "{count} thành viên",
+      "jump_latest": "Xem tin nhắn mới nhất"
+    },
+    "header": {
+      "voice_call": "Gọi thoại",
+      "video_call": "Gọi video"
+    },
+    "status": {
+      "sending": "Đang gửi",
+      "sent": "Đã gửi",
+      "seen": "Đã xem"
+    },
+    "outbox": {
+      "resend": "Gửi lại",
+      "send_failed": "Không thể gửi tin nhắn"
+    },
+    "actions": {
+      "reply": "Trả lời",
+      "forward": "Chuyển tiếp",
+      "copy": "Sao chép tin nhắn",
+      "hide": "Gỡ tin nhắn phía bạn",
+      "recall": "Thu hồi tin nhắn",
+      "hidden": "Đã gỡ tin nhắn phía bạn",
+      "recalled": "Đã thu hồi tin nhắn",
+      "failed": "Không thực hiện được, vui lòng thử lại",
+      "menu": "Tác vụ tin nhắn"
+    },
+    "forward": {
+      "title": "Chuyển tiếp đến",
+      "forwarded": "Đã chuyển tiếp",
+      "failed": "Không chuyển tiếp được, vui lòng thử lại",
+      "note_hint": "Tin nhắn ..."
+    },
+    "group_photo": {
+      "title": "Ảnh nhóm",
+      "remove": "Xóa ảnh nhóm",
+      "remove_failed": "Không xóa được ảnh nhóm",
+      "changed": "Đã đổi ảnh nhóm",
+      "change_failed": "Không đổi được ảnh nhóm",
+      "change": "Đổi ảnh nhóm",
+      "uploading": "Đang tải ảnh nhóm…"
+    }
+  },
+  "contacts": {
+    "add_friend": {
+      "add": "Thêm liên hệ",
+      "email_required": "Vui lòng nhập email",
+      "email_invalid": "Email không hợp lệ",
+      "email_not_found": "Không tìm thấy tài khoản với email này",
+      "request_sent": "Đã gửi lời mời kết bạn",
+      "request_sent_desc": "{name} sẽ có trong Danh bạ khi chấp nhận lời mời.",
+      "request_failed": "Không gửi được lời mời. Có thể hai bạn đã là bạn bè.",
+      "send_request": "Gửi lời mời",
+      "email_placeholder": "Email của người bạn muốn thêm"
+    },
+    "empty": "Chưa có liên hệ nào",
+    "not_found_any": "Không tìm thấy liên hệ nào",
+    "section_header": "DANH BẠ",
+    "friend_requests": {
+      "title_count": "Lời mời kết bạn ({count})",
+      "accept": "Đồng ý",
+      "decline": "Từ chối"
+    }
+  },
+  "call": {
+    "type": {
+      "voice": "Cuộc gọi thoại",
+      "video": "Cuộc gọi video"
+    },
+    "trace": {
+      "missed": "Cuộc gọi nhỡ",
+      "rejected": "Cuộc gọi bị từ chối",
+      "cancelled": "Cuộc gọi đã hủy",
+      "tap_to_call_back": "Nhấn để gọi lại",
+      "duration_min_sec": "{min} phút {sec} giây",
+      "duration_sec": "{sec} giây",
+      "call_back_title": "Gọi lại?",
+      "call_back_video_title": "Gọi video lại?",
+      "call": "Gọi"
+    },
+    "contact_fallback": "Liên hệ",
+    "outgoing": {
+      "connecting": "Đang kết nối…",
+      "ringing": "Đang đổ chuông…",
+      "redial": "Gọi lại",
+      "declined": "Người nhận từ chối cuộc gọi",
+      "unanswered": "Không thể nhận cuộc gọi",
+      "ended": "Cuộc gọi đã kết thúc"
+    },
+    "incoming": {
+      "answer": "Trả lời",
+      "decline": "Từ chối",
+      "voice_title": "Cuộc gọi thoại đến",
+      "video_title": "Cuộc gọi video đến",
+      "calling_you": "{name} đang gọi cho bạn"
+    },
+    "in_call": {
+      "label": "Cuộc gọi",
+      "you": "Bạn",
+      "reconnecting": "Mất kết nối mạng. Đang kết nối lại…",
+      "peer_reconnecting": "Người kia đang mất kết nối…",
+      "end": "Kết thúc",
+      "peer_lost": "Mất kết nối với người kia",
+      "connection_lost": "Mất kết nối",
+      "mic_off": "Tắt mic",
+      "mic_on": "Bật mic",
+      "camera_off": "Tắt camera",
+      "camera_on": "Bật camera",
+      "answered_elsewhere": "Đã trả lời trên thiết bị khác"
+    },
+    "missed": {
+      "someone": "Một người",
+      "called_you": "{name} đã gọi cho bạn",
+      "called_you_busy": "{name} đã gọi cho bạn lúc bạn đang bận"
+    },
+    "errors": {
+      "callee_busy": "Người nhận đang bận",
+      "already_in_call": "Bạn đang trong một cuộc gọi khác",
+      "leave_meeting_first": "Hãy rời cuộc họp trước khi gọi",
+      "call_failed": "Không gọi được",
+      "join_failed": "Không vào được cuộc gọi"
+    }
+  }
+}

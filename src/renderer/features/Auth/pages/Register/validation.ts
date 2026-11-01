@@ -3,26 +3,29 @@
 // lib/core/utils/validation_utils.dart), including the exact Vietnamese
 // error copy, so desktop registration behaves the same as mobile's.
 
+import i18n from '@/renderer/i18n';
+
 // Same regex as ValidationUtils.isValidEmail on mobile.
 export const EMAIL_REGEX = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 
 export function validateFirstName(value: string): string | null {
-  return value ? null : 'Họ không được để trống';
+  return value ? null : i18n.t('shared.validation.first_name_required');
 }
 
 export function validateLastName(value: string): string | null {
-  return value ? null : 'Tên không được để trống';
+  return value ? null : i18n.t('shared.validation.last_name_required');
 }
 
 export function validateEmail(value: string): string | null {
-  if (!value) return 'Email không được để trống';
-  if (!EMAIL_REGEX.test(value)) return 'Email không hợp lệ';
+  if (!value) return i18n.t('shared.validation.email_required');
+  if (!EMAIL_REGEX.test(value))
+    return i18n.t('shared.validation.email_invalid');
   return null;
 }
 
 export function validatePassword(value: string): string | null {
-  if (!value) return 'Mật khẩu không được để trống';
-  if (value.length < 6) return 'Mật khẩu phải có ít nhất 6 ký tự';
+  if (!value) return i18n.t('shared.validation.password_required');
+  if (value.length < 6) return i18n.t('shared.validation.password_min_length');
   return null;
 }
 
@@ -30,8 +33,10 @@ export function validateConfirmPassword(
   value: string,
   password: string,
 ): string | null {
-  if (!value) return 'Vui lòng nhập lại mật khẩu';
-  return value === password ? null : 'Mật khẩu không khớp';
+  if (!value) return i18n.t('shared.validation.confirm_password_required');
+  return value === password
+    ? null
+    : i18n.t('shared.validation.password_mismatch');
 }
 
 export interface RegisterFormValues {

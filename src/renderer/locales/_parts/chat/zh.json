@@ -1,0 +1,199 @@
+{
+  "chat": {
+    "tab": {
+      "conversations": "聊天",
+      "contacts": "通讯录",
+      "new_message": "新消息"
+    },
+    "conversations": {
+      "empty": "暂无聊天",
+      "not_found": "未找到聊天",
+      "group": "群组",
+      "untitled": "聊天",
+      "you_prefix": "我：",
+      "open_failed": "无法打开对话",
+      "connecting": "正在连接聊天…",
+      "placeholder": "选择一个对话开始聊天"
+    },
+    "new_message": {
+      "direct": "私聊",
+      "group": "群聊",
+      "group_draft": "新群聊",
+      "to": "收件人：",
+      "to_placeholder": "输入联系人姓名或邮箱",
+      "searching": "正在搜索…",
+      "no_match": "未找到联系人。不在通讯录中的人：请输入其邮箱。"
+    },
+    "group_create": {
+      "create_failed": "无法创建群聊",
+      "name_label": "群名称：",
+      "name_placeholder": "输入群名称",
+      "min_members_hint": "请至少选择 2 名成员",
+      "create_group": "创建群聊",
+      "unpick": "取消选择",
+      "member_search": "输入群成员姓名",
+      "no_users": "未找到用户",
+      "search_more": "输入姓名或邮箱查找更多人"
+    },
+    "time": {
+      "sun": "周日",
+      "mon": "周一",
+      "tue": "周二",
+      "wed": "周三",
+      "thu": "周四",
+      "fri": "周五",
+      "sat": "周六",
+      "day_divider": "{year}年{month}月{day}日"
+    },
+    "recalled": "此消息已撤回",
+    "preview": {
+      "image": "[图片]",
+      "file": "[附件]",
+      "call": "[通话]",
+      "voice_call": "📞 语音通话",
+      "video_call": "📞 视频通话",
+      "voice_missed": "📵 未接语音通话",
+      "video_missed": "📵 未接视频通话",
+      "voice_rejected": "📞 语音通话被拒绝",
+      "video_rejected": "📞 视频通话被拒绝",
+      "voice_cancelled": "📞 语音通话已取消",
+      "video_cancelled": "📞 视频通话已取消"
+    },
+    "screen": {
+      "replying_to": "正在回复 {name}",
+      "offline": "无网络连接",
+      "attachment": "附件",
+      "image": "图片",
+      "you": "你",
+      "cancel_reply": "取消回复",
+      "send_file": "发送文件",
+      "send_image": "发送图片",
+      "composer_hint": "发消息 ...",
+      "emoji": "表情",
+      "send": "发送",
+      "sending_file": "正在发送文件…",
+      "member_count_one": "{count} 名成员",
+      "member_count_other": "{count} 名成员",
+      "jump_latest": "查看最新消息"
+    },
+    "header": {
+      "voice_call": "语音通话",
+      "video_call": "视频通话"
+    },
+    "status": {
+      "sending": "发送中",
+      "sent": "已发送",
+      "seen": "已读"
+    },
+    "outbox": {
+      "resend": "重新发送",
+      "send_failed": "消息发送失败"
+    },
+    "actions": {
+      "reply": "回复",
+      "forward": "转发",
+      "copy": "复制消息",
+      "hide": "仅对自己删除",
+      "recall": "撤回消息",
+      "hidden": "已为你删除该消息",
+      "recalled": "消息已撤回",
+      "failed": "操作失败，请重试",
+      "menu": "消息操作"
+    },
+    "forward": {
+      "title": "转发给",
+      "forwarded": "已转发",
+      "failed": "转发失败，请重试",
+      "note_hint": "消息 ..."
+    },
+    "group_photo": {
+      "title": "群头像",
+      "remove": "删除群头像",
+      "remove_failed": "无法删除群头像",
+      "changed": "群头像已更新",
+      "change_failed": "无法更换群头像",
+      "change": "更换群头像",
+      "uploading": "正在上传群头像…"
+    }
+  },
+  "contacts": {
+    "add_friend": {
+      "add": "添加联系人",
+      "email_required": "请输入邮箱",
+      "email_invalid": "邮箱格式无效",
+      "email_not_found": "未找到使用此邮箱的账户",
+      "request_sent": "已发送好友请求",
+      "request_sent_desc": "{name} 接受邀请后将出现在通讯录中。",
+      "request_failed": "无法发送邀请，你们可能已经是好友。",
+      "send_request": "发送邀请",
+      "email_placeholder": "要添加的人的邮箱"
+    },
+    "empty": "暂无联系人",
+    "not_found_any": "未找到联系人",
+    "section_header": "通讯录",
+    "friend_requests": {
+      "title_count": "好友请求（{count}）",
+      "accept": "接受",
+      "decline": "拒绝"
+    }
+  },
+  "call": {
+    "type": {
+      "voice": "语音通话",
+      "video": "视频通话"
+    },
+    "trace": {
+      "missed": "未接来电",
+      "rejected": "通话被拒绝",
+      "cancelled": "通话已取消",
+      "tap_to_call_back": "点击回拨",
+      "duration_min_sec": "{min} 分 {sec} 秒",
+      "duration_sec": "{sec} 秒",
+      "call_back_title": "回拨？",
+      "call_back_video_title": "视频回拨？",
+      "call": "呼叫"
+    },
+    "contact_fallback": "联系人",
+    "outgoing": {
+      "connecting": "正在连接…",
+      "ringing": "正在响铃…",
+      "redial": "重拨",
+      "declined": "对方拒绝了通话",
+      "unanswered": "对方无法接听",
+      "ended": "通话已结束"
+    },
+    "incoming": {
+      "answer": "接听",
+      "decline": "拒绝",
+      "voice_title": "语音来电",
+      "video_title": "视频来电",
+      "calling_you": "{name} 正在呼叫你"
+    },
+    "in_call": {
+      "label": "通话",
+      "you": "你",
+      "reconnecting": "网络已断开，正在重新连接…",
+      "peer_reconnecting": "对方网络连接中断…",
+      "end": "结束",
+      "peer_lost": "与对方的连接已断开",
+      "connection_lost": "连接已断开",
+      "mic_off": "静音",
+      "mic_on": "取消静音",
+      "camera_off": "关闭摄像头",
+      "camera_on": "开启摄像头",
+      "answered_elsewhere": "已在其他设备上接听"
+    },
+    "missed": {
+      "someone": "有人",
+      "called_you": "{name} 给你打过电话",
+      "called_you_busy": "{name} 在你忙碌时给你打过电话"
+    },
+    "errors": {
+      "callee_busy": "对方正忙",
+      "already_in_call": "你正在进行另一通话",
+      "leave_meeting_first": "请先离开会议再拨打电话",
+      "call_failed": "无法呼叫",
+      "join_failed": "无法加入通话"
+    }
+  }
+}

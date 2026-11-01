@@ -14,6 +14,7 @@ import {
   notification,
 } from 'antd';
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useMeetingRecorder } from '@/renderer/shared/hooks/useMeetingRecorder';
 import { useLivestream } from '@/shared/hooks/useLivestream';
@@ -67,6 +68,7 @@ const HIDE_SELF_KEY = 'meeting.hideSelf';
 const Whiteboard = lazy(() => import('./components/Whiteboard/Whiteboard'));
 
 function Meeting() {
+  const { t } = useTranslation();
   const [openDeviceSettings, setOpenDeviceSettings] = useState(false);
   const [openShareScreenDialog, setOpenShareScreenDialog] = useState(false);
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
@@ -184,8 +186,8 @@ function Meeting() {
     if (!chat || chat.userId === me?.id) return;
     notification.open({
       key: 'meeting-chat',
-      message: chat.userName || 'Tin nhắn mới',
-      description: chat.file ? '[Tệp đính kèm]' : chat.message,
+      message: chat.userName || t('meeting.chat.new_message'),
+      description: chat.file ? t('meeting.room.attachment') : chat.message,
       placement: 'top',
       duration: 4,
       style: { cursor: 'pointer' },
@@ -195,7 +197,7 @@ function Meeting() {
         setShowMeetingUser(false);
       },
     });
-  }, [chats, chatSeen, showChat, me?.id]);
+  }, [chats, chatSeen, showChat, me?.id, t]);
 
   // Me talking: highlighted like everyone else (only while my mic is on).
   const selfSpeaking = localSpeaking && enableMic;
@@ -233,13 +235,13 @@ function Meeting() {
         ),
       ).join(', ');
       notification.warning({
-        message: 'Cuộc họp đang được phát trực tiếp',
-        description: `Hình ảnh và âm thanh của cuộc họp đang được phát công khai lên ${platforms}.`,
+        message: t('meeting.livestream.live_notice_title'),
+        description: t('meeting.livestream.live_notice_desc', { platforms }),
         placement: 'top',
       });
     }
     wasLive.current = livestream.isLive;
-  }, [livestream.isLive, livestream.activeStreams]);
+  }, [livestream.isLive, livestream.activeStreams, t]);
 
   // ---- Waiting room (host/co-host).
   const waitingUsers = useMemo(
@@ -250,7 +252,9 @@ function Meeting() {
     notification.destroy(`waiting-${user.userId}`);
     reviewWaitingMember(user, approve).catch(() =>
       notification.error({
-        message: approve ? 'Không cho vào được' : 'Không từ chối được',
+        message: approve
+          ? t('meeting.waiting.admit_failed')
+          : t('meeting.waiting.decline_failed'),
         placement: 'top',
       }),
     );
@@ -268,7 +272,9 @@ function Meeting() {
       const key = `waiting-${id}`;
       notification.info({
         key,
-        message: `${user.fullName ?? 'Một người'} đang chờ vào phòng`,
+        message: t('meeting.waiting.is_waiting', {
+          name: user.fullName ?? t('meeting.waiting.someone'),
+        }),
         placement: 'topRight',
         duration: 0,
         btn: (
@@ -277,14 +283,14 @@ function Meeting() {
               size="small"
               onClick={() => reviewRef.current(user, false)}
             >
-              Từ chối
+              {t('meeting.waiting.decline')}
             </AntButton>
             <AntButton
               size="small"
               type="primary"
               onClick={() => reviewRef.current(user, true)}
             >
-              Cho vào
+              {t('meeting.waiting.let_in')}
             </AntButton>
           </div>
         ),
@@ -298,7 +304,7 @@ function Meeting() {
         notification.destroy(`waiting-${id}`);
       }
     });
-  }, [waitingUsers, canManageMembers]);
+  }, [waitingUsers, canManageMembers, t]);
 
   // Speaker / Gallery, like mobile (default speaker). Remembered per
   // device; storage may be unavailable, which only loses the preference.
@@ -377,7 +383,7 @@ function Meeting() {
       others.push({
         agUid: uid,
         userId: rosterMember?.userId,
-        fullName: rosterMember?.fullName ?? 'Đang tham gia…',
+        fullName: rosterMember?.fullName ?? t('meeting.tile.joining'),
         avatarUrl: rosterMember?.avatarUrl,
         role: rosterMember?.role,
         enableAudio: 0,
@@ -401,7 +407,9 @@ function Meeting() {
         ...owner,
         agUid: uid,
         fullName: `${owner.fullName ?? ''} (${
-          kind === 'aux' ? 'camera' : 'thiết bị khác'
+          kind === 'aux'
+            ? t('meeting.room.device_camera')
+            : t('meeting.room.device_other')
         })`,
         enableVideo: uidVideoOff[uid] ? 0 : 1,
         enableAudio: kind === 'aux' ? 0 : 1,
@@ -424,7 +432,8 @@ function Meeting() {
           // My own tile keeps my camera while I share: previewing the
           // screen being shared mirrored it into itself.
           enableVideo={
-            (!isLocal && user.agUid !== undefined &&
+            (!isLocal &&
+            user.agUid !== undefined &&
             uidVideoOff[user.agUid] !== undefined
               ? !uidVideoOff[user.agUid]
               : user.enableVideo === 1) ||
@@ -461,9 +470,7 @@ function Meeting() {
         user.agUid &&
         parseAgUid(user.agUid).kind === 'main'
       ) {
-        actions.push(
-          user.agUid === spotlightUid ? 'unspotlight' : 'spotlight',
-        );
+        actions.push(user.agUid === spotlightUid ? 'unspotlight' : 'spotlight');
       }
       return actions;
     };
@@ -488,7 +495,9 @@ function Meeting() {
           whiteboard && (
             <Suspense
               fallback={
-                <p className="meeting-stage-hint">Đang mở bảng trắng…</p>
+                <p className="meeting-stage-hint">
+                  {t('meeting.whiteboard.opening')}
+                </p>
               }
             >
               <Whiteboard
@@ -548,6 +557,7 @@ function Meeting() {
     meetingDetail?.user?.userId,
     bubbles,
     removeBubble,
+    t,
   ]);
 
   const myUid = meetingDetail?.user?.agUid;
@@ -597,8 +607,8 @@ function Meeting() {
       }
     } catch (_) {
       notification.error({
-        message: 'Không thực hiện được thao tác',
-        description: 'Bạn có thể không đủ quyền, hoặc người này đã rời phòng.',
+        message: t('meeting.participants.action_failed'),
+        description: t('meeting.participants.action_failed_desc'),
         placement: 'top',
       });
     }
@@ -606,15 +616,14 @@ function Meeting() {
 
   const onMuteAll = () => {
     Modal.confirm({
-      title: 'Tắt micro tất cả',
-      content:
-        'Tắt micro của mọi thành viên (trừ Host và Co-host)? Mọi người vẫn tự bật lại được.',
-      okText: 'Tắt micro tất cả',
-      cancelText: 'Hủy',
+      title: t('meeting.participants.mute_all_title'),
+      content: t('meeting.participants.mute_all_confirm'),
+      okText: t('meeting.participants.mute_all_title'),
+      cancelText: t('common.cancel'),
       onOk: () =>
         muteAllMembers().catch(() =>
           notification.error({
-            message: 'Không tắt được micro của mọi người',
+            message: t('meeting.participants.mute_all_failed'),
             placement: 'top',
           }),
         ),
@@ -678,7 +687,7 @@ function Meeting() {
       const link = meetingDetail?.room?.joinUrl;
       if (!link) {
         notification.warning({
-          message: 'Cuộc họp chưa có link mời',
+          message: t('meeting.participants.no_invite_link'),
           placement: 'top',
         });
         return;
@@ -687,7 +696,7 @@ function Meeting() {
         .writeText(link)
         .then(() =>
           notification.success({
-            message: 'Đã sao chép link mời',
+            message: t('meeting.participants.link_copied'),
             placement: 'top',
           }),
         )
@@ -702,7 +711,7 @@ function Meeting() {
               <button
                 type="button"
                 className="meeting-users-round primary"
-                title="Thêm người"
+                title={t('meeting.participants.add_people')}
                 onClick={() => setOpenAddMember(true)}
               >
                 <Icon name="meetingUserPlus" />
@@ -711,7 +720,7 @@ function Meeting() {
             <button
               type="button"
               className="meeting-users-round"
-              title="Sao chép link mời"
+              title={t('meeting.participants.copy_link')}
               onClick={copyInviteLink}
             >
               <Icon name="meetingLink" />
@@ -724,7 +733,7 @@ function Meeting() {
                 onChange={updateRoomSettings}
               >
                 <button type="button" className="meeting-users-pill">
-                  Quyền
+                  {t('meeting.participants.permissions_pill')}
                 </button>
               </RoomPermissions>
               <button
@@ -732,15 +741,15 @@ function Meeting() {
                 className="meeting-users-pill"
                 onClick={onMuteAll}
               >
-                Mute all
+                {t('meeting.participants.mute_all_pill')}
               </button>
             </div>
           )}
         </div>
-        {section('HOST', hosts)}
-        {section('CO-HOST', cohosts)}
-        {section('NGƯỜI THAM DỰ', joinedUsers)}
-        {section('ĐÃ THÊM VÀO PHÒNG', notJoinedUsers, true)}
+        {section(t('meeting.participants.host_section'), hosts)}
+        {section(t('meeting.participants.co_host_section'), cohosts)}
+        {section(t('meeting.participants.in_meeting'), joinedUsers)}
+        {section(t('meeting.participants.added'), notJoinedUsers, true)}
       </div>
     );
 
@@ -749,8 +758,8 @@ function Meeting() {
         {waitingUsers.length === 0 && (
           <Typography.Text className="meeting-waiting-empty">
             {meetingDetail?.room?.waitingRoom === 1
-              ? 'Chưa có ai đang chờ'
-              : 'Phòng này không bật phòng chờ'}
+              ? t('meeting.waiting.none_waiting')
+              : t('meeting.waiting.disabled')}
           </Typography.Text>
         )}
         {waitingUsers.map((user) => (
@@ -762,14 +771,14 @@ function Meeting() {
                   size="small"
                   onClick={() => reviewRef.current(user, false)}
                 >
-                  Từ chối
+                  {t('meeting.waiting.decline')}
                 </AntButton>
                 <AntButton
                   size="small"
                   type="primary"
                   onClick={() => reviewRef.current(user, true)}
                 >
-                  Cho vào
+                  {t('meeting.waiting.let_in')}
                 </AntButton>
               </div>
             )}
@@ -780,15 +789,18 @@ function Meeting() {
 
     return (
       <div className="meeting-users-container">
-        <h3 className="meeting-users-container-title">Người tham dự</h3>
+        <h3 className="meeting-users-container-title">
+          {t('meeting.participants.title')}
+        </h3>
         <div className="meeting-users-container-tabs">
           <Segmented
             block
             options={MEETING_USER_TABS.map((tab) => ({
               ...tab,
-              label: `${tab.label} (${
-                tab.value === 'pending' ? waitingUsers.length : online.length
-              })`,
+              label: t(tab.label, {
+                count:
+                  tab.value === 'pending' ? waitingUsers.length : online.length,
+              }),
             }))}
             className="meeting-users-container-segmented"
             value={activeTab}
@@ -816,6 +828,7 @@ function Meeting() {
     selfSpeaking,
     roomSettings,
     updateRoomSettings,
+    t,
   ]);
 
   const recorder = useMeetingRecorder(meetingDetail?.room?.title);
@@ -912,21 +925,29 @@ function Meeting() {
             }}
           >
             {livestream.isLive && (
-              <span className="meeting-live-badge" title="Đang phát trực tiếp">
+              <span
+                className="meeting-live-badge"
+                title={t('meeting.room.live_badge_title')}
+              >
                 ● LIVE
               </span>
             )}
             {recorder.isRecording && (
-              <span className="meeting-rec-badge" title="Đang ghi cuộc họp">
+              <span
+                className="meeting-rec-badge"
+                title={t('meeting.room.rec_badge_title')}
+              >
                 ● REC <RecordingClock startedAt={recorder.startedAt} />
               </span>
             )}
             {!recorder.isRecording && recordingUids.length > 0 && (
               <span
                 className="meeting-rec-badge"
-                title={`${othersRecording || 'Một người tham dự'} đang ghi cuộc họp`}
+                title={t('meeting.room.others_recording_title', {
+                  name: othersRecording || t('meeting.room.someone'),
+                })}
               >
-                ● Đang được ghi
+                {t('meeting.room.being_recorded')}
               </span>
             )}
             <p>{meetingDetail?.room?.title}</p>
@@ -940,14 +961,16 @@ function Meeting() {
                 selectable: true,
                 selectedKeys: [viewMode],
                 items: [
-                  { key: 'speaker', label: 'Người nói' },
-                  { key: 'gallery', label: 'Lưới' },
-                  { key: 'large', label: 'Lưới lớn (7x7)' },
-                  { key: 'focus', label: 'Tập trung (chỉ nội dung chia sẻ)' },
+                  { key: 'speaker', label: t('meeting.layout.speaker_view') },
+                  { key: 'gallery', label: t('meeting.layout.grid') },
+                  { key: 'large', label: t('meeting.layout.large_grid') },
+                  { key: 'focus', label: t('meeting.layout.focus_view') },
                   { type: 'divider' },
                   {
                     key: 'self',
-                    label: hideSelf ? 'Hiện ô của tôi' : 'Ẩn ô của tôi',
+                    label: hideSelf
+                      ? t('meeting.layout.show_self')
+                      : t('meeting.layout.hide_self'),
                   },
                 ],
                 onClick: ({ key }) => {
@@ -957,12 +980,20 @@ function Meeting() {
               }}
             >
               <span>
-                <MenuItem icon="viewLayout" name="Bố cục" caret="down" />
+                <MenuItem
+                  icon="viewLayout"
+                  name={t('meeting.layout.menu')}
+                  caret="down"
+                />
               </span>
             </Dropdown>
             <MenuItem
               icon="fullScreen"
-              name={isFullScreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+              name={
+                isFullScreen
+                  ? t('meeting.room.exit_full_screen')
+                  : t('meeting.room.full_screen')
+              }
               onClick={() => {
                 if (!document.fullscreenElement) {
                   document.documentElement.requestFullscreen();
@@ -979,25 +1010,26 @@ function Meeting() {
           {companion && (
             <div className="meeting-companion-banner" role="status">
               <span>
-                Bạn đang tham gia thêm trên thiết bị này.
-                {!deviceAudio && ' Âm thanh đang tắt để tránh tiếng vọng.'}
+                {deviceAudio
+                  ? t('meeting.room.extra_device')
+                  : t('meeting.room.extra_device_muted')}
               </span>
               <button type="button" onClick={toggleDeviceAudio}>
-                {deviceAudio ? 'Tắt âm thanh' : 'Bật âm thanh'}
+                {deviceAudio
+                  ? t('meeting.room.audio_off')
+                  : t('meeting.room.audio_on')}
               </button>
             </div>
           )}
           {isReconnecting && (
             <div className="meeting-reconnecting" role="status">
               <span className="meeting-reconnecting-spinner" />
-              <span>Mất kết nối mạng. Đang kết nối lại…</span>
+              <span>{t('meeting.room.reconnecting')}</span>
               <button
                 type="button"
-                onClick={() =>
-                  isHost ? setOpenLeaveDialog(true) : leave()
-                }
+                onClick={() => (isHost ? setOpenLeaveDialog(true) : leave())}
               >
-                Rời phòng
+                {t('meeting.room.leave_room')}
               </button>
             </div>
           )}
@@ -1010,7 +1042,7 @@ function Meeting() {
           ) : (
             <div className="meeting-connecting">
               <span className="meeting-reconnecting-spinner" />
-              <p>Đang kết nối vào cuộc họp…</p>
+              <p>{t('meeting.room.connecting')}</p>
             </div>
           )}
           <div
@@ -1024,13 +1056,13 @@ function Meeting() {
           <div className="meeting-footer-group">
             <MenuItem
               icon={enableCamera ? 'cameraOn' : 'cameraOff'}
-              name="Camera"
+              name={t('meeting.toolbar.camera')}
               onClick={toggleCamera}
               locked={!enableCamera && !permissions.camera}
             />
             <MenuItem
               icon={enableMic ? 'micOn' : 'micOff'}
-              name="Âm thanh"
+              name={t('meeting.toolbar.audio')}
               onClick={toggleMic}
               locked={!enableMic && !permissions.mic}
             />
@@ -1039,14 +1071,20 @@ function Meeting() {
             {/* Local recording: host/co-host, or members if the room allows. */}
             <MenuItem
               icon="record"
-              name={recorder.isRecording ? 'Dừng ghi' : 'Ghi cuộc họp'}
+              name={
+                recorder.isRecording
+                  ? t('meeting.toolbar.stop_recording')
+                  : t('meeting.toolbar.record')
+              }
               locked={!recorder.isRecording && !permissions.record}
               onClick={() => {
                 if (recorder.isRecording) {
                   recorder.stop();
                 } else if (!permissions.record) {
                   notification.warning({
-                    message: 'Chủ phòng chưa cho phép ghi cuộc họp',
+                    message: t('meeting.room.not_allowed', {
+                      what: t('meeting.room.action_record'),
+                    }),
                     placement: 'top',
                   });
                 } else {
@@ -1056,12 +1094,18 @@ function Meeting() {
             />
             <MenuItem
               icon="shareScreen"
-              name={isSharing ? 'Dừng chia sẻ' : 'Chia sẻ màn hình'}
+              name={
+                isSharing
+                  ? t('meeting.toolbar.stop_share')
+                  : t('meeting.toolbar.share_screen')
+              }
               locked={!isSharing && !permissions.share}
               onClick={async () => {
                 if (!isSharing && !permissions.share) {
                   notification.warning({
-                    message: 'Chủ phòng chưa cho phép chia sẻ màn hình',
+                    message: t('meeting.room.not_allowed', {
+                      what: t('meeting.room.action_share_screen'),
+                    }),
                     placement: 'top',
                   });
                   return;
@@ -1071,8 +1115,7 @@ function Meeting() {
                 } else {
                   if (whiteboard) {
                     notification.warning({
-                      message:
-                        'Đang mở bảng trắng: đóng bảng trước khi chia sẻ màn hình',
+                      message: t('meeting.room.close_whiteboard_first'),
                       placement: 'top',
                     });
                     return;
@@ -1090,15 +1133,18 @@ function Meeting() {
             />
             <MenuItem
               icon="whiteboard"
-              name={whiteboard ? 'Đóng bảng trắng' : 'Bảng trắng'}
+              name={
+                whiteboard
+                  ? t('meeting.toolbar.close_whiteboard')
+                  : t('meeting.toolbar.whiteboard')
+              }
               locked={!whiteboard && !permissions.share}
               onClick={() => {
                 if (whiteboard) {
                   if (canControlWhiteboard) closeWhiteboard();
                   else {
                     notification.info({
-                      message:
-                        'Chỉ người mở bảng hoặc chủ phòng mới đóng được bảng trắng',
+                      message: t('meeting.whiteboard.only_owner_can_close'),
                       placement: 'top',
                     });
                   }
@@ -1106,14 +1152,16 @@ function Meeting() {
                 }
                 if (!permissions.share) {
                   notification.warning({
-                    message: 'Chủ phòng chưa cho phép chia sẻ nội dung',
+                    message: t('meeting.room.not_allowed', {
+                      what: t('meeting.room.action_share_content'),
+                    }),
                     placement: 'top',
                   });
                   return;
                 }
                 if (isSharing || remoteSharingUid !== undefined) {
                   notification.warning({
-                    message: 'Đang có người chia sẻ màn hình',
+                    message: t('meeting.room.someone_sharing'),
                     placement: 'top',
                   });
                   return;
@@ -1131,7 +1179,9 @@ function Meeting() {
                   </span>
                 }
                 name={
-                  livestream.isLive ? 'Đang phát trực tiếp' : 'Phát trực tiếp'
+                  livestream.isLive
+                    ? t('meeting.toolbar.livestreaming')
+                    : t('meeting.toolbar.livestream')
                 }
                 onClick={() => setOpenLivestreamDialog(true)}
               />
@@ -1152,18 +1202,22 @@ function Meeting() {
               <MenuItem
                 icon="emoji"
                 caret="up"
-                name="Thả cảm xúc"
+                name={t('meeting.toolbar.react')}
                 onClick={() => setOpenEmojiPicker(true)}
               />
             </EmojiPicker>
             <MenuItem
               icon="users"
-              name="Người tham dự"
+              name={t('meeting.toolbar.participants')}
               onClick={toggleShowMeetingUser}
             />
             <MenuItem
               icon="chat"
-              name={unreadChat > 0 ? `Chat (${unreadChat} tin mới)` : 'Chat'}
+              name={
+                unreadChat > 0
+                  ? t('meeting.toolbar.chat_unread', { count: unreadChat })
+                  : t('meeting.toolbar.chat')
+              }
               badge={unreadChat}
               onClick={toggleShowChat}
             />
@@ -1172,8 +1226,11 @@ function Meeting() {
               placement="top"
               menu={{
                 items: [
-                  { key: 'devices', label: 'Micrô, camera và loa' },
-                  { key: 'virtualBackground', label: 'Phông nền' },
+                  { key: 'devices', label: t('meeting.toolbar.devices') },
+                  {
+                    key: 'virtualBackground',
+                    label: t('meeting.toolbar.background'),
+                  },
                 ],
                 onClick: ({ key }) => {
                   if (key === 'devices') setOpenDeviceSettings(true);
@@ -1184,13 +1241,16 @@ function Meeting() {
               }}
             >
               <span className="meeting-footer-dropdown">
-                <MenuItem icon="meetingSetting" name="Cài đặt" />
+                <MenuItem
+                  icon="meetingSetting"
+                  name={t('meeting.toolbar.settings')}
+                />
               </span>
             </Dropdown>
           </div>
           <Button
             variant="primary"
-            title="Kết thúc"
+            title={t('meeting.toolbar.end')}
             className="meeting-footer-end"
             onClick={() => (isHost ? setOpenLeaveDialog(true) : leave())}
           />
@@ -1198,22 +1258,22 @@ function Meeting() {
         <Modal
           open={openLeaveDialog}
           onCancel={() => setOpenLeaveDialog(false)}
-          title="Thoát cuộc họp"
+          title={t('meeting.exit.title')}
           centered
           footer={null}
         >
           <Typography.Paragraph>
-            Kết thúc cuộc họp cho tất cả mọi người, hay chỉ mình bạn rời phòng?
+            {t('meeting.exit.host_message')}
           </Typography.Paragraph>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Button
               variant="primary"
-              title="Kết thúc cuộc họp cho mọi người"
+              title={t('meeting.exit.end_for_all_long')}
               onClick={end}
             />
             <Button
               variant="outline"
-              title="Rời phòng"
+              title={t('meeting.room.leave_room')}
               onClick={leave}
             />
           </div>

@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { EditMeetingDialog } from './components/EditMeetingDialog';
 import { MeetingCard } from './components/MeetingCard';
@@ -21,16 +22,21 @@ const { clipboard } = window.require('electron');
 
 type ListTab = 'live' | 'upcoming';
 
-const TABS: { key: ListTab; label: string; status: number; sort: string }[] = [
+const TABS: {
+  key: ListTab;
+  label: 'meeting.list.tab_live' | 'meeting.list.tab_upcoming';
+  status: number;
+  sort: string;
+}[] = [
   {
     key: 'live',
-    label: 'Live',
+    label: 'meeting.list.tab_live',
     status: MeetingStatus.GOING_ON,
     sort: 'm.created_at:desc',
   },
   {
     key: 'upcoming',
-    label: 'Sắp diễn ra',
+    label: 'meeting.list.tab_upcoming',
     status: MeetingStatus.NEW,
     sort: 'm.start_time:asc',
   },
@@ -58,6 +64,7 @@ function Meeting({
   openScheduleMeetingDialog,
   refreshKey,
 }: MeetingProps): JSX.Element {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { withLoading } = useLoading();
   const [tab, setTab] = useState<ListTab>('upcoming');
@@ -72,7 +79,7 @@ function Meeting({
 
   const load = useCallback(
     async (pageNumber: number, silent = false) => {
-      const { status, sort } = TABS.find((t) => t.key === tab)!;
+      const { status, sort } = TABS.find((item) => item.key === tab)!;
       requestId.current += 1;
       const id = requestId.current;
       if (!silent) setLoading(true);
@@ -136,12 +143,12 @@ function Meeting({
         navigate('/meeting/lobby', { state: { meetingId: meeting.id } });
       } catch (_) {
         notification.error({
-          message: 'Không bắt đầu được cuộc họp',
+          message: t('meeting.list.start_failed'),
           placement: 'top',
         });
       }
     },
-    [navigate, withLoading],
+    [navigate, t, withLoading],
   );
 
   // Already a member (the list only has my meetings): straight to the lobby.
@@ -151,36 +158,42 @@ function Meeting({
     [navigate],
   );
 
-  const onCopyLink = useCallback((meeting: MeetingListItem) => {
-    clipboard.writeText(meeting.joinUrl ?? '');
-    notification.success({
-      message: 'Đã sao chép liên kết mời',
-      placement: 'top',
-    });
-  }, []);
+  const onCopyLink = useCallback(
+    (meeting: MeetingListItem) => {
+      clipboard.writeText(meeting.joinUrl ?? '');
+      notification.success({
+        message: t('meeting.list.link_copied'),
+        placement: 'top',
+      });
+    },
+    [t],
+  );
 
-  const onDelete = useCallback((meeting: MeetingListItem) => {
-    Modal.confirm({
-      title: 'Xóa cuộc họp?',
-      content: `"${meeting.title}" sẽ bị xóa khỏi danh sách của mọi người.`,
-      okText: 'Xóa',
-      okButtonProps: { danger: true },
-      cancelText: 'Hủy',
-      centered: true,
-      onOk: async () => {
-        try {
-          await MeetingService.deleteMeeting(meeting.id);
-          setMeetings((prev) => prev.filter((m) => m.id !== meeting.id));
-        } catch (_) {
-          notification.error({
-            message: 'Không xóa được cuộc họp',
-            description: 'Cuộc họp đang diễn ra phải được kết thúc trước.',
-            placement: 'top',
-          });
-        }
-      },
-    });
-  }, []);
+  const onDelete = useCallback(
+    (meeting: MeetingListItem) => {
+      Modal.confirm({
+        title: t('meeting.list.delete_title'),
+        content: t('meeting.list.delete_message', { title: meeting.title }),
+        okText: t('common.delete'),
+        okButtonProps: { danger: true },
+        cancelText: t('common.cancel'),
+        centered: true,
+        onOk: async () => {
+          try {
+            await MeetingService.deleteMeeting(meeting.id);
+            setMeetings((prev) => prev.filter((m) => m.id !== meeting.id));
+          } catch (_) {
+            notification.error({
+              message: t('meeting.list.delete_failed'),
+              description: t('meeting.list.delete_failed_live'),
+              placement: 'top',
+            });
+          }
+        },
+      });
+    },
+    [t],
+  );
 
   const onSaveEdit = async (title: string, description: string) => {
     if (!editing) return;
@@ -196,7 +209,7 @@ function Meeting({
       setEditing(undefined);
     } catch (_) {
       notification.error({
-        message: 'Không lưu được thay đổi',
+        message: t('meeting.list.save_failed'),
         placement: 'top',
       });
     }
@@ -213,9 +226,9 @@ function Meeting({
     if (failed && meetings.length === 0) {
       return (
         <div className="meetings-state">
-          <span>Không tải được danh sách cuộc họp</span>
+          <span>{t('meeting.list.load_failed')}</span>
           <button type="button" onClick={() => load(1)}>
-            Thử lại
+            {t('common.retry')}
           </button>
         </div>
       );
@@ -223,7 +236,7 @@ function Meeting({
     if (meetings.length === 0) {
       return (
         <div className="meetings-state">
-          <span>Không có cuộc họp nào</span>
+          <span>{t('meeting.list.empty')}</span>
         </div>
       );
     }
@@ -260,16 +273,16 @@ function Meeting({
     <div className="meetings-page">
       <div className="meetings-list">
         <div className="meetings-segment" role="tablist">
-          {TABS.map((t) => (
+          {TABS.map((item) => (
             <button
-              key={t.key}
+              key={item.key}
               type="button"
               role="tab"
-              aria-selected={tab === t.key}
-              className={tab === t.key ? 'active' : ''}
-              onClick={() => setTab(t.key)}
+              aria-selected={tab === item.key}
+              className={tab === item.key ? 'active' : ''}
+              onClick={() => setTab(item.key)}
             >
-              {t.label}
+              {t(item.label)}
             </button>
           ))}
         </div>
@@ -281,15 +294,15 @@ function Meeting({
         <div className="meetings-actions-row">
           <button type="button" onClick={openCreateMeetingDialog}>
             <Icon name="meetingNew" />
-            <span>New meeting</span>
+            <span>{t('meeting.list.new_meeting')}</span>
           </button>
           <button type="button" onClick={openJoinMeetingDialog}>
             <Icon name="meetingJoin" />
-            <span>Join meeting</span>
+            <span>{t('meeting.list.join_meeting')}</span>
           </button>
           <button type="button" onClick={openScheduleMeetingDialog}>
             <Icon name="meetingSchedule" />
-            <span>Schedule</span>
+            <span>{t('meeting.list.schedule')}</span>
           </button>
         </div>
       </div>

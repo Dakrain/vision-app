@@ -1,4 +1,5 @@
 import { Modal } from 'antd';
+import { useTranslation } from 'react-i18next';
 import './Setting.scss';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 
 /** "Bạn có chắc chắn muốn đăng xuất không?" */
 export function LogoutDialog({ open, onCancel, onConfirm }: Props) {
+  const { t } = useTranslation();
   return (
     <Modal
       open={open}
@@ -21,21 +23,21 @@ export function LogoutDialog({ open, onCancel, onConfirm }: Props) {
       className="settings-dialog"
     >
       <div className="settings-confirm">
-        <p>Bạn có chắc chắn muốn đăng xuất không?</p>
+        <p>{t('account.logout.confirm_message')}</p>
         <div className="settings-confirm-actions">
           <button
             type="button"
             className="settings-text-btn"
             onClick={onCancel}
           >
-            Hủy
+            {t('common.cancel')}
           </button>
           <button
             type="button"
             className="settings-btn primary"
             onClick={onConfirm}
           >
-            Đăng xuất
+            {t('account.tab.logout')}
           </button>
         </div>
       </div>

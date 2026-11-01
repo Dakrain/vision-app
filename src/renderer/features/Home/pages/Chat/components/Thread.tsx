@@ -27,6 +27,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { uploadAttachment } from '@/shared/utils/mediaUpload';
 import {
   dayDivider,
@@ -62,6 +63,7 @@ interface Props {
 }
 
 export function Thread({ conversation, onForward }: Props) {
+  const { t } = useTranslation();
   const { me } = useSocial();
   const call = useCall();
   const online = useOnline();
@@ -164,7 +166,7 @@ export function Thread({ conversation, onForward }: Props) {
   );
   const nameOf = (m: Message) =>
     isMine(m, me)
-      ? 'bạn'
+      ? t('chat.screen.you')
       : (m.senderName ??
         profileOf(conversation, m.senderBackendId).displayName ??
         title);
@@ -206,8 +208,7 @@ export function Thread({ conversation, onForward }: Props) {
     replyTo
       ? {
           id: replyTo.id,
-          senderName:
-            nameOf(replyTo) === 'bạn' ? me.displayName : nameOf(replyTo),
+          senderName: isMine(replyTo, me) ? me.displayName : nameOf(replyTo),
           type: replyTo.type,
           text: messageSummary(replyTo),
         }
@@ -254,7 +255,10 @@ export function Thread({ conversation, onForward }: Props) {
       };
       setFailed((list) => [...list, entry]);
     };
-    const hide = toast.loading({ content: 'Đang gửi tệp…', key: localId });
+    const hide = toast.loading({
+      content: t('chat.screen.sending_file'),
+      key: localId,
+    });
     try {
       await attempt();
     } catch (_) {
@@ -275,11 +279,11 @@ export function Thread({ conversation, onForward }: Props) {
           break;
         case 'copy':
           clipboard.writeText(m.text ?? '');
-          confirm('Đã sao chép');
+          confirm(t('common.copied'));
           break;
         case 'hide':
           await hideMessageForMe(conversation.id, m.id, me);
-          confirm('Đã gỡ tin nhắn phía bạn');
+          confirm(t('chat.actions.hidden'));
           break;
         case 'recall':
           await recallMessage(
@@ -287,12 +291,12 @@ export function Thread({ conversation, onForward }: Props) {
             m.id,
             visible[visible.length - 1]?.id === m.id,
           );
-          confirm('Đã thu hồi tin nhắn');
+          confirm(t('chat.actions.recalled'));
           break;
         default:
       }
     } catch (_) {
-      toast.error('Không thực hiện được, vui lòng thử lại');
+      toast.error(t('chat.actions.failed'));
     }
   };
 
@@ -334,16 +338,22 @@ export function Thread({ conversation, onForward }: Props) {
             trigger={['click']}
             menu={{
               items: [
-                { key: 'photo', label: 'Đổi ảnh nhóm' },
+                { key: 'photo', label: t('chat.group_photo.change') },
                 ...(conversation.groupAvatar
-                  ? [{ key: 'remove', label: 'Xóa ảnh nhóm', danger: true }]
+                  ? [
+                      {
+                        key: 'remove',
+                        label: t('chat.group_photo.remove'),
+                        danger: true,
+                      },
+                    ]
                   : []),
               ],
               onClick: ({ key }) => {
                 if (key === 'photo') groupPhotoInput.current?.click();
                 else
                   setGroupAvatar(conversation.id, null).catch(() =>
-                    toast.error('Không xóa được ảnh nhóm'),
+                    toast.error(t('chat.group_photo.remove_failed')),
                   );
               },
             }}
@@ -351,7 +361,7 @@ export function Thread({ conversation, onForward }: Props) {
             <button
               type="button"
               className="chat-thread-group"
-              title="Ảnh nhóm"
+              title={t('chat.group_photo.title')}
             >
               <ChatAvatar
                 conversation={conversation}
@@ -360,7 +370,11 @@ export function Thread({ conversation, onForward }: Props) {
               />
               <div className="chat-thread-title">
                 <b>{title}</b>
-                <small>{conversation.memberBackendIds.length} thành viên</small>
+                <small>
+                  {t('chat.screen.member_count', {
+                    count: conversation.memberBackendIds.length,
+                  })}
+                </small>
               </div>
             </button>
           </Dropdown>
@@ -385,15 +399,15 @@ export function Thread({ conversation, onForward }: Props) {
             const file = e.target.files?.[0];
             e.target.value = '';
             if (!file) return;
-            const hide = toast.loading('Đang tải ảnh nhóm…', 0);
+            const hide = toast.loading(t('chat.group_photo.uploading'), 0);
             try {
               await setGroupAvatar(
                 conversation.id,
                 await uploadAttachment(file),
               );
-              toast.success('Đã đổi ảnh nhóm');
+              toast.success(t('chat.group_photo.changed'));
             } catch (_) {
-              toast.error('Không đổi được ảnh nhóm');
+              toast.error(t('chat.group_photo.change_failed'));
             } finally {
               hide();
             }
@@ -403,14 +417,14 @@ export function Thread({ conversation, onForward }: Props) {
           <div className="chat-thread-actions">
             <button
               type="button"
-              title="Gọi thoại"
+              title={t('chat.header.voice_call')}
               onClick={() => startCall('audio')}
             >
               <Icon name="chatPhone" />
             </button>
             <button
               type="button"
-              title="Gọi video"
+              title={t('chat.header.video_call')}
               onClick={() => startCall('video')}
             >
               <Icon name="chatVideo" />
@@ -420,7 +434,7 @@ export function Thread({ conversation, onForward }: Props) {
       </div>
       {!online && (
         <div className="chat-offline" role="status">
-          Không có kết nối internet
+          {t('chat.screen.offline')}
         </div>
       )}
 
@@ -488,9 +502,9 @@ export function Thread({ conversation, onForward }: Props) {
                         className={`chat-ticks ${status}`}
                         title={
                           {
-                            sending: 'Đang gửi',
-                            sent: 'Đã gửi',
-                            seen: 'Đã xem',
+                            sending: t('chat.status.sending'),
+                            sent: t('chat.status.sent'),
+                            seen: t('chat.status.seen'),
                           }[status]
                         }
                       >
@@ -527,14 +541,16 @@ export function Thread({ conversation, onForward }: Props) {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Gửi lại
+                    {t('chat.outbox.resend')}
                   </button>
                   <MessageBubble message={f.preview} mine onAction={() => {}} />
                   <span className="chat-failed-mark" aria-hidden>
                     !
                   </span>
                 </div>
-                <span className="chat-failed-text">Không thể gửi tin nhắn</span>
+                <span className="chat-failed-text">
+                  {t('chat.outbox.send_failed')}
+                </span>
               </div>
             </div>
           ))}
@@ -543,7 +559,7 @@ export function Thread({ conversation, onForward }: Props) {
           <button
             type="button"
             className="chat-jump"
-            aria-label="Xem tin nhắn mới nhất"
+            aria-label={t('chat.screen.jump_latest')}
             onClick={scrollToBottom}
           >
             ↓{unseen > 0 && <span>{unseen > 99 ? '99+' : unseen}</span>}

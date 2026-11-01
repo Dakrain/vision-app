@@ -1,6 +1,7 @@
 import AgoraEngineService from '@/renderer/shared/services/Agora/AgoraEngineService';
 import { Modal, Select } from 'antd';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { saveLobbyPrefs } from '../../../MeetingLobby/prefs';
 import './DeviceSettingsDialog.scss';
 
@@ -20,6 +21,7 @@ type Props = {
  * for the next lobby, like the lobby's own choice.
  */
 export function DeviceSettingsDialog({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const [cameras, setCameras] = useState<Device[]>([]);
   const [mics, setMics] = useState<Device[]>([]);
   const [speakers, setSpeakers] = useState<Device[]>([]);
@@ -61,27 +63,45 @@ export function DeviceSettingsDialog({ open, onClose }: Props) {
   return (
     <Modal
       open={open}
-      title="Micrô, camera và loa"
+      title={t('meeting.devices.title')}
       footer={null}
       onCancel={onClose}
       centered
       className="device-settings"
     >
-      {field('Micrô', micId, mics, 'Không tìm thấy micrô', (id) => {
-        AgoraEngineService.getAudioDeviceManager().setRecordingDevice(id);
-        setMicId(id);
-        saveLobbyPrefs({ micId: id });
-      })}
-      {field('Camera', cameraId, cameras, 'Không tìm thấy camera', (id) => {
-        AgoraEngineService.getVideoDeviceManager().setDevice(id);
-        setCameraId(id);
-        saveLobbyPrefs({ cameraId: id });
-      })}
-      {field('Loa', speakerId, speakers, 'Không tìm thấy loa', (id) => {
-        AgoraEngineService.getAudioDeviceManager().setPlaybackDevice(id);
-        setSpeakerId(id);
-        saveLobbyPrefs({ speakerId: id });
-      })}
+      {field(
+        t('meeting.devices.mic'),
+        micId,
+        mics,
+        t('meeting.devices.no_mic'),
+        (id) => {
+          AgoraEngineService.getAudioDeviceManager().setRecordingDevice(id);
+          setMicId(id);
+          saveLobbyPrefs({ micId: id });
+        },
+      )}
+      {field(
+        t('meeting.devices.camera'),
+        cameraId,
+        cameras,
+        t('meeting.devices.no_camera'),
+        (id) => {
+          AgoraEngineService.getVideoDeviceManager().setDevice(id);
+          setCameraId(id);
+          saveLobbyPrefs({ cameraId: id });
+        },
+      )}
+      {field(
+        t('meeting.devices.speaker'),
+        speakerId,
+        speakers,
+        t('meeting.devices.no_speaker'),
+        (id) => {
+          AgoraEngineService.getAudioDeviceManager().setPlaybackDevice(id);
+          setSpeakerId(id);
+          saveLobbyPrefs({ speakerId: id });
+        },
+      )}
     </Modal>
   );
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Avatar } from '@/shared/components';
+import i18n from '@/renderer/i18n';
 import {
   type Conversation,
   conversationTitle,
@@ -113,7 +114,7 @@ export function ChatAvatar({ conversation, me, size }: Props) {
         <Avatar
           url={conversation.groupAvatar}
           radius={size / 2}
-          name={conversation.groupName ?? 'Nhóm'}
+          name={conversation.groupName ?? i18n.t('chat.conversations.group')}
         />
       );
     }

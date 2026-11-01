@@ -1,14 +1,32 @@
 import { RoomSettings } from '@/renderer/shared/types/meeting';
 import { notification, Popover, Switch } from 'antd';
 import { ReactNode, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './RoomPermissions.scss';
 
-const ITEMS: { key: keyof RoomSettings; label: string; fallback: number }[] = [
-  { key: 'muteAllAudio', label: 'Bật micro', fallback: 1 },
-  { key: 'muteAllVideo', label: 'Bật camera', fallback: 0 },
-  { key: 'muteAllChat', label: 'Chat', fallback: 1 },
-  { key: 'multipleShareScreen', label: 'Chia sẻ màn hình', fallback: 0 },
-  { key: 'isRecording', label: 'Ghi cuộc họp', fallback: 0 },
+const ITEMS: {
+  key: keyof RoomSettings;
+  label:
+    | 'meeting.permission.mic_title'
+    | 'meeting.permission.camera_title'
+    | 'meeting.permission.chat_title'
+    | 'meeting.permission.share_title'
+    | 'meeting.permission.record_title';
+  fallback: number;
+}[] = [
+  { key: 'muteAllAudio', label: 'meeting.permission.mic_title', fallback: 1 },
+  {
+    key: 'muteAllVideo',
+    label: 'meeting.permission.camera_title',
+    fallback: 0,
+  },
+  { key: 'muteAllChat', label: 'meeting.permission.chat_title', fallback: 1 },
+  {
+    key: 'multipleShareScreen',
+    label: 'meeting.permission.share_title',
+    fallback: 0,
+  },
+  { key: 'isRecording', label: 'meeting.permission.record_title', fallback: 0 },
 ];
 
 interface Props {
@@ -22,6 +40,7 @@ interface Props {
  * saves on its own and everyone in the room picks the change up via RTM.
  */
 export function RoomPermissions({ settings, onChange, children }: Props) {
+  const { t } = useTranslation();
   const [saving, setSaving] = useState<keyof RoomSettings>();
 
   const toggle = async (key: keyof RoomSettings, allowed: boolean) => {
@@ -30,7 +49,7 @@ export function RoomPermissions({ settings, onChange, children }: Props) {
       await onChange({ [key]: allowed ? 1 : 0 });
     } catch (_) {
       notification.error({
-        message: 'Không đổi được quyền, vui lòng thử lại',
+        message: t('meeting.room.permission_change_failed'),
         placement: 'top',
       });
     } finally {
@@ -41,11 +60,11 @@ export function RoomPermissions({ settings, onChange, children }: Props) {
   const content = (
     <div className="room-permissions">
       <div className="room-permissions-hint">
-        Người tham dự được phép (Host và Co-host luôn được phép):
+        {t('meeting.participants.permissions_hint')}
       </div>
       {ITEMS.map(({ key, label, fallback }) => (
         <div key={key} className="room-permissions-row">
-          <span>{label}</span>
+          <span>{t(label)}</span>
           <Switch
             size="small"
             checked={(settings?.[key] ?? fallback) === 1}
@@ -60,7 +79,7 @@ export function RoomPermissions({ settings, onChange, children }: Props) {
   return (
     <Popover
       content={content}
-      title="Quyền của người tham dự"
+      title={t('meeting.participants.permissions')}
       trigger="click"
       placement="bottomRight"
     >

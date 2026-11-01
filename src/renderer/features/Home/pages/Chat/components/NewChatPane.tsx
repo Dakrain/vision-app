@@ -2,6 +2,7 @@ import { Avatar } from '@/shared/components';
 import { MeetingService } from '@/shared/services/Meeting';
 import type { Contact } from '@/shared/services/Friend/FriendService';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { matches } from '../hooks';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 /** "Tin nhắn mới": type a name (contacts) or an email (anyone) after "Đến:". */
 export function NewChatPane({ people, myId, onPick }: Props) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [remote, setRemote] = useState<Contact[]>([]);
   const [searching, setSearching] = useState(false);
@@ -67,11 +69,11 @@ export function NewChatPane({ people, myId, onPick }: Props) {
     <div className="chat-thread">
       <div className="chat-thread-header to">
         <label className="chat-to" htmlFor="chat-to-input">
-          <span>Đến:</span>
+          <span>{t('chat.new_message.to')}</span>
           <input
             id="chat-to-input"
             ref={inputRef}
-            placeholder="Nhập tên liên hệ hoặc email"
+            placeholder={t('chat.new_message.to_placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -85,8 +87,8 @@ export function NewChatPane({ people, myId, onPick }: Props) {
           <div className="chat-to-suggestions">
             <div className="chat-to-empty">
               {searching
-                ? 'Đang tìm…'
-                : 'Không tìm thấy liên hệ. Người chưa có trong danh bạ: nhập email của họ.'}
+                ? t('chat.new_message.searching')
+                : t('chat.new_message.no_match')}
             </div>
           </div>
         )}

@@ -25,6 +25,7 @@ import appPackage from '../../release/app/package.json';
 import MenuBuilder from './menu';
 import { disposeShareOverlay, registerShareOverlay } from './shareOverlay';
 import { resolveHtmlPath } from './util';
+import { tMain } from './i18n';
 
 const WINDOW_SIZE = {
   login: {
@@ -198,9 +199,14 @@ ipcMain.handle('custom-backgrounds:list', async () => {
 ipcMain.handle('custom-backgrounds:add', async () => {
   const window = BrowserWindow.getFocusedWindow();
   const options: OpenDialogOptions = {
-    title: 'Chọn ảnh làm phông nền',
+    title: tMain('shared.main.pick_background_title'),
     properties: ['openFile'],
-    filters: [{ name: 'Ảnh', extensions: ['jpg', 'jpeg', 'png'] }],
+    filters: [
+      {
+        name: tMain('shared.main.image_filter'),
+        extensions: ['jpg', 'jpeg', 'png'],
+      },
+    ],
   };
   const result = window
     ? await dialog.showOpenDialog(window, options)
@@ -285,7 +291,7 @@ ipcMain.handle('recording:folder-info', (_, folder?: string) => {
 ipcMain.handle('recording:pick-folder', async (event, current?: string) => {
   const window = BrowserWindow.fromWebContents(event.sender);
   const options: OpenDialogOptions = {
-    title: 'Chọn thư mục lưu bản ghi',
+    title: tMain('shared.main.pick_recording_folder_title'),
     defaultPath: current || defaultRecordingFolder(),
     properties: ['openDirectory', 'createDirectory'],
   };
@@ -324,7 +330,7 @@ ipcMain.handle(
       }
     }
     const options: SaveDialogOptions = {
-      title: 'Lưu bản ghi cuộc họp',
+      title: tMain('shared.main.save_recording_title'),
       defaultPath: path.join(
         app.getPath('videos'),
         `${safeName}${path.extname(file)}`,

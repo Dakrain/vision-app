@@ -8,6 +8,7 @@ import {
   IRtcEngineEventHandler,
   UserOfflineReasonType,
 } from 'agora-electron-sdk';
+import i18n from '@/renderer/i18n';
 import { notification } from 'antd';
 import {
   createContext,
@@ -147,15 +148,15 @@ const endText = (call: Call, isCaller: boolean) => {
   switch (call.status) {
     case 'rejected':
       return call.endReason === 'busy'
-        ? 'Người nhận đang bận'
-        : 'Người nhận từ chối cuộc gọi';
+        ? i18n.t('call.errors.callee_busy')
+        : i18n.t('call.outgoing.declined');
     case 'missed':
       // The callee gets the "Cuộc gọi nhỡ" notification from call:missed.
-      return isCaller ? 'Không thể nhận cuộc gọi' : undefined;
+      return isCaller ? i18n.t('call.outgoing.unanswered') : undefined;
     case 'cancelled':
-      return isCaller ? undefined : 'Cuộc gọi đã hủy';
+      return isCaller ? undefined : i18n.t('call.trace.cancelled');
     default:
-      return 'Cuộc gọi đã kết thúc';
+      return i18n.t('call.outgoing.ended');
   }
 };
 
@@ -384,7 +385,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
             () => {
               if (uiRef.current.call?.id !== call.id) return;
               notification.info({
-                message: 'Mất kết nối với người kia',
+                message: i18n.t('call.in_call.peer_lost'),
                 placement: 'top',
               });
               sendEnd('end', 'peer_lost');
@@ -398,7 +399,10 @@ export function CallProvider({ children }: { children: ReactNode }) {
           } else if (state === ConnectionStateType.ConnectionStateConnected) {
             setUi((s) => ({ ...s, reconnecting: false }));
           } else if (state === ConnectionStateType.ConnectionStateFailed) {
-            notification.info({ message: 'Mất kết nối', placement: 'top' });
+            notification.info({
+              message: i18n.t('call.in_call.connection_lost'),
+              placement: 'top',
+            });
             sendEnd(
               uiRef.current.phase === 'outgoing' ? 'cancel' : 'end',
               'connection_lost',
@@ -452,17 +456,19 @@ export function CallProvider({ children }: { children: ReactNode }) {
   const showMissed = useCallback((call: Call) => {
     if (missedShownRef.current.has(call.id)) return;
     missedShownRef.current.add(call.id);
-    const name = call.caller.fullName || 'Một người';
-    const description = `${name} đã gọi cho bạn${
-      call.endReason === 'busy' ? ' lúc bạn đang bận' : ''
-    }`;
+    const name = call.caller.fullName || i18n.t('call.missed.someone');
+    const description =
+      call.endReason === 'busy'
+        ? i18n.t('call.missed.called_you_busy', { name })
+        : i18n.t('call.missed.called_you', { name });
+    const title = i18n.t('call.trace.missed');
     notification.info({
-      message: 'Cuộc gọi nhỡ',
+      message: title,
       description,
       placement: 'topRight',
       duration: 8,
     });
-    osNotify('Cuộc gọi nhỡ', description);
+    osNotify(title, description);
   }, []);
 
   const toConnected = useCallback(
@@ -506,8 +512,12 @@ export function CallProvider({ children }: { children: ReactNode }) {
           }
           incomingNoticeRef.current?.close();
           incomingNoticeRef.current = osNotify(
-            call.type === 'video' ? 'Cuộc gọi video đến' : 'Cuộc gọi thoại đến',
-            `${call.caller.fullName || 'Một người'} đang gọi cho bạn`,
+            call.type === 'video'
+              ? i18n.t('call.incoming.video_title')
+              : i18n.t('call.incoming.voice_title'),
+            i18n.t('call.incoming.calling_you', {
+              name: call.caller.fullName || i18n.t('call.missed.someone'),
+            }),
             { attention: true },
           );
           setUi({
@@ -560,7 +570,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
         finishedRef.current.add(call.id);
         setUi(IDLE);
         notification.info({
-          message: 'Đã trả lời trên thiết bị khác',
+          message: i18n.t('call.in_call.answered_elsewhere'),
           placement: 'top',
         });
       } else if (cur.phase === 'connected' && media) {
@@ -657,7 +667,9 @@ export function CallProvider({ children }: { children: ReactNode }) {
       if (!myId) return;
       if (!isFree(uiRef.current.phase)) return;
       if (inMeetingRef.current) {
-        notification.warning({ message: 'Hãy rời cuộc họp trước khi gọi' });
+        notification.warning({
+          message: i18n.t('call.errors.leave_meeting_first'),
+        });
         return;
       }
       abortPlacingRef.current = false;
@@ -691,21 +703,23 @@ export function CallProvider({ children }: { children: ReactNode }) {
         setUi(IDLE);
         if (err.code === 'e_call_busy') {
           notification.info({
-            message: 'Người nhận đang bận',
+            message: i18n.t('call.errors.callee_busy'),
             placement: 'top',
           });
         } else if (err.code === 'e_call_already_in_call') {
-          notification.warning({ message: 'Bạn đang trong một cuộc gọi khác' });
+          notification.warning({
+            message: i18n.t('call.errors.already_in_call'),
+          });
           resync();
         } else {
-          notification.error({ message: 'Không gọi được' });
+          notification.error({ message: i18n.t('call.errors.call_failed') });
         }
         return;
       }
       const { call, media } = res;
       if (!call) {
         setUi(IDLE);
-        notification.error({ message: 'Không gọi được' });
+        notification.error({ message: i18n.t('call.errors.call_failed') });
         return;
       }
       noteServerTime(call);
@@ -750,7 +764,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
         acceptingRef.current = false;
         apply(err.call);
       } else {
-        notification.error({ message: 'Không vào được cuộc gọi' });
+        notification.error({ message: i18n.t('call.errors.join_failed') });
         resync();
       }
     } finally {

@@ -7,6 +7,7 @@ import {
 import { Dropdown, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { meetingDate, timeLabel } from '../meetingTime';
 
 interface Props {
@@ -26,6 +27,7 @@ export const MeetingCard = memo(function MeetingCard({
   onCopyLink,
   onDelete,
 }: Props) {
+  const { t } = useTranslation();
   const isHost =
     meeting.isHost === 1 || Number(meeting.role) === MeetingRole.HOST;
   const isLive = Number(meeting.status) === MeetingStatus.GOING_ON;
@@ -35,18 +37,18 @@ export const MeetingCard = memo(function MeetingCard({
     meeting.visionMeetingKey &&
     meeting.visionMeetingKey !== 'not_ready_for_meet'
       ? meeting.visionMeetingKey
-      : 'Có khi bắt đầu';
+      : t('meeting.list.key_on_start');
 
   const menuItems: MenuProps['items'] = [
-    ...(isHost ? [{ key: 'edit', label: 'Chỉnh sửa cuộc họp' }] : []),
+    ...(isHost ? [{ key: 'edit', label: t('meeting.list.edit_title') }] : []),
     ...(meeting.joinUrl
-      ? [{ key: 'copy', label: 'Sao chép liên kết mời' }]
+      ? [{ key: 'copy', label: t('meeting.list.copy_link') }]
       : []),
     // A running meeting has to be ended first (the API refuses).
     ...(isHost && !isLive
       ? [
           { type: 'divider' as const },
-          { key: 'delete', label: 'Xóa cuộc họp', danger: true },
+          { key: 'delete', label: t('meeting.list.delete'), danger: true },
         ]
       : []),
   ];
@@ -59,7 +61,7 @@ export const MeetingCard = memo(function MeetingCard({
           className="meeting-card-action"
           onClick={() => onStart(meeting)}
         >
-          Bắt đầu
+          {t('meeting.list.start')}
         </button>
       );
     }
@@ -70,14 +72,14 @@ export const MeetingCard = memo(function MeetingCard({
           className="meeting-card-action"
           onClick={() => onJoin(meeting)}
         >
-          Tham gia
+          {t('meeting.list.join')}
         </button>
       );
     }
     return (
-      <Tooltip title="Chủ phòng chưa bắt đầu cuộc họp">
+      <Tooltip title={t('meeting.list.not_started')}>
         <button type="button" className="meeting-card-action" disabled>
-          Tham gia
+          {t('meeting.list.join')}
         </button>
       </Tooltip>
     );
@@ -104,7 +106,7 @@ export const MeetingCard = memo(function MeetingCard({
             <button
               type="button"
               className="meeting-card-more"
-              aria-label="Tuỳ chọn"
+              aria-label={t('meeting.list.options')}
             >
               <Icon name="meetingDots" />
             </button>

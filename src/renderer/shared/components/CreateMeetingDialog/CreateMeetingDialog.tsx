@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useLoading from '../../hooks/useLoading';
@@ -100,6 +101,7 @@ export function CreateMeetingDialog({
   schedule = false,
   onScheduled,
 }: Props) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { withLoading } = useLoading();
@@ -178,7 +180,7 @@ export function CreateMeetingDialog({
     if (schedule && !isScheduled) {
       setTab('info');
       notification.warning({
-        message: 'Chọn ngày và giờ bắt đầu trong tương lai',
+        message: t('meeting.create.pick_future_time'),
         placement: 'top',
       });
       return;
@@ -189,7 +191,9 @@ export function CreateMeetingDialog({
           // Left empty, the server names it "Vision 20 Persional`s Meeting…".
           title:
             title.trim() ||
-            (user?.fullName ? `Cuộc họp của ${user.fullName}` : 'Cuộc họp'),
+            (user?.fullName
+              ? t('meeting.setup.default_title_of', { name: user.fullName })
+              : t('meeting.setup.default_title')),
           password: password.trim(),
           // 0/absent = start right away.
           startTime: isScheduled ? startTime : undefined,
@@ -223,7 +227,7 @@ export function CreateMeetingDialog({
 
       if (isScheduled) {
         notification.success({
-          message: 'Đã lên lịch cuộc họp',
+          message: t('meeting.create.scheduled'),
           placement: 'top',
         });
         onScheduled?.();
@@ -235,8 +239,8 @@ export function CreateMeetingDialog({
     } catch (_) {
       notification.error({
         message: isScheduled
-          ? 'Không lên lịch được cuộc họp'
-          : 'Không tạo được cuộc họp',
+          ? t('meeting.create.schedule_failed')
+          : t('meeting.create.create_failed'),
         placement: 'top',
       });
     }
@@ -247,32 +251,34 @@ export function CreateMeetingDialog({
   const infoTab = (
     <div className="setup-form">
       <label className="setup-field" htmlFor="setup-title">
-        <span>Chủ đề cuộc họp</span>
+        <span>{t('meeting.create.topic')}</span>
         <input
           id="setup-title"
           className="setup-input"
-          placeholder="Nhập chủ đề cuộc họp"
+          placeholder={t('meeting.create.topic_placeholder')}
           value={title}
           maxLength={255}
           onChange={(e) => setTitle(e.target.value)}
         />
       </label>
       <label className="setup-field" htmlFor="setup-password">
-        <span>Mật khẩu cuộc họp</span>
+        <span>{t('meeting.create.password')}</span>
         <input
           id="setup-password"
           className="setup-input"
-          placeholder="Bỏ trống nếu muốn hệ thống tự động tạo mật khẩu"
+          placeholder={t('meeting.create.password_placeholder')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
       <div className="setup-field">
-        <span>Thời gian bắt đầu</span>
+        <span>{t('meeting.create.start_time')}</span>
         <div className="setup-datetime">
           <DatePicker
             variant="borderless"
-            placeholder={schedule ? 'Chọn ngày' : 'Bây giờ'}
+            placeholder={
+              schedule ? t('meeting.create.pick_date') : t('meeting.create.now')
+            }
             format="DD/MM/YYYY"
             value={startDate}
             onChange={setStartDate}
@@ -280,7 +286,9 @@ export function CreateMeetingDialog({
           />
           <TimePicker
             variant="borderless"
-            placeholder={schedule ? 'Chọn giờ' : 'Bây giờ'}
+            placeholder={
+              schedule ? t('meeting.create.pick_time') : t('meeting.create.now')
+            }
             format="HH:mm"
             value={startClock}
             onChange={setStartClock}
@@ -288,17 +296,17 @@ export function CreateMeetingDialog({
         </div>
       </div>
       <div className="setup-field">
-        <span>Múi giờ</span>
+        <span>{t('meeting.create.time_zone')}</span>
         <input className="setup-input" value={timeZoneLabel()} disabled />
       </div>
       <div className="setup-field">
-        <span>Chủ trì cuộc họp</span>
+        <span>{t('meeting.create.host')}</span>
         <input className="setup-input" value={user?.fullName ?? ''} disabled />
       </div>
       <div className="setup-field">
-        <span>Mời thành viên tham gia cuộc họp của bạn</span>
+        <span>{t('meeting.create.invite')}</span>
         <UserPicker
-          placeholder="Nhập email của thành viên"
+          placeholder={t('meeting.create.invite_placeholder')}
           value={invitees}
           onChange={setInvitees}
           excludeIds={[...hostIds, ...cohosts.map((u) => u.id!)]}
@@ -310,12 +318,12 @@ export function CreateMeetingDialog({
   const settingsTab = (
     <div className="setup-form">
       <Section
-        title="Cài đặt cho người tham dự"
-        description="Cài đặt người tham dự cho phép Host kiểm soát các quyền của người tham dự trong cuộc họp"
+        title={t('meeting.create.participant_settings')}
+        description={t('meeting.create.participant_settings_desc')}
       >
         <div className="setup-rows">
           <div className="setup-row">
-            <span>Số lượng người tối đa</span>
+            <span>{t('meeting.create.max_participants')}</span>
             <span className="setup-value">
               <InputNumber
                 variant="borderless"
@@ -329,55 +337,55 @@ export function CreateMeetingDialog({
             </span>
           </div>
           <SwitchRow
-            label="Kích hoạt phòng chờ xét duyệt"
+            label={t('meeting.create.waiting_room')}
             checked={waitingRoom}
             onChange={setWaitingRoom}
           />
           <SwitchRow
-            label="Được phép mở Micro"
+            label={t('meeting.create.allow_mic')}
             checked={enableMic}
             onChange={setEnableMic}
           />
           <SwitchRow
-            label="Được phép mở Webcam"
+            label={t('meeting.create.allow_camera')}
             checked={enableCamera}
             onChange={setEnableCamera}
           />
           <SwitchRow
-            label="Được phép Ghi âm"
+            label={t('meeting.create.allow_record')}
             checked={enableRecord}
             onChange={setEnableRecord}
           />
           <SwitchRow
-            label="Được phép Chat"
+            label={t('meeting.create.allow_chat')}
             checked={enableChat}
             onChange={setEnableChat}
           />
           <SwitchRow
-            label="Cho phép người bị xóa tham gia lại"
+            label={t('meeting.create.allow_rejoin')}
             checked={allowRejoin}
             onChange={setAllowRejoin}
           />
         </div>
       </Section>
       <Section
-        title="Trao quyền Co-host"
-        description="Co-host sẽ có quyền kiểm soát như Host nếu như Host không còn ở trong phòng. Trao quyền Co-host bằng cách thêm email của người được trao quyền"
+        title={t('meeting.create.co_host')}
+        description={t('meeting.create.co_host_desc')}
       >
         <UserPicker
-          placeholder="Nhập email người được trao quyền"
+          placeholder={t('meeting.create.co_host_placeholder')}
           value={cohosts}
           onChange={setCohosts}
           excludeIds={[...hostIds, ...invitees.map((u) => u.id!)]}
         />
       </Section>
       <Section
-        title="Ghi âm"
-        description="Ghi âm cho phép người dùng kiểm soát file ghi âm của mình"
+        title={t('meeting.create.recording')}
+        description={t('meeting.create.recording_desc')}
       >
         <div className="setup-folder">
           <div className="setup-folder-label">
-            <span>Lưu bản ghi âm của tôi ở</span>
+            <span>{t('meeting.create.save_recordings_in')}</span>
             {freeSpace !== null && <small>{formatFreeSpace(freeSpace)}</small>}
           </div>
           <div className="setup-folder-path" title={folder}>
@@ -389,31 +397,31 @@ export function CreateMeetingDialog({
             className="setup-button small"
             onClick={pickFolder}
           >
-            Mở
+            {t('meeting.create.open')}
           </button>
         </div>
         <SwitchRow
-          label="Tự động ghi âm khi cuộc họp bắt đầu"
+          label={t('meeting.create.auto_record')}
           checked={autoRecord}
           onChange={setAutoRecord}
         />
       </Section>
       <Section
-        title="Chia sẻ màn hình"
-        description="Cho phép người tham dự chia sẻ màn hình của họ trong cuộc họp"
+        title={t('meeting.create.share_screen')}
+        description={t('meeting.create.share_screen_desc')}
       >
         <SwitchRow
-          label="Cho phép mọi người chia sẻ màn hình"
+          label={t('meeting.create.allow_share')}
           checked={allowShare}
           onChange={setAllowShare}
         />
       </Section>
       <Section
-        title="Livestream cuộc họp"
-        description="Livestream cuộc họp cho phép Host phát trực tiếp cuộc họp trên Facebook và Youtube thông qua tài khoản của Host. Đối với Facebook, Host có thể phát trực tiếp trên dòng thời gian Facebook của mình hoặc một nhóm hoặc trang mà Host là quản trị viên. Đối với Youtube, Host phát trực tiếp lên Kênh Youtube của họ."
+        title={t('meeting.create.livestream')}
+        description={t('meeting.create.livestream_desc')}
       >
         <SwitchRow
-          label="Cho phép Livestream cuộc họp"
+          label={t('meeting.create.allow_livestream')}
           checked={allowLivestream}
           onChange={setAllowLivestream}
         />
@@ -421,8 +429,9 @@ export function CreateMeetingDialog({
     </div>
   );
 
-  let submitLabel = 'Bắt đầu cuộc họp';
-  if (schedule || isScheduled) submitLabel = 'Lên lịch cuộc họp';
+  let submitLabel = t('meeting.create.start_meeting');
+  if (schedule || isScheduled)
+    submitLabel = t('meeting.create.schedule_meeting');
 
   return (
     <Modal
@@ -440,11 +449,15 @@ export function CreateMeetingDialog({
       styles={{ content: { padding: 0 } }}
     >
       <div className="meeting-setup-header">
-        <h2>{schedule ? 'Lên lịch cuộc họp' : 'Tạo cuộc họp mới'}</h2>
+        <h2>
+          {schedule
+            ? t('meeting.create.schedule_meeting')
+            : t('meeting.create.new_meeting')}
+        </h2>
         <button
           type="button"
           className="setup-close"
-          aria-label="Đóng"
+          aria-label={t('common.close')}
           onClick={onClose}
         >
           <Icon name="meetingClose" />
@@ -457,7 +470,7 @@ export function CreateMeetingDialog({
           aria-selected={tab === 'info'}
           onClick={() => setTab('info')}
         >
-          Thông tin cuộc họp
+          {t('meeting.create.info_tab')}
         </button>
         <button
           type="button"
@@ -465,7 +478,7 @@ export function CreateMeetingDialog({
           aria-selected={tab === 'settings'}
           onClick={() => setTab('settings')}
         >
-          Cài đặt cuộc họp
+          {t('meeting.create.settings_tab')}
         </button>
       </div>
       <div className="meeting-setup-body" ref={bodyRef}>

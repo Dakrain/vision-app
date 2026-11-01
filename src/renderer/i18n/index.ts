@@ -42,6 +42,16 @@ i18n.use(initReactI18next).init({
 });
 dayjs.locale(DAYJS[i18n.language as Language] ?? 'vi');
 
+/** Tells the main process (its dialogs, the share bar) the language. */
+const tellMain = (language: string) => {
+  try {
+    window.require('electron').ipcRenderer.send('set-language', language);
+  } catch (_) {
+    // Not in Electron (tests): nothing to tell.
+  }
+};
+tellMain(i18n.language);
+
 /** Switches the language (kept for the next launches). */
 export async function setLanguage(language: Language) {
   try {
@@ -51,6 +61,7 @@ export async function setLanguage(language: Language) {
   }
   dayjs.locale(DAYJS[language]);
   await i18n.changeLanguage(language);
+  tellMain(language);
 }
 
 export default i18n;

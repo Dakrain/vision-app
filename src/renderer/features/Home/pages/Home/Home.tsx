@@ -1,4 +1,5 @@
 import { type JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 import './Home.scss';
 import { Button } from '@/shared/components/Button';
 import SvgImage from '../../../../../../assets/svg/images';
@@ -12,34 +13,38 @@ function Home({
   openJoinMeetingDialog,
   openCreateMeetingDialog,
 }: HomeProps): JSX.Element {
+  const { t } = useTranslation();
   return (
     <div className="container">
       <div className="welcome-container">
-        <span className="title-welcome">Welcome to Vision 20</span>
+        <span className="title-welcome">{t('home.page.welcome_title')}</span>
         <p className="description-welcome">
-          Here is something for you to get started...
+          {t('home.page.welcome_description')}
         </p>
       </div>
       <div className="content-container">
         <Button
           className="button-join-meeting"
-          title="Tham gia cuộc họp"
+          title={t('home.page.join_meeting')}
           variant="primary"
           style={{ width: 374 }}
           onClick={openJoinMeetingDialog}
         />
         <Button
           className="button-create-meeting"
-          title="Tạo cuộc họp mới"
+          title={t('home.page.create_meeting')}
           variant="outline"
           style={{ width: 374 }}
           onClick={openCreateMeetingDialog}
         />
         <SvgImage name="meetingGuideLine1" />
-        <span className="title-create-meeting">Lên lịch cho cuộc họp</span>
+        <span className="title-create-meeting">
+          {t('home.page.schedule_title')}
+        </span>
         <span className="description-create-meeting">
-          Nhấn vào <span className="text-bold">Tạo cuộc họp mới</span> để có thể
-          Bắt đầu cuộc họp tức thì hay Lên lịch cho cuộc họp.
+          {t('home.page.schedule_description_before')}
+          <span className="text-bold">{t('home.page.create_meeting')}</span>
+          {t('home.page.schedule_description_after')}
         </span>
       </div>
     </div>

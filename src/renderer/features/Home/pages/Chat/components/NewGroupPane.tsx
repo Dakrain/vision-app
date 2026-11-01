@@ -2,6 +2,7 @@ import { Avatar } from '@/shared/components';
 import { MeetingService } from '@/shared/services/Meeting';
 import type { Contact } from '@/shared/services/Friend/FriendService';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { matches } from '../hooks';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 /** "Nhóm chat mới": name the group, pick at least two people, "Xong". */
 export function NewGroupPane({ people, myId, onCreate }: Props) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [query, setQuery] = useState('');
   const [picked, setPicked] = useState<Contact[]>([]);
@@ -83,11 +85,11 @@ export function NewGroupPane({ people, myId, onCreate }: Props) {
     <div className="chat-thread">
       <div className="chat-group-header">
         <label className="chat-to" htmlFor="chat-group-name">
-          <span>Tên nhóm:</span>
+          <span>{t('chat.group_create.name_label')}</span>
           <input
             id="chat-group-name"
             ref={nameRef}
-            placeholder="Gõ tên nhóm"
+            placeholder={t('chat.group_create.name_placeholder')}
             value={name}
             maxLength={100}
             onChange={(e) => setName(e.target.value)}
@@ -98,11 +100,13 @@ export function NewGroupPane({ people, myId, onCreate }: Props) {
           className="chat-group-done"
           disabled={!canCreate}
           title={
-            picked.length < 2 ? 'Chọn ít nhất 2 thành viên' : 'Tạo nhóm chat'
+            picked.length < 2
+              ? t('chat.group_create.min_members_hint')
+              : t('chat.group_create.create_group')
           }
           onClick={create}
         >
-          Xong
+          {t('common.done')}
         </button>
       </div>
       <div className="chat-group-members">
@@ -111,7 +115,7 @@ export function NewGroupPane({ people, myId, onCreate }: Props) {
             key={p.id}
             type="button"
             className="chat-group-chip"
-            title="Bỏ chọn"
+            title={t('chat.group_create.unpick')}
             onClick={() => toggle(p)}
           >
             {p.fullName ?? p.email}
@@ -119,7 +123,7 @@ export function NewGroupPane({ people, myId, onCreate }: Props) {
         ))}
         <input
           className="chat-group-search"
-          placeholder="Gõ tên thành viên trong nhóm chat"
+          placeholder={t('chat.group_create.member_search')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -148,8 +152,8 @@ export function NewGroupPane({ people, myId, onCreate }: Props) {
         {shown.length === 0 && (
           <div className="chat-empty">
             {query.trim().length >= 3
-              ? 'Không tìm thấy người dùng nào'
-              : 'Gõ tên hoặc email để tìm thêm người'}
+              ? t('chat.group_create.no_users')
+              : t('chat.group_create.search_more')}
           </div>
         )}
       </div>

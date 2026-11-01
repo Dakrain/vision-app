@@ -16,7 +16,9 @@ import {
   Tag,
   Typography,
 } from 'antd';
+import type { TFunction } from 'i18next';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import './LivestreamDialog.scss';
 
 interface Props {
@@ -28,71 +30,98 @@ interface Props {
   onStop: (livestreamId?: number) => Promise<void>;
 }
 
-const PLATFORM_LABEL: Record<LivestreamPlatform, string> = {
-  youtube: 'YouTube',
-  facebook: 'Facebook',
-  custom: 'Khác (RTMP)',
+type TFn = TFunction;
+
+const platformLabel = (t: TFn, platform: LivestreamPlatform) => {
+  if (platform === 'youtube') return 'YouTube';
+  if (platform === 'facebook') return 'Facebook';
+  return t('meeting.livestream.platform_custom');
 };
 
 // Step-by-step help shown while adding a destination.
-const GUIDES: Record<
-  LivestreamPlatform,
-  { url?: string; steps: string[]; keyHint: string; check?: RegExp }
-> = {
+const GUIDES = {
   youtube: {
     url: 'https://studio.youtube.com',
     steps: [
-      'Mở YouTube Studio trên máy tính → bấm Tạo → Phát trực tiếp.',
-      'Lần đầu phát trực tiếp, YouTube cần khoảng 24 giờ để kích hoạt kênh.',
-      'Chọn "Phần mềm phát trực tiếp" (Streaming software) → sao chép "Khoá sự kiện phát trực tiếp".',
+      'meeting.livestream.youtube_step1',
+      'meeting.livestream.youtube_step2',
+      'meeting.livestream.youtube_step3',
     ],
-    keyHint: 'Dạng xxxx-xxxx-xxxx-xxxx-xxxx',
+    keyHint: 'meeting.livestream.youtube_key_hint',
     check: /^[a-z0-9]{4}(-[a-z0-9]{4}){3,4}$/i,
   },
   facebook: {
     url: 'https://www.facebook.com/live/producer',
     steps: [
-      'Mở Facebook Live Producer → bấm Phát trực tiếp, chọn trang cá nhân hoặc Page của bạn.',
-      'Chọn "Phần mềm phát trực tiếp" (Streaming software) → sao chép "Khoá luồng".',
-      'Bật "Sử dụng khoá luồng cố định" để lưu một lần, dùng cho các lần sau.',
+      'meeting.livestream.facebook_step1',
+      'meeting.livestream.facebook_step2',
+      'meeting.livestream.facebook_step3',
     ],
-    keyHint: 'Bắt đầu bằng FB-',
+    keyHint: 'meeting.livestream.facebook_key_hint',
     check: /^FB-/,
   },
   custom: {
+    url: undefined,
     steps: [
-      'Dùng cho TikTok, Twitch, Vimeo… hoặc máy chủ RTMP riêng.',
-      'Sao chép "Server URL" (bắt đầu bằng rtmp:// hoặc rtmps://) và "Stream key" từ trang quản lý live của nền tảng.',
+      'meeting.livestream.custom_step1',
+      'meeting.livestream.custom_step2',
     ],
-    keyHint: 'Stream key của nền tảng',
+    keyHint: 'meeting.livestream.custom_key_hint',
+    check: undefined,
   },
+} as const satisfies Record<
+  LivestreamPlatform,
+  {
+    url?: string;
+    steps: readonly string[];
+    keyHint: string;
+    check?: RegExp;
+  }
+>;
+
+type Guide = {
+  url?: string;
+  steps: readonly (typeof GUIDES)[LivestreamPlatform]['steps'][number][];
+  keyHint: (typeof GUIDES)[LivestreamPlatform]['keyHint'];
+  check?: RegExp;
 };
 
-const STATUS: Record<string, { color: string; label: string }> = {
-  starting: { color: 'processing', label: 'Đang kết nối' },
-  live: { color: 'red', label: '● Đang phát' },
-  stopping: { color: 'default', label: 'Đang dừng' },
-  stopped: { color: 'default', label: 'Đã dừng' },
-  failed: { color: 'error', label: 'Lỗi' },
-};
+const STATUS = {
+  starting: {
+    color: 'processing',
+    label: 'meeting.livestream.status_starting',
+  },
+  live: { color: 'red', label: 'meeting.livestream.status_live' },
+  stopping: { color: 'default', label: 'meeting.livestream.status_stopping' },
+  stopped: { color: 'default', label: 'meeting.livestream.status_stopped' },
+  failed: { color: 'error', label: 'meeting.livestream.status_failed' },
+} as const;
 
-const START_ERRORS: Record<string, string> = {
-  e_livestream_not_allowed: 'Cuộc họp này không cho phép phát trực tiếp.',
-  e_livestream_too_many_destinations:
-    'Mỗi cuộc họp chỉ phát tối đa 3 nơi cùng lúc.',
-  e_livestream_capacity_full:
-    'Hệ thống đang có quá nhiều buổi phát trực tiếp, vui lòng thử lại sau.',
-  e_livestream_destination_invalid: 'Khoá hoặc địa chỉ máy chủ không hợp lệ.',
-  e_livestream_destination_not_found: 'Không tìm thấy nơi phát đã chọn.',
-  e_permission_denined: 'Chỉ Host hoặc Co-host được phát trực tiếp.',
+const statusOf = (status: string) =>
+  STATUS[status as keyof typeof STATUS] as
+    | (typeof STATUS)[keyof typeof STATUS]
+    | undefined;
+
+const START_ERRORS = {
+  e_livestream_not_allowed: 'meeting.livestream.error_not_allowed',
+  e_livestream_too_many_destinations: 'meeting.livestream.error_too_many',
+  e_livestream_capacity_full: 'meeting.livestream.error_capacity',
+  e_livestream_destination_invalid: 'meeting.livestream.error_invalid',
+  e_livestream_destination_not_found: 'meeting.livestream.error_not_found',
+  e_permission_denined: 'meeting.livestream.error_permission',
+} as const;
+
+const startError = (t: TFn, e: unknown) => {
+  const key = START_ERRORS[livestreamErrorCode(e) as keyof typeof START_ERRORS];
+  return key ? t(key) : undefined;
 };
 
 /** Turns Agora/CDN failure reasons into something a user can act on. */
-const friendlyFailure = (reason: string) => {
+const friendlyFailure = (t: TFn, reason: string) => {
   if (/rtmpUrl|url|key/i.test(reason)) {
-    return 'Khoá phát trực tiếp hoặc địa chỉ máy chủ không đúng / đã hết hạn. Hãy lấy khoá mới.';
+    return t('meeting.livestream.failure_key');
   }
-  return 'Không kết nối được tới nền tảng phát. Vui lòng thử lại.';
+  return t('meeting.livestream.failure_connect');
 };
 
 export function LivestreamDialog({
@@ -103,6 +132,7 @@ export function LivestreamDialog({
   onStart,
   onStop,
 }: Props) {
+  const { t } = useTranslation();
   const [destinations, setDestinations] = useState<LivestreamDestination[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [adding, setAdding] = useState(false);
@@ -119,9 +149,9 @@ export function LivestreamDialog({
       setDestinations(res.rows ?? []);
       setAdding((res.rows ?? []).length === 0);
     } catch (_) {
-      setError('Không tải được danh sách nơi phát.');
+      setError(t('meeting.livestream.load_failed'));
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (open) {
@@ -140,7 +170,8 @@ export function LivestreamDialog({
       !activeDestinationIds.includes(s.destinationId) &&
       s.errorReason,
   );
-  const guide = GUIDES[platform];
+  const guide: Guide = GUIDES[platform];
+  const keyHint = t(guide.keyHint);
   const keyLooksWrong =
     !!streamKey && !!guide.check && !guide.check.test(streamKey.trim());
 
@@ -153,11 +184,11 @@ export function LivestreamDialog({
   const saveDestination = async () => {
     setError('');
     if (!streamKey.trim()) {
-      setError('Vui lòng dán khoá phát trực tiếp.');
+      setError(t('meeting.livestream.key_required'));
       return;
     }
     if (platform === 'custom' && !/^rtmps?:\/\//i.test(serverUrl.trim())) {
-      setError('Server URL phải bắt đầu bằng rtmp:// hoặc rtmps://');
+      setError(t('meeting.livestream.server_url_invalid'));
       return;
     }
     setBusy(true);
@@ -173,9 +204,7 @@ export function LivestreamDialog({
       resetForm();
       setAdding(false);
     } catch (e) {
-      setError(
-        START_ERRORS[livestreamErrorCode(e)] || 'Không lưu được nơi phát.',
-      );
+      setError(startError(t, e) || t('meeting.livestream.save_failed'));
     } finally {
       setBusy(false);
     }
@@ -194,10 +223,7 @@ export function LivestreamDialog({
       await onStart(selected);
       setSelected([]);
     } catch (e) {
-      setError(
-        START_ERRORS[livestreamErrorCode(e)] ||
-          'Không bắt đầu phát trực tiếp được.',
-      );
+      setError(startError(t, e) || t('meeting.livestream.start_failed'));
     } finally {
       setBusy(false);
     }
@@ -207,7 +233,7 @@ export function LivestreamDialog({
     <Modal
       open={open}
       onCancel={onClose}
-      title="Phát trực tiếp"
+      title={t('meeting.livestream.title')}
       footer={null}
       centered
       width={560}
@@ -215,19 +241,21 @@ export function LivestreamDialog({
     >
       {activeStreams.length > 0 && (
         <section className="livestream-section">
-          <Typography.Text strong>Đang phát</Typography.Text>
+          <Typography.Text strong>
+            {t('meeting.livestream.live_now')}
+          </Typography.Text>
           {activeStreams.map((s) => (
             <div key={s.id} className="livestream-row">
               <span>
-                {s.name} <small>({PLATFORM_LABEL[s.platform]})</small>
+                {s.name} <small>({platformLabel(t, s.platform)})</small>
               </span>
               <span className="livestream-row-actions">
-                <Tag color={STATUS[s.status]?.color}>
-                  {STATUS[s.status]?.label}
+                <Tag color={statusOf(s.status)?.color}>
+                  {statusOf(s.status) && t(statusOf(s.status)!.label)}
                 </Tag>
                 {s.status !== 'stopping' && (
                   <Typography.Link onClick={() => onStop(s.id)}>
-                    Dừng
+                    {t('meeting.livestream.stop')}
                   </Typography.Link>
                 )}
               </span>
@@ -235,7 +263,7 @@ export function LivestreamDialog({
           ))}
           {activeStreams.length > 1 && (
             <Typography.Link onClick={() => onStop()}>
-              Dừng tất cả
+              {t('meeting.livestream.stop_all')}
             </Typography.Link>
           )}
         </section>
@@ -247,15 +275,17 @@ export function LivestreamDialog({
           type="error"
           showIcon
           className="livestream-alert"
-          message={`${s.name}: ${friendlyFailure(s.errorReason)}`}
+          message={`${s.name}: ${friendlyFailure(t, s.errorReason)}`}
         />
       ))}
 
       <section className="livestream-section">
-        <Typography.Text strong>Chọn nơi phát</Typography.Text>
+        <Typography.Text strong>
+          {t('meeting.livestream.choose')}
+        </Typography.Text>
         {destinations.length === 0 && !adding && (
           <Typography.Text type="secondary">
-            Chưa có nơi phát nào.
+            {t('meeting.livestream.none')}
           </Typography.Text>
         )}
         {destinations.map((d) => {
@@ -273,17 +303,19 @@ export function LivestreamDialog({
                   )
                 }
               >
-                {d.name} <small>({PLATFORM_LABEL[d.platform]})</small>
+                {d.name} <small>({platformLabel(t, d.platform)})</small>
                 <small className="livestream-key">{d.streamKeyMasked}</small>
               </Checkbox>
               {!isActive && (
                 <Popconfirm
-                  title="Xóa nơi phát này?"
-                  okText="Xóa"
-                  cancelText="Hủy"
+                  title={t('meeting.livestream.delete_confirm')}
+                  okText={t('common.delete')}
+                  cancelText={t('common.cancel')}
                   onConfirm={() => removeDestination(d.id)}
                 >
-                  <Typography.Link type="danger">Xóa</Typography.Link>
+                  <Typography.Link type="danger">
+                    {t('common.delete')}
+                  </Typography.Link>
                 </Popconfirm>
               )}
             </div>
@@ -292,7 +324,7 @@ export function LivestreamDialog({
 
         {!adding ? (
           <Typography.Link onClick={() => setAdding(true)}>
-            + Thêm nơi phát
+            {t('meeting.livestream.add')}
           </Typography.Link>
         ) : (
           <div className="livestream-form">
@@ -306,46 +338,52 @@ export function LivestreamDialog({
               options={[
                 { label: 'YouTube', value: 'youtube' },
                 { label: 'Facebook', value: 'facebook' },
-                { label: 'Khác (RTMP)', value: 'custom' },
+                {
+                  label: t('meeting.livestream.platform_custom'),
+                  value: 'custom',
+                },
               ]}
             />
             <ol className="livestream-guide">
               {guide.steps.map((step) => (
-                <li key={step}>{step}</li>
+                <li key={step}>{t(step)}</li>
               ))}
             </ol>
             {guide.url && (
               <Typography.Link onClick={() => window.open(guide.url, '_blank')}>
-                Mở trang lấy khoá ↗
+                {t('meeting.livestream.open_key_page')}
               </Typography.Link>
             )}
             <Input
-              placeholder={`Tên hiển thị (vd: Kênh ${PLATFORM_LABEL[platform]} của tôi)`}
+              placeholder={t('meeting.livestream.name_placeholder', {
+                platform: platformLabel(t, platform),
+              })}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
             {platform === 'custom' && (
               <Input
-                placeholder="Server URL (rtmp://… hoặc rtmps://…)"
+                placeholder={t('meeting.livestream.server_url_placeholder')}
                 value={serverUrl}
                 onChange={(e) => setServerUrl(e.target.value)}
               />
             )}
             <Input.Password
-              placeholder={`Dán khoá phát trực tiếp — ${guide.keyHint}`}
+              placeholder={t('meeting.livestream.key_placeholder', {
+                hint: keyHint,
+              })}
               value={streamKey}
               onChange={(e) => setStreamKey(e.target.value)}
             />
             {keyLooksWrong && (
               <Typography.Text type="warning">
-                Khoá có vẻ không đúng định dạng ({guide.keyHint}). Hãy kiểm tra
-                lại trước khi lưu.
+                {t('meeting.livestream.key_format_warning', { hint: keyHint })}
               </Typography.Text>
             )}
             <div className="livestream-form-actions">
               <Button
                 variant="outline"
-                title="Lưu nơi phát"
+                title={t('meeting.livestream.save')}
                 disabled={busy}
                 onClick={saveDestination}
               />
@@ -356,13 +394,12 @@ export function LivestreamDialog({
                     setAdding(false);
                   }}
                 >
-                  Hủy
+                  {t('common.cancel')}
                 </Typography.Link>
               )}
             </div>
             <Typography.Text type="secondary" className="livestream-note">
-              Khoá được mã hoá và lưu theo tài khoản của bạn, dùng lại được cho
-              các cuộc họp sau trên cả máy tính và điện thoại.
+              {t('meeting.livestream.key_note')}
             </Typography.Text>
           </div>
         )}
@@ -381,15 +418,14 @@ export function LivestreamDialog({
         variant="primary"
         title={
           selected.length > 0
-            ? `Bắt đầu phát (${selected.length} nơi)`
-            : 'Chọn nơi phát để bắt đầu'
+            ? t('meeting.livestream.start_count', { count: selected.length })
+            : t('meeting.livestream.choose_to_start')
         }
         disabled={busy || selected.length === 0}
         onClick={start}
       />
       <Typography.Text type="secondary" className="livestream-note">
-        Mọi người trong cuộc họp sẽ thấy nhãn LIVE và được thông báo rằng cuộc
-        họp đang được phát trực tiếp.
+        {t('meeting.livestream.everyone_notice')}
       </Typography.Text>
     </Modal>
   );

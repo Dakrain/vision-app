@@ -16,6 +16,7 @@ import {
   Conversation,
   Me,
   conversationTitle,
+  localizedChatText,
   upsertUserMirror,
   watchConversations,
 } from '../services/Firebase/chat';
@@ -100,14 +101,16 @@ export function SocialProvider({ children }: { children: ReactNode }) {
         if (first || before === undefined || at <= before) return;
         if (c.lastMessageBy === me.uid || c.id === activeRef.current) return;
         const title = conversationTitle(c, me.backendId);
+        // Stored labels ("[Hình ảnh]"…) in the app language.
+        const text = localizedChatText(c.lastMessage ?? '');
         notification.info({
           message: title,
-          description: c.lastMessage,
+          description: text,
           placement: 'bottomRight',
           duration: 4,
         });
         // Window minimised or behind others: a system notification too.
-        osNotify(title, c.lastMessage ?? '');
+        osNotify(title, text);
       });
       first = false;
     });

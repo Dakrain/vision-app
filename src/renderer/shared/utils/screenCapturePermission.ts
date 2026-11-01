@@ -1,4 +1,5 @@
 import { Modal } from 'antd';
+import i18n from '@/renderer/i18n';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -15,11 +16,10 @@ export const ensureScreenCaptureAccess = async (): Promise<boolean> => {
     return true;
   }
   Modal.confirm({
-    title: 'Cần cấp quyền ghi màn hình',
-    content:
-      'macOS đang chặn ứng dụng chia sẻ màn hình. Vào Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Ghi màn hình (Screen Recording), bật quyền cho Vision 20, sau đó khởi động lại ứng dụng.',
-    okText: 'Mở Cài đặt hệ thống',
-    cancelText: 'Để sau',
+    title: i18n.t('shared.screen_capture.title'),
+    content: i18n.t('shared.screen_capture.message'),
+    okText: i18n.t('shared.screen_capture.open_system_settings'),
+    cancelText: i18n.t('common.later'),
     onOk: () => ipcRenderer.invoke('open-screen-capture-settings'),
   });
   return false;

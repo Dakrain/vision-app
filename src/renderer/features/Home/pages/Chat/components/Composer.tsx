@@ -2,7 +2,8 @@ import Icon from '@/assets/svg/icons';
 import type { Message } from '@/shared/services/Firebase/chat';
 import { Popover } from 'antd';
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
-import { messageSummary } from '../chatFormat';
+import { useTranslation } from 'react-i18next';
+import { messageSummaryText } from '../chatFormat';
 
 const EMOJIS = [
   '😀',
@@ -59,6 +60,7 @@ export function Composer({
   onSendText,
   onSendFile,
 }: Props) {
+  const { t } = useTranslation();
   const [text, setText] = useState('');
   const [emojiOpen, setEmojiOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -108,12 +110,12 @@ export function Composer({
       {replyTo && (
         <div className="chat-reply-bar">
           <div>
-            <b>Đang trả lời {replyTo.senderName}</b>
-            <span>{messageSummary(replyTo.message)}</span>
+            <b>{t('chat.screen.replying_to', { name: replyTo.senderName })}</b>
+            <span>{messageSummaryText(replyTo.message)}</span>
           </div>
           <button
             type="button"
-            aria-label="Hủy trả lời"
+            aria-label={t('chat.screen.cancel_reply')}
             onClick={onCancelReply}
           >
             <Icon name="meetingClose" />
@@ -132,7 +134,7 @@ export function Composer({
         <button
           type="button"
           className="chat-composer-attach"
-          title="Gửi tệp"
+          title={t('chat.screen.send_file')}
           disabled={disabled}
           onClick={() => fileRef.current?.click()}
         >
@@ -142,7 +144,7 @@ export function Composer({
           <textarea
             ref={inputRef}
             rows={1}
-            placeholder="Nhắn tin ..."
+            placeholder={t('chat.screen.composer_hint')}
             value={text}
             disabled={disabled}
             onChange={(e) => setText(e.target.value)}
@@ -161,7 +163,7 @@ export function Composer({
             <button
               type="button"
               className="chat-composer-icon"
-              title="Gửi ảnh"
+              title={t('chat.screen.send_image')}
               disabled={disabled}
               onClick={() => imageRef.current?.click()}
             >
@@ -190,7 +192,7 @@ export function Composer({
             <button
               type="button"
               className="chat-composer-icon"
-              title="Biểu tượng cảm xúc"
+              title={t('chat.screen.emoji')}
               disabled={disabled}
             >
               <Icon name="chatSmiley" />
@@ -200,7 +202,7 @@ export function Composer({
             <button
               type="button"
               className="chat-composer-icon send"
-              title="Gửi"
+              title={t('chat.screen.send')}
               onClick={send}
             >
               <Icon name="send" />

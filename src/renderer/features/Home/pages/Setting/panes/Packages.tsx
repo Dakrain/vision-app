@@ -3,6 +3,7 @@ import UserService, {
 } from '@/shared/services/User/UserService';
 import { Spin } from 'antd';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatGb } from './Storage';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 /** "Nâng cấp tài khoản…" plan list (Figma 10946:59965). */
 export function Packages({ currentPackageId, onBack }: Props) {
+  const { t } = useTranslation();
   const [packages, setPackages] = useState<StoragePackage[]>();
   const [current, setCurrent] = useState(currentPackageId);
 
@@ -30,12 +32,10 @@ export function Packages({ currentPackageId, onBack }: Props) {
   return (
     <div className="settings-packages">
       <button type="button" className="settings-back" onClick={onBack}>
-        ← Trở lại
+        {t('account.packages.back')}
       </button>
-      <h2>Nâng cấp tài khoản để có thêm dung lượng lưu trữ</h2>
-      <p className="settings-muted">
-        Bạn sẽ nhận thêm dung lượng bộ nhớ và nhiều lợi ích bổ sung
-      </p>
+      <h2>{t('account.packages.title')}</h2>
+      <p className="settings-muted">{t('account.packages.description')}</p>
       {!packages ? (
         <div className="settings-empty">
           <Spin />
@@ -48,20 +48,22 @@ export function Packages({ currentPackageId, onBack }: Props) {
               <div key={p.id} className="settings-package">
                 <b>{formatGb(p.storage)}</b>
                 <span>
-                  {p.price > 0 ? `${p.currency}${p.price}` : 'Miễn phí'}
+                  {p.price > 0
+                    ? `${p.currency}${p.price}`
+                    : t('account.packages.free')}
                 </span>
                 {isCurrent ? (
                   <button type="button" className="settings-btn" disabled>
-                    Gói hiện tại
+                    {t('account.packages.current')}
                   </button>
                 ) : (
                   <button
                     type="button"
                     className="settings-btn green"
                     disabled
-                    title="Thanh toán nâng cấp dung lượng sẽ có ở bản cập nhật sau"
+                    title={t('account.packages.coming_soon_hint')}
                   >
-                    Sắp có
+                    {t('account.packages.coming_soon')}
                   </button>
                 )}
               </div>
@@ -69,10 +71,7 @@ export function Packages({ currentPackageId, onBack }: Props) {
           })}
         </div>
       )}
-      <p className="settings-muted small">
-        Bằng cách chọn gói dung lượng, bạn đồng ý với Điều khoản dịch vụ và
-        Chính sách quyền riêng tư của Vision 20.
-      </p>
+      <p className="settings-muted small">{t('account.packages.terms')}</p>
     </div>
   );
 }

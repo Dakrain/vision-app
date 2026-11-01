@@ -17,6 +17,7 @@ import {
   writeBatch,
   runTransaction,
 } from 'firebase/firestore';
+import i18n from '@/renderer/i18n';
 import { firestore, uidFor } from './app';
 
 // Firestore chat, wire-compatible with the mobile app
@@ -153,8 +154,9 @@ export function profileOf(c: Conversation, backendId?: number): MemberProfile {
 
 export const conversationTitle = (c: Conversation, me: number) =>
   c.type === 'group'
-    ? (c.groupName ?? 'Nhóm')
-    : (profileOf(c, peerBackendId(c, me)).displayName ?? 'Trò chuyện');
+    ? (c.groupName ?? i18n.t('chat.conversations.group'))
+    : (profileOf(c, peerBackendId(c, me)).displayName ??
+      i18n.t('chat.conversations.untitled'));
 
 /** Whether [m] was sent by me (older messages may carry an old uid). */
 export const isMine = (m: Message, me: Me) =>
@@ -203,6 +205,50 @@ export function watchMessages(
   });
 }
 
+/** Stored in Firestore for every client (shown via localizedChatText). */
+export const RECALLED_TEXT = 'Tin nhắn đã được thu hồi';
+
+/**
+ * Stored previews/labels are Vietnamese for every client (as on mobile); this
+ * shows them in the app's language. Anything else is returned as is.
+ */
+export const localizedChatText = (text?: string): string => {
+  switch (text) {
+    case undefined:
+      return '';
+    case RECALLED_TEXT:
+      return i18n.t('chat.recalled');
+    case '[Hình ảnh]':
+      return i18n.t('chat.preview.image');
+    case '[Tệp đính kèm]':
+      return i18n.t('chat.preview.file');
+    case '[Cuộc gọi]':
+      return i18n.t('chat.preview.call');
+    case '📞 Cuộc gọi thoại':
+      return i18n.t('chat.preview.voice_call');
+    case '📞 Cuộc gọi video':
+      return i18n.t('chat.preview.video_call');
+    case '📵 Cuộc gọi thoại nhỡ':
+      return i18n.t('chat.preview.voice_missed');
+    case '📵 Cuộc gọi video nhỡ':
+      return i18n.t('chat.preview.video_missed');
+    case '📞 Cuộc gọi thoại bị từ chối':
+      return i18n.t('chat.preview.voice_rejected');
+    case '📞 Cuộc gọi video bị từ chối':
+      return i18n.t('chat.preview.video_rejected');
+    // Both spellings are in stored data.
+    case '📞 Cuộc gọi thoại đã hủy':
+    case '📞 Cuộc gọi thoại đã huỷ':
+      return i18n.t('chat.preview.voice_cancelled');
+    case '📞 Cuộc gọi video đã hủy':
+    case '📞 Cuộc gọi video đã huỷ':
+      return i18n.t('chat.preview.video_cancelled');
+    default:
+      return text;
+  }
+};
+
+// Stored in Firestore: stays Vietnamese (see localizedChatText).
 const preview = (m: Omit<Message, 'id'>) => {
   switch (m.type) {
     case 'image':
@@ -384,8 +430,6 @@ export async function hasStableUid(backendId: number) {
   const snap = await getDoc(doc(firestore, 'users', uidFor(backendId)));
   return snap.exists();
 }
-
-export const RECALLED_TEXT = 'Tin nhắn đã được thu hồi';
 
 /**
  * The sender takes a message back for everyone: its content is removed and

@@ -3,6 +3,7 @@ import { MeetingRole, MeetingUser } from '@/renderer/shared/types/meeting';
 import { User } from '@/renderer/shared/types/user';
 import { Alert, Avatar, Button, Input, List, Modal, Select } from 'antd';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   open: boolean;
@@ -21,6 +22,7 @@ export function AddMemberDialog({
   canAddCohost,
   onAdd,
 }: Props) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [results, setResults] = useState<User[]>([]);
   const [role, setRole] = useState<number>(MeetingRole.MEMBER);
@@ -37,7 +39,7 @@ export function AddMemberDialog({
       setResults(res.rows ?? []);
       setSearched(true);
     } catch (_) {
-      setError('Không tìm được người dùng, vui lòng thử lại.');
+      setError(t('meeting.add_member.search_failed'));
     }
   };
 
@@ -49,7 +51,7 @@ export function AddMemberDialog({
       await onAdd(user.id, role);
       setAddedIds((prev) => [...prev, user.id as number]);
     } catch (_) {
-      setError('Không thêm được người này (phòng có thể đã đủ người).');
+      setError(t('meeting.add_member.add_failed'));
     } finally {
       setBusyId(undefined);
     }
@@ -68,17 +70,17 @@ export function AddMemberDialog({
         setAddedIds([]);
         onClose();
       }}
-      title="Thêm người vào phòng"
+      title={t('meeting.add_member.title')}
       footer={null}
       centered
     >
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <Input.Search
-          placeholder="Nhập email người cần thêm"
+          placeholder={t('meeting.add_member.email_placeholder')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onSearch={search}
-          enterButton="Tìm"
+          enterButton={t('meeting.add_member.find')}
         />
         {canAddCohost && (
           <Select
@@ -86,8 +88,14 @@ export function AddMemberDialog({
             onChange={setRole}
             style={{ width: 140 }}
             options={[
-              { value: MeetingRole.MEMBER, label: 'Thành viên' },
-              { value: MeetingRole.CO_HOST, label: 'Co-host' },
+              {
+                value: MeetingRole.MEMBER,
+                label: t('meeting.add_member.role_member'),
+              },
+              {
+                value: MeetingRole.CO_HOST,
+                label: t('meeting.add_member.role_co_host'),
+              },
             ]}
           />
         )}
@@ -102,14 +110,14 @@ export function AddMemberDialog({
       )}
       <List
         locale={{
-          emptyText: searched ? 'Không tìm thấy người dùng nào' : ' ',
+          emptyText: searched ? t('meeting.add_member.no_results') : ' ',
         }}
         dataSource={results}
         renderItem={(user) => (
           <List.Item
             actions={[
               isMember(user.id) ? (
-                <span key="added">Đã trong phòng</span>
+                <span key="added">{t('meeting.add_member.already_in')}</span>
               ) : (
                 <Button
                   key="add"
@@ -117,7 +125,7 @@ export function AddMemberDialog({
                   loading={busyId === user.id}
                   onClick={() => add(user)}
                 >
-                  Thêm
+                  {t('meeting.add_member.add')}
                 </Button>
               ),
             ]}
@@ -133,8 +141,7 @@ export function AddMemberDialog({
         )}
       />
       <p style={{ marginTop: 12, color: '#8C8C8C', fontSize: 12 }}>
-        Người được thêm sẽ nhận thông báo và có thể vào phòng mà không cần mật
-        khẩu.
+        {t('meeting.add_member.note')}
       </p>
     </Modal>
   );
