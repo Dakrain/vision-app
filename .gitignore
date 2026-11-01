@@ -27,3 +27,12 @@ npm-debug.log.*
 *.css.d.ts
 *.sass.d.ts
 *.scss.d.ts
+
+# Keys and certificates — they live in vision_project/secrets/, never here
+*.p8
+*.p12
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+*-adminsdk-*.json
