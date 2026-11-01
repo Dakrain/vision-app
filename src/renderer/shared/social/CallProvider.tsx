@@ -110,6 +110,39 @@ const CallContext = createContext<CallApi>({
 
 export const useCall = () => useContext(CallContext);
 
+/**
+ * Calls this device placed or answered, kept across restarts: only those
+ * are restored on a resync. The server sends my calls to all my devices
+ * and hands out media per user, so a call placed on my phone used to be
+ * adopted here too: the desktop showed it, could join the same call, and
+ * wrote a second chat entry for it.
+ */
+const OWN_CALLS_KEY = 'vision.ownCalls';
+const ownCalls = {
+  list(): string[] {
+    try {
+      const raw = JSON.parse(localStorage.getItem(OWN_CALLS_KEY) || '[]');
+      return Array.isArray(raw) ? raw : [];
+    } catch (_) {
+      return [];
+    }
+  },
+  has(id: string) {
+    return ownCalls.list().includes(id);
+  },
+  add(id: string) {
+    try {
+      const next = [id, ...ownCalls.list().filter((x) => x !== id)].slice(
+        0,
+        20,
+      );
+      localStorage.setItem(OWN_CALLS_KEY, JSON.stringify(next));
+    } catch (_) {
+      // Storage unavailable: this call just won't be restored.
+    }
+  },
+};
+
 const endText = (call: Call, isCaller: boolean) => {
   switch (call.status) {
     case 'rejected':
@@ -492,7 +525,9 @@ export function CallProvider({ children }: { children: ReactNode }) {
         }
         // My own placement: the POST answer will follow.
         if (!isFree(cur.phase)) return;
-        // Restoring a live call of mine (app start, stream reconnect).
+        // Restoring a live call of mine (app start, stream reconnect) —
+        // only one this device is in, not one on my other devices.
+        if (!ownCalls.has(call.id)) return;
         const other = isCaller ? call.callee : call.caller;
         const base: CallUiState = {
           ...IDLE,
@@ -673,6 +708,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
         return;
       }
       noteServerTime(call);
+      ownCalls.add(call.id);
       const next: CallUiState = {
         ...placing,
         phase: 'outgoing',
@@ -700,6 +736,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
     }
     acceptingRef.current = true;
     try {
+      ownCalls.add(call.id);
       const res = await CallService.accept(call.id);
       if (!res.call) throw new Error('no call');
       toConnected(res.call);
