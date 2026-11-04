@@ -32,7 +32,8 @@ const TABS: { key: ListTab; label: string; status: number; sort: string }[] = [
     key: 'upcoming',
     label: 'Sắp diễn ra',
     status: MeetingStatus.NEW,
-    sort: 'm.start_time:asc',
+    // The API wants the bare column ('m.start_time' is silently ignored).
+    sort: 'start_time:asc',
   },
 ];
 
