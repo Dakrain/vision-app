@@ -39,7 +39,8 @@ const TABS: {
     key: 'upcoming',
     label: 'meeting.list.tab_upcoming',
     status: MeetingStatus.NEW,
-    sort: 'm.start_time:asc',
+    // The API wants the bare column ('m.start_time' is silently ignored).
+    sort: 'start_time:asc',
   },
 ];
 
