@@ -2,9 +2,10 @@ import UserService, {
   type DriveStatistics,
 } from '@/shared/services/User/UserService';
 import { Spin } from 'antd';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import i18n from '@/renderer/i18n';
+import { LoadFailed } from '@/shared/components/LoadFailed/LoadFailed';
 
 /** Bytes → "1,01 GB" (the language's decimal mark; a comma in Vietnamese). */
 const NUMBER_LOCALE: Record<string, string> = {
@@ -54,15 +55,17 @@ export function Storage({ onUpgrade }: Props) {
   const [stats, setStats] = useState<DriveStatistics>();
   const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setFailed(false);
     UserService.fetchDriveStatistics()
       .then(setStats)
       .catch(() => setFailed(true));
   }, []);
+  useEffect(load, [load]);
 
   if (failed) {
     return (
-      <div className="settings-empty">{t('account.storage.load_failed')}</div>
+      <LoadFailed message={t('account.storage.load_failed')} onRetry={load} />
     );
   }
   if (!stats) {

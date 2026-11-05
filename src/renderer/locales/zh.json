@@ -34,6 +34,7 @@
       "current": "当前套餐",
       "description": "你将获得更多存储空间和额外权益",
       "free": "免费",
+      "load_failed": "无法加载存储套餐",
       "terms": "选择存储套餐即表示你同意 Vision 20 的服务条款和隐私政策。",
       "title": "升级账号以获取更多存储空间"
     },
@@ -132,7 +133,8 @@
     },
     "reset": {
       "new_password": "新密码"
-    }
+    },
+    "session_expired": "登录已过期，请重新登录"
   },
   "call": {
     "contact_fallback": "联系人",
@@ -372,6 +374,7 @@
       "decline": "拒绝",
       "title_count": "好友请求（{count}）"
     },
+    "load_failed": "无法加载联系人",
     "not_found_any": "未找到联系人",
     "section_header": "通讯录"
   },
@@ -616,10 +619,12 @@
       "cannot_join": "你无法加入此会议",
       "default_title": "会议",
       "full": "会议人数已满。",
+      "gone": "该会议已不存在或您无权加入",
       "host": "主持人：{name}",
       "join_failed": "无法加入会议",
       "join_here_too": "在此设备上加入",
       "join_now": "立即加入",
+      "load_failed": "无法加载会议，请重试",
       "loading": "加载中…",
       "meeting_id": "ID：{id}",
       "mic_not_allowed": "主持人尚未允许开启麦克风",

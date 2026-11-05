@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { selectAuth } from '../../shared/store/auth/selector';
 import { useSocial } from '../../shared/social/SocialProvider';
+import { useUserSession } from '../../shared/hooks/useUserSession';
 import { PAGE_TRANSITION, PAGE_VARIANTS } from './constants';
 import './Dashboard.scss';
 import Chat from './pages/Chat/Chat';
@@ -31,6 +32,7 @@ let lastMenu = 'home';
 
 function Dashboard() {
   const { t } = useTranslation();
+  useUserSession();
   useEffect(() => {
     // Only out of the small login window: coming back from a meeting it
     // snapped a resized or moved window back to 1366x768, centred.

@@ -13,7 +13,8 @@ import {
 } from 'react';
 import { signInAsUser, signOut, uidFor } from '../services/Firebase/app';
 import { osNotify } from '../utils/osNotify';
-import { AUTO_RETRIES, type SocialStatus, retryDelayMs } from './connect';
+import { retryDelayMs } from '../utils/backoff';
+import { AUTO_RETRIES, type SocialStatus } from './connect';
 import {
   Conversation,
   Me,

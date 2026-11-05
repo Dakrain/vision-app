@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { restoreVirtualBackground } from '@/renderer/shared/utils/virtualBackground';
 import { livestreamErrorCode } from '@/renderer/shared/hooks/useLivestream';
+import { isGoneFromMeeting } from '@/renderer/shared/network/apiError';
 import { VirtualBackgroundDialog } from '@/renderer/features/Meeting/components/VirtualBackgroundDialog/VirtualBackgroundDialog';
 import { loadLobbyPrefs, saveLobbyPrefs } from './prefs';
 import './MeetingLobby.scss';
@@ -123,7 +124,15 @@ function MeetingLobby() {
     }
     withLoading(MeetingService.fetchMeetingDetail(meetingId))
       .then(setDetail)
-      .catch(() => navigate('/home', { replace: true }));
+      .catch((e) => {
+        notification.error({
+          message: isGoneFromMeeting(e)
+            ? t('meeting.lobby.gone')
+            : t('meeting.lobby.load_failed'),
+          placement: 'top',
+        });
+        navigate('/home', { replace: true });
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingId]);
 
@@ -381,8 +390,9 @@ function MeetingLobby() {
           });
           enterRef.current(next);
         }
-      } catch (_) {
-        if (stopped) return;
+      } catch (e) {
+        // A network blip is not a "no": keep waiting.
+        if (stopped || !isGoneFromMeeting(e)) return;
         stopped = true;
         notification.warning({
           message: t('meeting.lobby.rejected'),

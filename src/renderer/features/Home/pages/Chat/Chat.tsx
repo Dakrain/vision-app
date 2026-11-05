@@ -1,5 +1,6 @@
 import Icon from '@/assets/svg/icons';
 import { Avatar } from '@/shared/components';
+import { LoadFailed } from '@/shared/components/LoadFailed/LoadFailed';
 import { useSocial } from '@/shared/social/SocialProvider';
 import {
   type Conversation,
@@ -89,6 +90,7 @@ function Chat() {
     contacts,
     requests,
     loading: contactsLoading,
+    failed: contactsFailed,
     reload: reloadContacts,
   } = useContacts();
   const [addingContact, setAddingContact] = useState(false);
@@ -255,6 +257,14 @@ function Chat() {
           <div className="chat-empty">
             <Spin />
           </div>
+        );
+      }
+      if (contactsFailed && contacts.length === 0) {
+        return (
+          <LoadFailed
+            message={t('contacts.load_failed')}
+            onRetry={reloadContacts}
+          />
         );
       }
       if (shownContacts.length === 0) {

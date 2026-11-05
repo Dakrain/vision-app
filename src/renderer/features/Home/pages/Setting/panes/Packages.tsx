@@ -2,8 +2,9 @@ import UserService, {
   type StoragePackage,
 } from '@/shared/services/User/UserService';
 import { Spin } from 'antd';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LoadFailed } from '@/shared/components/LoadFailed/LoadFailed';
 import { formatGb } from './Storage';
 
 interface Props {
@@ -16,11 +17,17 @@ export function Packages({ currentPackageId, onBack }: Props) {
   const { t } = useTranslation();
   const [packages, setPackages] = useState<StoragePackage[]>();
   const [current, setCurrent] = useState(currentPackageId);
+  const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setFailed(false);
     UserService.fetchStoragePackages()
       .then(setPackages)
-      .catch(() => setPackages([]));
+      .catch(() => setFailed(true));
+  }, []);
+
+  useEffect(() => {
+    load();
     if (current === undefined) {
       UserService.fetchDriveStatistics()
         .then((s) => setCurrent(s.storage.packageId))
@@ -36,11 +43,18 @@ export function Packages({ currentPackageId, onBack }: Props) {
       </button>
       <h2>{t('account.packages.title')}</h2>
       <p className="settings-muted">{t('account.packages.description')}</p>
-      {!packages ? (
+      {failed && (
+        <LoadFailed
+          message={t('account.packages.load_failed')}
+          onRetry={load}
+        />
+      )}
+      {!failed && !packages && (
         <div className="settings-empty">
           <Spin />
         </div>
-      ) : (
+      )}
+      {packages && (
         <div className="settings-packages-grid">
           {packages.map((p) => {
             const isCurrent = p.id === current;

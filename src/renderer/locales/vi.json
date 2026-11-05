@@ -34,6 +34,7 @@
       "current": "Gói hiện tại",
       "description": "Bạn sẽ nhận thêm dung lượng bộ nhớ và nhiều lợi ích bổ sung",
       "free": "Miễn phí",
+      "load_failed": "Không tải được các gói dung lượng",
       "terms": "Bằng cách chọn gói dung lượng, bạn đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư của Vision 20.",
       "title": "Nâng cấp tài khoản để có thêm dung lượng lưu trữ"
     },
@@ -132,7 +133,8 @@
     },
     "reset": {
       "new_password": "Mật khẩu mới"
-    }
+    },
+    "session_expired": "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại"
   },
   "call": {
     "contact_fallback": "Liên hệ",
@@ -372,6 +374,7 @@
       "decline": "Từ chối",
       "title_count": "Lời mời kết bạn ({count})"
     },
+    "load_failed": "Không tải được danh bạ",
     "not_found_any": "Không tìm thấy liên hệ nào",
     "section_header": "DANH BẠ"
   },
@@ -616,10 +619,12 @@
       "cannot_join": "Bạn không thể tham gia cuộc họp này",
       "default_title": "Cuộc họp",
       "full": "Cuộc họp đã đủ số người tham gia.",
+      "gone": "Cuộc họp không còn tồn tại hoặc bạn không có quyền tham gia",
       "host": "Chủ trì: {name}",
       "join_failed": "Không tham gia được cuộc họp",
       "join_here_too": "Tham gia trên thiết bị này",
       "join_now": "Tham gia ngay",
+      "load_failed": "Không tải được cuộc họp, vui lòng thử lại",
       "loading": "Đang tải…",
       "meeting_id": "ID: {id}",
       "mic_not_allowed": "Chủ phòng chưa cho phép bật micro",

@@ -34,6 +34,7 @@
       "current": "Current plan",
       "description": "You'll get more storage and extra benefits",
       "free": "Free",
+      "load_failed": "Couldn't load storage plans",
       "terms": "By choosing a storage plan, you agree to Vision 20's Terms of Service and Privacy Policy.",
       "title": "Upgrade your account to get more storage"
     },
@@ -132,7 +133,8 @@
     },
     "reset": {
       "new_password": "New password"
-    }
+    },
+    "session_expired": "Your session has expired. Please sign in again."
   },
   "call": {
     "contact_fallback": "Contact",
@@ -372,6 +374,7 @@
       "decline": "Decline",
       "title_count": "Friend requests ({count})"
     },
+    "load_failed": "Couldn't load contacts",
     "not_found_any": "No contacts found",
     "section_header": "CONTACTS"
   },
@@ -616,10 +619,12 @@
       "cannot_join": "You can't join this meeting",
       "default_title": "Meeting",
       "full": "The meeting is full.",
+      "gone": "This meeting no longer exists or you can't join it",
       "host": "Host: {name}",
       "join_failed": "Couldn't join the meeting",
       "join_here_too": "Join on this device",
       "join_now": "Join now",
+      "load_failed": "Couldn't load the meeting. Please try again.",
       "loading": "Loading…",
       "meeting_id": "ID: {id}",
       "mic_not_allowed": "The host hasn't allowed turning on the mic",

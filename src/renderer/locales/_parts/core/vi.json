@@ -28,7 +28,8 @@
       "description": "Bạn sẽ nhận thêm dung lượng bộ nhớ và nhiều lợi ích bổ sung",
       "free": "Miễn phí",
       "terms": "Bằng cách chọn gói dung lượng, bạn đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư của Vision 20.",
-      "title": "Nâng cấp tài khoản để có thêm dung lượng lưu trữ"
+      "title": "Nâng cấp tài khoản để có thêm dung lượng lưu trữ",
+      "load_failed": "Không tải được các gói dung lượng"
     },
     "personal": {
       "about_you": "Thông tin về bạn",
@@ -132,7 +133,8 @@
     },
     "reset": {
       "new_password": "Mật khẩu mới"
-    }
+    },
+    "session_expired": "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại"
   },
   "home": {
     "menu": {

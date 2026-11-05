@@ -158,7 +158,8 @@
       "title_count": "Lời mời kết bạn ({count})",
       "accept": "Đồng ý",
       "decline": "Từ chối"
-    }
+    },
+    "load_failed": "Không tải được danh bạ"
   },
   "call": {
     "type": {

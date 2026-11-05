@@ -227,7 +227,9 @@
       "start": "Start",
       "try_again": "Please try again.",
       "waiting_approval_short": "Waiting for approval…",
-      "waiting_note_short": "Waiting for the host to approve. You'll join automatically once admitted."
+      "waiting_note_short": "Waiting for the host to approve. You'll join automatically once admitted.",
+      "gone": "This meeting no longer exists or you can't join it",
+      "load_failed": "Couldn't load the meeting. Please try again."
     },
     "participants": {
       "action_failed": "Couldn't complete the action",

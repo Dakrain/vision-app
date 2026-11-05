@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import i18n from '@/renderer/i18n';
+import { apiErrorStatus } from '../../network/apiError';
 import { fetchUserInfo, login } from './action';
 import INITIAL_STATE from './constants';
 
@@ -11,6 +12,8 @@ export const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = undefined;
+      state.userFailures = 0;
+      state.sessionExpired = false;
       localStorage.setItem('token', '');
       localStorage.setItem('last_login_user', '');
     },
@@ -21,6 +24,8 @@ export const authSlice = createSlice({
     });
     builder.addCase(login.fulfilled, (state, action) => {
       state.user = action.payload;
+      state.userFailures = 0;
+      state.sessionExpired = false;
       // Save token to local storage
       if (action.payload.accessToken) {
         localStorage.setItem('token', action.payload.accessToken);
@@ -47,11 +52,19 @@ export const authSlice = createSlice({
 
     builder.addCase(fetchUserInfo.fulfilled, (state, action) => {
       state.user = action.payload;
+      state.userFailures = 0;
     });
 
-    builder.addCase(fetchUserInfo.rejected, () => {
-      localStorage.setItem('token', '');
-      localStorage.setItem('last_login_user', '');
+    // Only a refused token ends the session. Offline / server trouble at
+    // launch used to wipe it too, logging the user out on the next start.
+    builder.addCase(fetchUserInfo.rejected, (state, action) => {
+      if (apiErrorStatus(action.payload) === 401) {
+        state.sessionExpired = true;
+        localStorage.setItem('token', '');
+        localStorage.setItem('last_login_user', '');
+      } else {
+        state.userFailures += 1;
+      }
     });
   },
 });

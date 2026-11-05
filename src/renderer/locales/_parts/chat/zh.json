@@ -158,7 +158,8 @@
       "title_count": "好友请求（{count}）",
       "accept": "接受",
       "decline": "拒绝"
-    }
+    },
+    "load_failed": "无法加载联系人"
   },
   "call": {
     "type": {

@@ -227,7 +227,9 @@
       "start": "Bắt đầu",
       "try_again": "Vui lòng thử lại.",
       "waiting_approval_short": "Đang chờ duyệt…",
-      "waiting_note_short": "Đang chờ chủ phòng duyệt. Bạn sẽ tự vào cuộc họp khi được cho phép."
+      "waiting_note_short": "Đang chờ chủ phòng duyệt. Bạn sẽ tự vào cuộc họp khi được cho phép.",
+      "gone": "Cuộc họp không còn tồn tại hoặc bạn không có quyền tham gia",
+      "load_failed": "Không tải được cuộc họp, vui lòng thử lại"
     },
     "participants": {
       "action_failed": "Không thực hiện được thao tác",

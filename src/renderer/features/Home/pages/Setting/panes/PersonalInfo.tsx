@@ -10,7 +10,14 @@ import { uploadMedia } from '@/shared/utils/mediaUpload';
 import { useAppDispatch } from '@/renderer/store';
 import { DatePicker, Select, message as toast } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChangePasswordDialog } from '../ChangePasswordDialog';
 
@@ -101,11 +108,14 @@ export function PersonalInfo({ user, onDeleteAccount }: Props) {
 
   useEffect(() => setForm(initial), [initial]);
 
-  useEffect(() => {
+  // Opening an empty list loads it again (a failed load left it empty).
+  const loadCountries = useCallback(() => {
     UserService.fetchCountries()
       .then(setCountries)
       .catch(() => {});
   }, []);
+  useEffect(loadCountries, [loadCountries]);
+  const [citiesKey, setCitiesKey] = useState(0);
 
   const country = countries.find((c) => c.id === form.countryId);
   useEffect(() => {
@@ -116,7 +126,7 @@ export function PersonalInfo({ user, onDeleteAccount }: Props) {
     UserService.fetchCities(country.countryCode)
       .then(setCities)
       .catch(() => setCities([]));
-  }, [country]);
+  }, [country, citiesKey]);
 
   const set = <K extends keyof Form>(key: K, value: Form[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -300,6 +310,9 @@ export function PersonalInfo({ user, onDeleteAccount }: Props) {
               showSearch
               filterOption={searchLabel}
               placeholder={t('account.personal.country_hint')}
+              onDropdownVisibleChange={(open) => {
+                if (open && !countries.length) loadCountries();
+              }}
               value={form.countryId || undefined}
               onChange={(v: number) => {
                 const c = countries.find((x) => x.id === v);
@@ -325,7 +338,10 @@ export function PersonalInfo({ user, onDeleteAccount }: Props) {
               showSearch
               filterOption={searchLabel}
               placeholder={t('account.personal.city_hint')}
-              disabled={!cities.length}
+              disabled={!country}
+              onDropdownVisibleChange={(open) => {
+                if (open && !cities.length) setCitiesKey((k) => k + 1);
+              }}
               value={form.prefectureId || undefined}
               onChange={(v: number) => set('prefectureId', v)}
               options={cities.map((c) => ({ value: c.id, label: c.name }))}

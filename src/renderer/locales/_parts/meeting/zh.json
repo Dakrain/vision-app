@@ -227,7 +227,9 @@
       "start": "开始",
       "try_again": "请重试。",
       "waiting_approval_short": "等待批准…",
-      "waiting_note_short": "正在等待主持人批准。获准后你将自动进入会议。"
+      "waiting_note_short": "正在等待主持人批准。获准后你将自动进入会议。",
+      "gone": "该会议已不存在或您无权加入",
+      "load_failed": "无法加载会议，请重试"
     },
     "participants": {
       "action_failed": "无法完成操作",

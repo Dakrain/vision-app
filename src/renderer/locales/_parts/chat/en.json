@@ -158,7 +158,8 @@
       "title_count": "Friend requests ({count})",
       "accept": "Accept",
       "decline": "Decline"
-    }
+    },
+    "load_failed": "Couldn't load contacts"
   },
   "call": {
     "type": {

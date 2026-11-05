@@ -28,7 +28,8 @@
       "description": "你将获得更多存储空间和额外权益",
       "free": "免费",
       "terms": "选择存储套餐即表示你同意 Vision 20 的服务条款和隐私政策。",
-      "title": "升级账号以获取更多存储空间"
+      "title": "升级账号以获取更多存储空间",
+      "load_failed": "无法加载存储套餐"
     },
     "personal": {
       "about_you": "关于你",
@@ -132,7 +133,8 @@
     },
     "reset": {
       "new_password": "新密码"
-    }
+    },
+    "session_expired": "登录已过期，请重新登录"
   },
   "home": {
     "menu": {

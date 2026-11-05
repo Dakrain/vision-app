@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import '../renderer/i18n';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ChatConnecting } from '../renderer/features/Home/pages/Chat/components/ChatConnecting';
-import { retryDelayMs } from '../renderer/shared/social/connect';
+import { retryDelayMs } from '../renderer/shared/utils/backoff';
 
 describe('ChatConnecting', () => {
   it('connecting: a spinner and the message, no retry button', () => {
