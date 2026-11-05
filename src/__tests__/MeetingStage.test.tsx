@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import '../renderer/i18n';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MeetingStage } from '../renderer/features/Meeting/components/MeetingStage/MeetingStage';
 
