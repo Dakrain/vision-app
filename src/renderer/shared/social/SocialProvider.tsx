@@ -3,6 +3,7 @@ import { selectAuth } from '@/renderer/shared/store/auth/selector';
 import { notification } from 'antd';
 import {
   createContext,
+  useCallback,
   ReactNode,
   useContext,
   useEffect,
@@ -12,6 +13,7 @@ import {
 } from 'react';
 import { signInAsUser, signOut, uidFor } from '../services/Firebase/app';
 import { osNotify } from '../utils/osNotify';
+import { AUTO_RETRIES, type SocialStatus, retryDelayMs } from './connect';
 import {
   Conversation,
   Me,
@@ -24,6 +26,10 @@ import {
 interface SocialState {
   /** Signed in to Firebase as the current Vision user. */
   me?: Me;
+  /** Sign-in progress; 'failed' after the automatic retries ran out. */
+  status: SocialStatus;
+  /** Try signing in again now (the Chat page's "Thử lại"). */
+  retry: () => void;
   conversations: Conversation[];
   unreadTotal: number;
   /** Conversation open on screen (no toast, auto mark-read). */
@@ -32,6 +38,8 @@ interface SocialState {
 }
 
 const SocialContext = createContext<SocialState>({
+  status: 'connecting',
+  retry: () => {},
   conversations: [],
   unreadTotal: 0,
   setActiveConversationId: () => {},
@@ -46,6 +54,9 @@ export const useSocial = () => useContext(SocialContext);
 export function SocialProvider({ children }: { children: ReactNode }) {
   const { user } = useAppSelector(selectAuth);
   const [me, setMe] = useState<Me>();
+  const [failed, setFailed] = useState(false);
+  // Bumped to sign in again after a failure.
+  const [attemptKey, setAttemptKey] = useState(0);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string>();
   const activeRef = useRef<string>();
@@ -61,25 +72,48 @@ export function SocialProvider({ children }: { children: ReactNode }) {
       return undefined;
     }
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const profile: Me = {
       uid: uidFor(backendId),
       backendId,
       displayName: user?.fullName,
       avatarUrl: user?.avatarUrl,
     };
-    signInAsUser(backendId)
-      .then(async () => {
-        if (cancelled) return;
-        await upsertUserMirror(profile).catch(() => {});
-        setMe(profile);
-      })
-      .catch((e) => {
+    setFailed(false);
+    // A failed sign-in (network, cold Cloud Function) retries with backoff,
+    // then the Chat page offers "Thử lại" — desktop has no reload.
+    const attempt = async (n: number) => {
+      try {
+        await signInAsUser(backendId);
+      } catch (e) {
         console.warn('[social] Firebase sign-in failed', e);
-      });
+        if (cancelled) return;
+        if (n < AUTO_RETRIES) {
+          timer = setTimeout(() => attempt(n + 1), retryDelayMs(n));
+        } else {
+          setFailed(true);
+        }
+        return;
+      }
+      if (cancelled) return;
+      await upsertUserMirror(profile).catch(() => {});
+      if (!cancelled) setMe(profile);
+    };
+    attempt(0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
-  }, [user?.id, user?.fullName, user?.avatarUrl]);
+  }, [user?.id, user?.fullName, user?.avatarUrl, attemptKey]);
+
+  const retry = useCallback(() => setAttemptKey((k) => k + 1), []);
+
+  // Back online after giving up: try again by itself.
+  useEffect(() => {
+    if (!failed) return undefined;
+    window.addEventListener('online', retry);
+    return () => window.removeEventListener('online', retry);
+  }, [failed, retry]);
 
   // Live conversation list + a toast for messages arriving elsewhere.
   const lastSeen = useRef<Record<string, number>>({});
@@ -127,15 +161,19 @@ export function SocialProvider({ children }: { children: ReactNode }) {
     [conversations, me],
   );
 
+  let status: SocialStatus = failed ? 'failed' : 'connecting';
+  if (me) status = 'connected';
   const value = useMemo(
-    () => ({
+    (): SocialState => ({
       me,
+      status,
+      retry,
       conversations,
       unreadTotal,
       activeConversationId,
       setActiveConversationId,
     }),
-    [me, conversations, unreadTotal, activeConversationId],
+    [me, status, retry, conversations, unreadTotal, activeConversationId],
   );
 
   return (

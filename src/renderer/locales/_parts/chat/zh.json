@@ -13,7 +13,8 @@
       "you_prefix": "我：",
       "open_failed": "无法打开对话",
       "connecting": "正在连接聊天…",
-      "placeholder": "选择一个对话开始聊天"
+      "placeholder": "选择一个对话开始聊天",
+      "connect_failed": "无法连接聊天"
     },
     "new_message": {
       "direct": "私聊",

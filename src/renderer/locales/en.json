@@ -215,6 +215,7 @@
       "not_contact": "Only contacts can be blocked. You can report their messages."
     },
     "conversations": {
+      "connect_failed": "Couldn't connect to chat",
       "connecting": "Connecting to chat…",
       "empty": "No conversations yet",
       "group": "Group",

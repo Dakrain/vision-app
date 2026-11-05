@@ -13,7 +13,8 @@
       "you_prefix": "You: ",
       "open_failed": "Couldn't open the conversation",
       "connecting": "Connecting to chat…",
-      "placeholder": "Select a conversation to start messaging"
+      "placeholder": "Select a conversation to start messaging",
+      "connect_failed": "Couldn't connect to chat"
     },
     "new_message": {
       "direct": "Direct chat",

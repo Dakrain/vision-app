@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { listTimeLabel } from './chatFormat';
 import { AddContactDialog } from './components/AddContactDialog';
 import { ChatAvatar } from './components/ChatAvatar';
+import { ChatConnecting } from './components/ChatConnecting';
 import { ForwardDialog } from './components/ForwardDialog';
 import { NewChatPane } from './components/NewChatPane';
 import { NewGroupPane } from './components/NewGroupPane';
@@ -76,8 +77,14 @@ function ConversationRow({
 
 function Chat() {
   const { t } = useTranslation();
-  const { me, conversations, activeConversationId, setActiveConversationId } =
-    useSocial();
+  const {
+    me,
+    status,
+    retry,
+    conversations,
+    activeConversationId,
+    setActiveConversationId,
+  } = useSocial();
   const {
     contacts,
     requests,
@@ -163,7 +170,10 @@ function Chat() {
 
   if (!me) {
     return (
-      <div className="chat-loading">{t('chat.conversations.connecting')}</div>
+      <ChatConnecting
+        status={status === 'failed' ? 'failed' : 'connecting'}
+        onRetry={retry}
+      />
     );
   }
 

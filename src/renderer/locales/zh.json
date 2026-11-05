@@ -215,6 +215,7 @@
       "not_contact": "只能屏蔽通讯录中的联系人。你可以举报他们的消息。"
     },
     "conversations": {
+      "connect_failed": "无法连接聊天",
       "connecting": "正在连接聊天…",
       "empty": "暂无聊天",
       "group": "群组",

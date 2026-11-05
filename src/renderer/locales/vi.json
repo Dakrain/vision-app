@@ -215,6 +215,7 @@
       "not_contact": "Chỉ chặn được người trong danh bạ. Bạn có thể báo cáo tin nhắn của họ."
     },
     "conversations": {
+      "connect_failed": "Không kết nối được trò chuyện",
       "connecting": "Đang kết nối trò chuyện…",
       "empty": "Chưa có cuộc trò chuyện nào",
       "group": "Nhóm",

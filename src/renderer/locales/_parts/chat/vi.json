@@ -13,7 +13,8 @@
       "you_prefix": "Bạn: ",
       "open_failed": "Không mở được cuộc trò chuyện",
       "connecting": "Đang kết nối trò chuyện…",
-      "placeholder": "Chọn một cuộc trò chuyện để bắt đầu nhắn tin"
+      "placeholder": "Chọn một cuộc trò chuyện để bắt đầu nhắn tin",
+      "connect_failed": "Không kết nối được trò chuyện"
     },
     "new_message": {
       "direct": "Cuộc trò chuyện cá nhân",
