@@ -3,6 +3,7 @@ import './MeetingDetail.scss';
 import Icon from '@/assets/svg/icons';
 import { useTranslation } from 'react-i18next';
 import { InfoItemProps, MeetingDetailProps } from './types';
+import { inviteUrl } from '@/shared/utils/inviteLink';
 
 const { Text } = Typography;
 
@@ -79,7 +80,7 @@ export function MeetingDetail({
         />
         <InfoItem
           label={t('meeting.detail.join_link')}
-          value={meetingInfo.joinUrl || ''}
+          value={inviteUrl(meetingInfo)}
           copyable
           onCopy={handleCopy}
         />

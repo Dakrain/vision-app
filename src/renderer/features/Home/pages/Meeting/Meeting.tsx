@@ -17,6 +17,7 @@ import { EditMeetingDialog } from './components/EditMeetingDialog';
 import { MeetingCard } from './components/MeetingCard';
 import { groupByDay } from './meetingTime';
 import './Meeting.scss';
+import { inviteUrl } from '@/shared/utils/inviteLink';
 
 const { clipboard } = window.require('electron');
 
@@ -160,7 +161,7 @@ function Meeting({
 
   const onCopyLink = useCallback(
     (meeting: MeetingListItem) => {
-      clipboard.writeText(meeting.joinUrl ?? '');
+      clipboard.writeText(inviteUrl(meeting));
       notification.success({
         message: t('meeting.list.link_copied'),
         placement: 'top',

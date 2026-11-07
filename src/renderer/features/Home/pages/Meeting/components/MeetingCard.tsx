@@ -9,6 +9,7 @@ import type { MenuProps } from 'antd';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { meetingDate, timeLabel } from '../meetingTime';
+import { inviteUrl } from '@/shared/utils/inviteLink';
 
 interface Props {
   meeting: MeetingListItem;
@@ -41,7 +42,7 @@ export const MeetingCard = memo(function MeetingCard({
 
   const menuItems: MenuProps['items'] = [
     ...(isHost ? [{ key: 'edit', label: t('meeting.list.edit_title') }] : []),
-    ...(meeting.joinUrl
+    ...(inviteUrl(meeting)
       ? [{ key: 'copy', label: t('meeting.list.copy_link') }]
       : []),
     // A running meeting has to be ended first (the API refuses).

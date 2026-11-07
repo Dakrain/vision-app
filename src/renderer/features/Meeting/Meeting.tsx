@@ -57,6 +57,7 @@ import {
   ScreenCaptureSourceType,
   VideoContentHint,
 } from 'agora-electron-sdk';
+import { inviteUrl } from '@/shared/utils/inviteLink';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -684,7 +685,7 @@ function Meeting() {
       );
 
     const copyInviteLink = () => {
-      const link = meetingDetail?.room?.joinUrl;
+      const link = meetingDetail?.room ? inviteUrl(meetingDetail.room) : '';
       if (!link) {
         notification.warning({
           message: t('meeting.participants.no_invite_link'),
@@ -823,6 +824,8 @@ function Meeting() {
     myUid,
     meetingDetail?.room?.waitingRoom,
     meetingDetail?.room?.joinUrl,
+    meetingDetail?.room?.visionMeetingKey,
+    meetingDetail?.room?.visionMeetingPwd,
     meetingDetail?.user?.userId,
     activeSpeakerUid,
     selfSpeaking,
