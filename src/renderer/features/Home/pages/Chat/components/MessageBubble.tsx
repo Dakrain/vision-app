@@ -13,7 +13,13 @@ import {
   messageSummaryText,
 } from '../chatFormat';
 
-export type MessageAction = 'reply' | 'forward' | 'copy' | 'hide' | 'recall';
+export type MessageAction =
+  | 'reply'
+  | 'forward'
+  | 'copy'
+  | 'hide'
+  | 'recall'
+  | 'report';
 
 interface Props {
   message: Message;
@@ -187,6 +193,10 @@ export const MessageBubble = memo(function MessageBubble({
     { key: 'hide', label: t('chat.actions.hide') },
     ...(mine && m.createdAt
       ? [{ key: 'recall', label: t('chat.actions.recall') }]
+      : []),
+    // Someone else's message can be reported (App Store 1.2).
+    ...(!mine && m.type !== 'call' && !m.recalled
+      ? [{ key: 'report', label: t('chat.actions.report'), danger: true }]
       : []),
   ];
 

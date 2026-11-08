@@ -203,7 +203,16 @@
       "menu": "消息操作",
       "recall": "撤回消息",
       "recalled": "消息已撤回",
-      "reply": "回复"
+      "reply": "回复",
+      "report": "举报消息"
+    },
+    "block": {
+      "action": "屏蔽联系人",
+      "confirm": "屏蔽 {name}？你们将不再是好友。",
+      "done": "已屏蔽联系人",
+      "failed": "屏蔽失败，请重试",
+      "more": "选项",
+      "not_contact": "只能屏蔽通讯录中的联系人。你可以举报他们的消息。"
     },
     "conversations": {
       "connecting": "正在连接聊天…",
@@ -272,6 +281,19 @@
       "voice_rejected": "📞 语音通话被拒绝"
     },
     "recalled": "此消息已撤回",
+    "report": {
+      "copy": "复制举报内容",
+      "failed_message": "你可以将举报发送至 {email}。",
+      "failed_title": "无法打开邮件应用",
+      "harassment": "骚扰或辱骂",
+      "inappropriate": "不当内容",
+      "other": "其他原因",
+      "send": "发送举报",
+      "sent": "正在打开邮件应用发送举报",
+      "spam": "垃圾信息或广告",
+      "subtitle": "请选择原因，举报将发送给管理员。",
+      "title": "举报这条消息？"
+    },
     "screen": {
       "attachment": "附件",
       "cancel_reply": "取消回复",
