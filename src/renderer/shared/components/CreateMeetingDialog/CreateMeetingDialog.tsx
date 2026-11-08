@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useLoading from '../../hooks/useLoading';
 import { MeetingService } from '../../services/Meeting';
+import { MEETING_DEFAULTS } from './meetingDefaults';
 import { UserPicker } from './UserPicker';
 import './CreateMeetingDialog.scss';
 
@@ -119,14 +120,18 @@ export function CreateMeetingDialog({
   const [startClock, setStartClock] = useState<Dayjs | null>(null);
   const [invitees, setInvitees] = useState<User[]>([]);
   const [cohosts, setCohosts] = useState<User[]>([]);
-  const [limitUser, setLimitUser] = useState(50);
+  const [limitUser, setLimitUser] = useState<number>(
+    MEETING_DEFAULTS.limitUser,
+  );
   const [waitingRoom, setWaitingRoom] = useState(false);
   const [enableMic, setEnableMic] = useState(true);
   const [enableCamera, setEnableCamera] = useState(true);
   const [enableRecord, setEnableRecord] = useState(true);
   const [enableChat, setEnableChat] = useState(true);
   const [allowRejoin, setAllowRejoin] = useState(true);
-  const [allowShare, setAllowShare] = useState(true);
+  const [allowShare, setAllowShare] = useState<boolean>(
+    MEETING_DEFAULTS.allowShare,
+  );
   const [allowLivestream, setAllowLivestream] = useState(false);
   const [autoRecord, setAutoRecord] = useState(false);
   const [folder, setFolder] = useState<string>();
@@ -330,7 +335,7 @@ export function CreateMeetingDialog({
                 min={2}
                 max={100}
                 value={limitUser}
-                onChange={(v) => setLimitUser(v ?? 50)}
+                onChange={(v) => setLimitUser(v ?? MEETING_DEFAULTS.limitUser)}
                 controls={false}
               />
               <Icon name="meetingCaretRight" />
