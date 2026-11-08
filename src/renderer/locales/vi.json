@@ -203,7 +203,16 @@
       "menu": "Tác vụ tin nhắn",
       "recall": "Thu hồi tin nhắn",
       "recalled": "Đã thu hồi tin nhắn",
-      "reply": "Trả lời"
+      "reply": "Trả lời",
+      "report": "Báo cáo tin nhắn"
+    },
+    "block": {
+      "action": "Chặn liên lạc",
+      "confirm": "Chặn {name}? Hai bạn sẽ không còn là bạn bè.",
+      "done": "Đã chặn liên lạc",
+      "failed": "Không chặn được, vui lòng thử lại",
+      "more": "Tùy chọn",
+      "not_contact": "Chỉ chặn được người trong danh bạ. Bạn có thể báo cáo tin nhắn của họ."
     },
     "conversations": {
       "connecting": "Đang kết nối trò chuyện…",
@@ -272,6 +281,19 @@
       "voice_rejected": "📞 Cuộc gọi thoại bị từ chối"
     },
     "recalled": "Tin nhắn đã được thu hồi",
+    "report": {
+      "copy": "Sao chép báo cáo",
+      "failed_message": "Bạn có thể gửi báo cáo tới {email}.",
+      "failed_title": "Không mở được ứng dụng email",
+      "harassment": "Quấy rối, xúc phạm",
+      "inappropriate": "Nội dung không phù hợp",
+      "other": "Lý do khác",
+      "send": "Gửi báo cáo",
+      "sent": "Đã mở ứng dụng email để gửi báo cáo",
+      "spam": "Spam hoặc quảng cáo",
+      "subtitle": "Chọn lý do. Báo cáo sẽ được gửi tới ban quản trị.",
+      "title": "Báo cáo tin nhắn này?"
+    },
     "screen": {
       "attachment": "Tệp đính kèm",
       "cancel_reply": "Hủy trả lời",

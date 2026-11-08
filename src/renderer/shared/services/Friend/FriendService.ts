@@ -55,6 +55,11 @@ class FriendService extends BaseService {
     return this.put(`/friend/${friendId}`, { command: 'accepted' });
   }
 
+  /** Blocks a friend (`friendId`: the friendship row), as on mobile. */
+  blockFriend(friendId: number): Promise<unknown> {
+    return this.put(`/friend/${friendId}`, { command: 'blocked' });
+  }
+
   /** Declines a request, or removes a friend. */
   removeFriend(friendId: number): Promise<unknown> {
     return this.delete(`/friend/${friendId}`);

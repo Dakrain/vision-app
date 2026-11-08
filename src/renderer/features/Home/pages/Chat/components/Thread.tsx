@@ -16,7 +16,8 @@ import {
   watchMessages,
   setGroupAvatar,
 } from '@/shared/services/Firebase/chat';
-import { Dropdown, message as toast } from 'antd';
+import { Dropdown, Modal, message as toast } from 'antd';
+import FriendService from '@/shared/services/Friend/FriendService';
 import { playMessagePop } from '@/shared/utils/sfx';
 import {
   Fragment,
@@ -29,6 +30,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { uploadAttachment } from '@/shared/utils/mediaUpload';
+import { ReportDialog } from './ReportDialog';
 import {
   dayDivider,
   isSameDay,
@@ -71,6 +73,7 @@ export function Thread({ conversation, onForward }: Props) {
   const [max, setMax] = useState(PAGE);
   const [failed, setFailed] = useState<FailedMessage[]>([]);
   const [replyTo, setReplyTo] = useState<Message>();
+  const [reporting, setReporting] = useState<Message | null>(null);
   const [atBottom, setAtBottom] = useState(true);
   const [unseen, setUnseen] = useState(0);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -285,6 +288,9 @@ export function Thread({ conversation, onForward }: Props) {
           await hideMessageForMe(conversation.id, m.id, me);
           confirm(t('chat.actions.hidden'));
           break;
+        case 'report':
+          setReporting(m);
+          break;
         case 'recall':
           await recallMessage(
             conversation.id,
@@ -298,6 +304,41 @@ export function Thread({ conversation, onForward }: Props) {
     } catch (_) {
       toast.error(t('chat.actions.failed'));
     }
+  };
+
+  // Blocking goes through the friendship (the API's only block), as on
+  // mobile: someone not in my contacts can be reported instead.
+  const block = async () => {
+    if (!peer) return;
+    let friendId: number | undefined;
+    try {
+      const contacts = await FriendService.fetchContacts();
+      friendId = contacts.find((c) => c.id === peer)?.friendId;
+    } catch (_) {
+      toast.error(t('chat.block.failed'));
+      return;
+    }
+    if (!friendId) {
+      toast.info(t('chat.block.not_contact'));
+      return;
+    }
+    const id = friendId;
+    Modal.confirm({
+      title: t('chat.block.action'),
+      content: t('chat.block.confirm', { name: title }),
+      okText: t('chat.block.action'),
+      okButtonProps: { danger: true },
+      cancelText: t('common.cancel'),
+      centered: true,
+      onOk: async () => {
+        try {
+          await FriendService.blockFriend(id);
+          toast.success(t('chat.block.done'));
+        } catch (_) {
+          toast.error(t('chat.block.failed'));
+        }
+      },
+    });
   };
 
   const startCall = (type: 'audio' | 'video') =>
@@ -429,6 +470,20 @@ export function Thread({ conversation, onForward }: Props) {
             >
               <Icon name="chatVideo" />
             </button>
+            <Dropdown
+              trigger={['click']}
+              placement="bottomRight"
+              menu={{
+                items: [
+                  { key: 'block', label: t('chat.block.action'), danger: true },
+                ],
+                onClick: () => block(),
+              }}
+            >
+              <button type="button" title={t('chat.block.more')}>
+                <Icon name="meetingDots" />
+              </button>
+            </Dropdown>
           </div>
         )}
       </div>
@@ -576,6 +631,12 @@ export function Thread({ conversation, onForward }: Props) {
         onCancelReply={() => setReplyTo(undefined)}
         onSendText={sendText}
         onSendFile={sendFile}
+      />
+      <ReportDialog
+        message={reporting}
+        conversationId={conversation.id}
+        senderName={reporting ? nameOf(reporting) : ''}
+        onClose={() => setReporting(null)}
       />
     </div>
   );
