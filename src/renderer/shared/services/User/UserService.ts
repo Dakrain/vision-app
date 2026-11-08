@@ -108,6 +108,11 @@ class UserService extends BaseService {
   logout(): Promise<unknown> {
     return this.post('/user/logout', {});
   }
+
+  /** Deletes my account; the token stops working. */
+  withdraw(): Promise<unknown> {
+    return this.post('/user/withdraw', {});
+  }
 }
 
 export default new UserService({ baseURL: API_BASE_URL });

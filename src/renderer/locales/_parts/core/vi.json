@@ -78,6 +78,13 @@
     },
     "terms": {
       "description": "Nội dung Điều khoản và Điều kiện của Vision 20 đang được cập nhật."
+    },
+    "delete": {
+      "title": "Xóa tài khoản",
+      "message": "Tài khoản cùng dữ liệu của bạn sẽ bị xóa vĩnh viễn và bạn sẽ không thể đăng nhập lại. Bạn có chắc chắn không?",
+      "confirm": "Xóa vĩnh viễn",
+      "failed": "Không xóa được tài khoản, vui lòng thử lại.",
+      "done": "Tài khoản đã được xóa"
     }
   },
   "auth": {

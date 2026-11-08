@@ -12,6 +12,13 @@
       "title": "Change your password",
       "wrong_current": "Current password is incorrect"
     },
+    "delete": {
+      "confirm": "Delete permanently",
+      "done": "Your account has been deleted",
+      "failed": "Couldn't delete the account, please try again.",
+      "message": "Your account and its data will be deleted permanently and you will not be able to sign in again. Are you sure?",
+      "title": "Delete account"
+    },
     "logout": {
       "confirm_message": "Are you sure you want to log out?"
     },

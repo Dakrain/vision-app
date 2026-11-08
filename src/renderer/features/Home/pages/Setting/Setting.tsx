@@ -3,6 +3,7 @@ import { selectAuth } from '@/shared/store/auth/selector';
 import Icon from '@/assets/svg/icons';
 import { type JSX, type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 import { LogoutDialog } from './LogoutDialog';
 import { Language, useCurrentLanguageLabel } from './panes/Language';
 import { Packages } from './panes/Packages';
@@ -19,6 +20,8 @@ interface Props {
   section: SettingSection;
   onSectionChange: (section: SettingSection) => void;
   onLogout: () => void;
+  /** The account was deleted: forget the session here. */
+  onAccountDeleted: () => void;
 }
 
 function MenuRow({
@@ -54,12 +57,18 @@ function MenuRow({
 }
 
 /** Account settings (Figma "Account setting / …", 10946:59797 and siblings). */
-function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
+function Setting({
+  section,
+  onSectionChange,
+  onLogout,
+  onAccountDeleted,
+}: Props): JSX.Element {
   const { t } = useTranslation();
   const languageLabel = useCurrentLanguageLabel();
   const { user } = useAppSelector(selectAuth);
   const [upgrading, setUpgrading] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [version, setVersion] = useState('');
 
   useEffect(() => {
@@ -94,7 +103,12 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
       case 'language':
         return <Language />;
       default:
-        return <PersonalInfo user={user} />;
+        return (
+          <PersonalInfo
+            user={user}
+            onDeleteAccount={() => setDeleteOpen(true)}
+          />
+        );
     }
   };
 
@@ -148,6 +162,14 @@ function Setting({ section, onSectionChange, onLogout }: Props): JSX.Element {
         )}
       </nav>
       <main className="settings-content">{renderPane()}</main>
+      <DeleteAccountDialog
+        open={deleteOpen}
+        onCancel={() => setDeleteOpen(false)}
+        onDeleted={() => {
+          setDeleteOpen(false);
+          onAccountDeleted();
+        }}
+      />
       <LogoutDialog
         open={logoutOpen}
         onCancel={() => setLogoutOpen(false)}

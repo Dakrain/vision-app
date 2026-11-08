@@ -78,6 +78,13 @@
     },
     "terms": {
       "description": "Vision 20's Terms and Conditions are being updated."
+    },
+    "delete": {
+      "title": "Delete account",
+      "message": "Your account and its data will be deleted permanently and you will not be able to sign in again. Are you sure?",
+      "confirm": "Delete permanently",
+      "failed": "Couldn't delete the account, please try again.",
+      "done": "Your account has been deleted"
     }
   },
   "auth": {

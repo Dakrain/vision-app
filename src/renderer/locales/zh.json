@@ -12,6 +12,13 @@
       "title": "修改密码",
       "wrong_current": "当前密码不正确"
     },
+    "delete": {
+      "confirm": "永久删除",
+      "done": "账户已删除",
+      "failed": "无法删除账户，请重试。",
+      "message": "您的账户及其数据将被永久删除，且无法再次登录。确定要删除吗？",
+      "title": "删除账户"
+    },
     "logout": {
       "confirm_message": "确定要退出登录吗？"
     },

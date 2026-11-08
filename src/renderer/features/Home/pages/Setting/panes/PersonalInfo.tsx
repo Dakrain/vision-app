@@ -83,10 +83,12 @@ function Field({
 
 interface Props {
   user: User;
+  /** "Xóa tài khoản" was asked for. */
+  onDeleteAccount: () => void;
 }
 
 /** "Thông tin cá nhân" (Figma 10946:59797). */
-export function PersonalInfo({ user }: Props) {
+export function PersonalInfo({ user, onDeleteAccount }: Props) {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const initial = useMemo(() => fromUser(user), [user]);
@@ -347,6 +349,13 @@ export function PersonalInfo({ user }: Props) {
           >
             <input value="••••••••••••" readOnly tabIndex={-1} />
           </Field>
+          <button
+            type="button"
+            className="settings-link"
+            onClick={onDeleteAccount}
+          >
+            {t('account.delete.title')}
+          </button>
         </section>
 
         <section>

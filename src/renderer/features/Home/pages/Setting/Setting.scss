@@ -506,10 +506,21 @@
 .settings-confirm {
   padding: 24px;
 
+  h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+  }
+
   p {
     margin: 0 0 24px;
     font-size: 16px;
     text-align: center;
+  }
+
+  .settings-error {
+    margin-top: -16px;
   }
 
   &-actions {

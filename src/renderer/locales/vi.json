@@ -12,6 +12,13 @@
       "title": "Thay đổi mật khẩu của bạn",
       "wrong_current": "Mật khẩu hiện tại không đúng"
     },
+    "delete": {
+      "confirm": "Xóa vĩnh viễn",
+      "done": "Tài khoản đã được xóa",
+      "failed": "Không xóa được tài khoản, vui lòng thử lại.",
+      "message": "Tài khoản cùng dữ liệu của bạn sẽ bị xóa vĩnh viễn và bạn sẽ không thể đăng nhập lại. Bạn có chắc chắn không?",
+      "title": "Xóa tài khoản"
+    },
     "logout": {
       "confirm_message": "Bạn có chắc chắn muốn đăng xuất không?"
     },

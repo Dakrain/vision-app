@@ -5,7 +5,7 @@ import {
   JoinMeetingDialog,
   MenuItem,
 } from '@/shared/components/';
-import { Badge, Divider, Dropdown, Layout } from 'antd';
+import { Badge, Divider, Dropdown, Layout, notification } from 'antd';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -72,6 +72,17 @@ function Dashboard() {
     navigate('/login');
   };
 
+  // The server already dropped the account and its token: no logout call.
+  const leaveDeletedAccount = () => {
+    lastMenu = 'home';
+    dispatch(logout());
+    notification.success({
+      message: t('account.delete.done'),
+      placement: 'top',
+    });
+    navigate('/login');
+  };
+
   const openSettings = (section: SettingSection) => {
     setSettingSection(section);
     setActiveMenu('setting');
@@ -113,6 +124,7 @@ function Dashboard() {
               section={settingSection}
               onSectionChange={setSettingSection}
               onLogout={doLogout}
+              onAccountDeleted={leaveDeletedAccount}
             />
           );
         default:
