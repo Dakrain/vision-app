@@ -3,7 +3,10 @@
 // store, as release/build/Vision20-<version>-mas.pkg.
 //
 //   MAS_PROFILE=<Mac App Store .provisionprofile> MAS_BUILD=<build number> \
-//     npm run package:mas
+//     [MAS_VERSION=<store version>] npm run package:mas
+//
+// The store has its own version line (the Mac app started at 1.0.0 there);
+// MAS_VERSION sets it (default: release/app/package.json's version).
 //
 // electron-builder only packages it (unsigned): its universal + mas signing
 // signs with the Developer ID and the DMG's entitlements. Then, here:
@@ -32,7 +35,9 @@ if (!profile || !fs.existsSync(profile) || !build) {
   console.error('Set MAS_PROFILE (the .provisionprofile) and MAS_BUILD.');
   process.exit(1);
 }
-const { version } = require(path.join(root, 'release/app/package.json'));
+const version =
+  process.env.MAS_VERSION ||
+  require(path.join(root, 'release/app/package.json')).version;
 const app = path.join(root, 'release/build/mas-universal/Vision20.app');
 const resources = path.join(app, 'Contents/Resources');
 const plist = path.join(app, 'Contents/Info.plist');
@@ -55,6 +60,7 @@ const packageUnsigned = () => {
     'never',
     `-c.appId=${APP_ID}`,
     `-c.buildVersion=${build}`,
+    `-c.extraMetadata.version=${version}`,
     '-c.mac.identity=null',
   ]);
 };
