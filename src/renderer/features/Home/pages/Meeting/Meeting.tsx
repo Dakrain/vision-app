@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { EditMeetingDialog } from './components/EditMeetingDialog';
 import { MeetingCard } from './components/MeetingCard';
-import { groupByDay } from './meetingTime';
+import { groupByDay, sortMeetings } from './meetingTime';
 import './Meeting.scss';
 import { inviteUrl } from '@/shared/utils/inviteLink';
 
@@ -243,7 +243,9 @@ function Meeting({
     }
     return (
       <>
-        {groupByDay(meetings).map((group) => (
+        {groupByDay(
+          sortMeetings(meetings, tab === 'upcoming' ? 'asc' : 'desc'),
+        ).map((group) => (
           <section key={group.label} className="meetings-group">
             <h3 className="meetings-group-label">{group.label}</h3>
             <div className="meetings-group-cards">

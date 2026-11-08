@@ -56,3 +56,17 @@ export const groupByDay = (meetings: MeetingListItem[]) => {
   });
   return groups;
 };
+
+/**
+ * By start time: the soonest first for upcoming meetings, the latest first
+ * for live ones. The API is asked for this order but doesn't keep it yet.
+ */
+export const sortMeetings = (
+  meetings: MeetingListItem[],
+  order: 'asc' | 'desc',
+) => {
+  const sign = order === 'asc' ? 1 : -1;
+  return [...meetings].sort(
+    (a, b) => sign * (meetingDate(a).getTime() - meetingDate(b).getTime()),
+  );
+};
