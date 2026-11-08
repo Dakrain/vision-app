@@ -32,7 +32,8 @@
     "start:main": "concurrently -k \"cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --watch --config ./.erb/configs/webpack.config.main.dev.ts\" \"electronmon .\"",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-    "test": "jest"
+    "test": "jest",
+    "package:mas": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --mac mas --universal --publish never -c.appId=com.vision20.app -c.mas.provisioningProfile=$MAS_PROFILE"
   },
   "browserslist": [
     "extends browserslist-config-erb"
@@ -214,6 +215,19 @@
       "extendInfo": {
         "NSCameraUsageDescription": "Vision20 uses the camera for video calls and meetings.",
         "NSMicrophoneUsageDescription": "Vision20 uses the microphone for calls and meetings."
+      }
+    },
+    "mas": {
+      "type": "distribution",
+      "hardenedRuntime": false,
+      "entitlements": "assets/entitlements.mas.plist",
+      "entitlementsInherit": "assets/entitlements.mas.inherit.plist",
+      "x64ArchFiles": "**/agora-electron-sdk/**",
+      "extendInfo": {
+        "NSCameraUsageDescription": "Vision20 uses the camera for video calls and meetings.",
+        "NSMicrophoneUsageDescription": "Vision20 uses the microphone for calls and meetings.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "LSApplicationCategoryType": "public.app-category.business"
       }
     },
     "dmg": {
