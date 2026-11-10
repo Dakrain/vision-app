@@ -167,6 +167,35 @@ ipcMain.handle('open-screen-capture-settings', () =>
   ),
 );
 
+// Camera and microphone. The usage strings in `build.mac.extendInfo` let
+// macOS prompt on its own the first time Agora opens a device; these let
+// the renderer prompt earlier and, when the user said no, point at the
+// right System Settings pane instead of joining silently mute/black.
+type MediaKind = 'camera' | 'microphone';
+
+ipcMain.handle('media-access-status', (_, kind: MediaKind) =>
+  process.platform === 'darwin'
+    ? systemPreferences.getMediaAccessStatus(kind)
+    : 'granted',
+);
+
+ipcMain.handle('ask-media-access', async (_, kind: MediaKind) => {
+  if (process.platform !== 'darwin') return true;
+  try {
+    return await systemPreferences.askForMediaAccess(kind);
+  } catch (error) {
+    return false;
+  }
+});
+
+ipcMain.handle('open-media-settings', (_, kind: MediaKind) =>
+  shell.openExternal(
+    `x-apple.systempreferences:com.apple.preference.security?Privacy_${
+      kind === 'camera' ? 'Camera' : 'Microphone'
+    }`,
+  ),
+);
+
 ipcMain.handle('get-virtual-background-path', (_, imageNumber: number) => {
   return process.env.NODE_ENV === 'development'
     ? path.resolve(

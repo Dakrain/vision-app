@@ -49,6 +49,7 @@ import {
 } from 'agora-electron-sdk';
 import AgoraEngineService from '../services/Agora/AgoraEngineService';
 import { restoreVirtualBackground } from '../utils/virtualBackground';
+import { ensureMediaAccess } from '../utils/mediaAccess';
 import { ownerOfAgUid, parseAgUid } from '../utils/agoraUid';
 import {
   RtcRecoveryTracker,
@@ -161,11 +162,13 @@ export const useMeeting = () => {
       placement: 'top',
     });
 
-  const toggleMic = () => {
+  const toggleMic = async () => {
     if (!enableMic && permissionsRef.current?.mic === false) {
       warnNotAllowed('mic');
       return;
     }
+    // Turning it on with macOS blocking the device would publish silence.
+    if (!enableMic && !(await ensureMediaAccess({ microphone: true }))) return;
     setEnableMic(!enableMic);
     if (enableMic) {
       AgoraEngineService.muteLocalAudioStream(true);
@@ -183,11 +186,12 @@ export const useMeeting = () => {
       }),
     );
   };
-  const toggleCamera = () => {
+  const toggleCamera = async () => {
     if (!enableCamera && permissionsRef.current?.camera === false) {
       warnNotAllowed('camera');
       return;
     }
+    if (!enableCamera && !(await ensureMediaAccess({ camera: true }))) return;
     setEnableCamera(!enableCamera);
     if (auxConnection.current) {
       // Sharing: the main connection carries the screen, the camera rides

@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { restoreVirtualBackground } from '@/renderer/shared/utils/virtualBackground';
+import { ensureMediaAccess } from '@/renderer/shared/utils/mediaAccess';
 import { livestreamErrorCode } from '@/renderer/shared/hooks/useLivestream';
 import { isGoneFromMeeting } from '@/renderer/shared/network/apiError';
 import { VirtualBackgroundDialog } from '@/renderer/features/Meeting/components/VirtualBackgroundDialog/VirtualBackgroundDialog';
@@ -218,20 +219,22 @@ function MeetingLobby() {
     };
   }, [enableMic, micId]);
 
-  const toggleMic = () => {
+  const toggleMic = async () => {
     if (!enableMic && settingsKnown && !micAllowed) {
       notAllowed('mic');
       return;
     }
+    if (!enableMic && !(await ensureMediaAccess({ microphone: true }))) return;
     setEnableMic(!enableMic);
     saveLobbyPrefs({ enableMic: !enableMic });
   };
 
-  const toggleCamera = () => {
+  const toggleCamera = async () => {
     if (!enableCamera && settingsKnown && !cameraAllowed) {
       notAllowed('camera');
       return;
     }
+    if (!enableCamera && !(await ensureMediaAccess({ camera: true }))) return;
     setEnableCamera(!enableCamera);
     saveLobbyPrefs({ enableCamera: !enableCamera });
   };
@@ -278,6 +281,9 @@ function MeetingLobby() {
     // A second device starts muted: it sits next to the first one.
     const mic = enableMic && allowed.mic && !companion;
     const camera = enableCamera && allowed.camera;
+    // A denied device would leave the room silent/black: say where to grant
+    // it before entering.
+    if (!(await ensureMediaAccess({ microphone: mic, camera }))) return;
     // The member row (what others see) belongs to the main device.
     if (!companion) {
       try {

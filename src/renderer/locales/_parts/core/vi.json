@@ -207,6 +207,13 @@
       "password_min_length": "Mật khẩu phải có ít nhất 6 ký tự",
       "password_mismatch": "Mật khẩu không khớp",
       "password_required": "Mật khẩu không được để trống"
+    },
+    "media_access": {
+      "both_message": "macOS đang chặn quyền camera và micro của Vision 20. Vào Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Camera và Microphone, bật quyền cho Vision 20, sau đó khởi động lại ứng dụng.",
+      "camera_message": "macOS đang chặn quyền camera của Vision 20. Vào Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Camera, bật quyền cho Vision 20, sau đó khởi động lại ứng dụng.",
+      "microphone_message": "macOS đang chặn quyền micro của Vision 20. Vào Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Microphone, bật quyền cho Vision 20, sau đó khởi động lại ứng dụng.",
+      "open_system_settings": "Mở Cài đặt hệ thống",
+      "title": "Cần cấp quyền camera và micro"
     }
   }
 }

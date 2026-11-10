@@ -837,6 +837,13 @@
       "pick_recording_folder_title": "Choose a folder for recordings",
       "save_recording_title": "Save meeting recording"
     },
+    "media_access": {
+      "both_message": "macOS is blocking the camera and the microphone for Vision 20. Go to System Settings → Privacy & Security → Camera and Microphone, turn them on for Vision 20, then restart the app.",
+      "camera_message": "macOS is blocking the camera for Vision 20. Go to System Settings → Privacy & Security → Camera, turn it on for Vision 20, then restart the app.",
+      "microphone_message": "macOS is blocking the microphone for Vision 20. Go to System Settings → Privacy & Security → Microphone, turn it on for Vision 20, then restart the app.",
+      "open_system_settings": "Open System Settings",
+      "title": "Camera and microphone permission needed"
+    },
     "recording": {
       "free_space": "{size} GB left"
     },

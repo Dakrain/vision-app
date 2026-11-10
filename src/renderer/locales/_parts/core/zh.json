@@ -207,6 +207,13 @@
       "password_min_length": "密码至少需要6个字符",
       "password_mismatch": "两次输入的密码不一致",
       "password_required": "密码不能为空"
+    },
+    "media_access": {
+      "both_message": "macOS 正在阻止 Vision 20 使用摄像头和麦克风。请前往“系统设置”→“隐私与安全性”→“摄像头”和“麦克风”，为 Vision 20 开启权限，然后重新启动应用。",
+      "camera_message": "macOS 正在阻止 Vision 20 使用摄像头。请前往“系统设置”→“隐私与安全性”→“摄像头”，为 Vision 20 开启权限，然后重新启动应用。",
+      "microphone_message": "macOS 正在阻止 Vision 20 使用麦克风。请前往“系统设置”→“隐私与安全性”→“麦克风”，为 Vision 20 开启权限，然后重新启动应用。",
+      "open_system_settings": "打开系统设置",
+      "title": "需要摄像头和麦克风权限"
     }
   }
 }
