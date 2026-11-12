@@ -1,4 +1,4 @@
-import { ConfigProvider, ThemeConfig } from 'antd';
+import { ConfigProvider, notification, ThemeConfig } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 import enUS from 'antd/locale/en_US';
 import zhCN from 'antd/locale/zh_CN';
@@ -69,35 +69,18 @@ export const appTheme: ThemeConfig = {
 const brandRed = '#FF4D4F';
 
 /**
- * Modal.confirm / message / notification: the app's theme, with buttons
- * like the app's own (red, or red outline; 12 px corners, bold) and the
- * app's orange for a warning — not antd's blue buttons and black icon.
+ * Modal.confirm / message / notification: the app's theme, with the app's
+ * colours for their icons (green success, blue info, orange warning) —
+ * not antd's. Their buttons look like the app's own through global.css.
  */
 export const dialogTheme: ThemeConfig = {
   ...appTheme,
-  token: { ...appTheme.token, colorLink: brandRed, colorWarning: '#FF7800' },
-  components: {
-    ...appTheme.components,
-    Button: {
-      borderRadius: 12,
-      controlHeight: 40,
-      fontWeight: 600,
-      paddingInline: 20,
-      primaryShadow: 'none',
-      defaultShadow: 'none',
-      defaultColor: brandRed,
-      defaultBorderColor: brandRed,
-      defaultHoverColor: brandRed,
-      defaultHoverBorderColor: brandRed,
-      defaultHoverBg: 'rgba(255, 77, 79, 0.08)',
-      defaultActiveColor: brandRed,
-      defaultActiveBorderColor: brandRed,
-    },
-    Modal: {
-      ...appTheme.components?.Modal,
-      borderRadiusLG: 16,
-      titleFontSize: 18,
-    },
+  token: {
+    ...appTheme.token,
+    colorLink: brandRed,
+    colorSuccess: '#1EC88C',
+    colorInfo: '#0064FF',
+    colorWarning: '#FF7800',
   },
 };
 
@@ -106,6 +89,9 @@ export const dialogTheme: ThemeConfig = {
  * they came out in antd's default blue and font: give them the theme.
  */
 export const configureStaticDialogs = () => {
+  // One place for every notice: top centre, unless a call site picks
+  // another spot on purpose (a new-message banner, an incoming call).
+  notification.config({ placement: 'top' });
   ConfigProvider.config({
     holderRender: (children) => (
       <ConfigProvider theme={dialogTheme} locale={antdLocale(i18n.language)}>

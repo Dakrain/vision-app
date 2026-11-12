@@ -1,4 +1,4 @@
-import { Modal, Typography, Space, Button, Tooltip, message } from 'antd';
+import { Modal, Typography, Space, Button, Tooltip, notification } from 'antd';
 import './MeetingDetail.scss';
 import Icon from '@/assets/svg/icons';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +36,7 @@ export function MeetingDetail({
 }: MeetingDetailProps) {
   const { t } = useTranslation();
   const handleCopy = (text: string) => {
-    message.success(t('common.copied'));
+    notification.success({ message: t('common.copied') });
     navigator.clipboard.writeText(text);
   };
 

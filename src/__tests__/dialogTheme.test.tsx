@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import '../renderer/i18n';
 import { act } from '@testing-library/react';
-import { Modal } from 'antd';
+import { Modal, notification } from 'antd';
 import { configureStaticDialogs } from '../renderer/theme';
 
 // Modal.confirm (and message / notification) render outside the app's
@@ -35,5 +35,22 @@ describe('static dialogs', () => {
     expect(primaryRules.join('}')).toContain('#ff4d4f');
     expect(primaryRules.join('}')).not.toContain('#1677ff');
     Modal.destroyAll();
+  });
+
+  it('notifications show top centre unless a call site says otherwise', async () => {
+    configureStaticDialogs();
+    await act(async () => {
+      notification.success({ message: 'Đã sao chép' });
+    });
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
+
+    expect(document.querySelector('.ant-notification-top')).toHaveTextContent(
+      'Đã sao chép',
+    );
+    notification.destroy();
   });
 });

@@ -1,7 +1,7 @@
-
 @font-face {
   font-family: 'SF-Compact-Display';
-  src: url('../../assets/fonts/SF-Compact-Display-Regular.otf') format('opentype');
+  src: url('../../assets/fonts/SF-Compact-Display-Regular.otf')
+    format('opentype');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,14 +15,16 @@
 
 @font-face {
   font-family: 'SF-Compact-Display';
-  src: url('../../assets/fonts/SF-Compact-Display-Medium.otf') format('opentype');
+  src: url('../../assets/fonts/SF-Compact-Display-Medium.otf')
+    format('opentype');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'SF-Compact-Display';
-  src: url('../../assets/fonts/SF-Compact-Display-Semibold.otf') format('opentype');
+  src: url('../../assets/fonts/SF-Compact-Display-Semibold.otf')
+    format('opentype');
   font-weight: 600;
   font-style: normal;
 }
@@ -49,4 +51,29 @@
 .ant-btn *,
 .anticon * {
   color: inherit;
+}
+
+/* Every dialog's buttons like the app's own (Button: red, or red outline;
+   12 px corners, bold) — antd's default footers and Modal.confirm. */
+.ant-modal-footer .ant-btn,
+.ant-modal-confirm-btns .ant-btn {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.ant-modal-footer .ant-btn-default:not(.ant-btn-dangerous),
+.ant-modal-confirm-btns .ant-btn-default:not(.ant-btn-dangerous) {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.ant-modal-footer .ant-btn-default:not(.ant-btn-dangerous):not(:disabled):hover,
+.ant-modal-confirm-btns
+  .ant-btn-default:not(.ant-btn-dangerous):not(:disabled):hover {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+  background-color: rgba(255, 77, 79, 0.08);
 }

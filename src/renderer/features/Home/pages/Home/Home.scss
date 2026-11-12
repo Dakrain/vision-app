@@ -14,17 +14,20 @@
     align-items: center;
     justify-content: start;
 
+    // Both lines centred: the title wraps onto two.
     .title-welcome {
       font-size: 40px;
       font-weight: 600;
       color: #000;
       margin-top: 8px;
+      text-align: center;
     }
 
     .description-welcome {
       font-size: 16px;
       font-weight: 400;
       color: #808080;
+      text-align: center;
     }
   }
 
