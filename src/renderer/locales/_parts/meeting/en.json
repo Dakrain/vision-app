@@ -346,9 +346,11 @@
     },
     "share": {
       "app_windows": "Application windows",
-      "desktop": "Desktop",
+      "desktop": "Screens",
       "share": "Share",
-      "title": "Share screen"
+      "title": "Share screen",
+      "screen_n": "Screen {n}",
+      "empty_windows": "No other windows are open"
     },
     "tile": {
       "connecting": "Connecting…",

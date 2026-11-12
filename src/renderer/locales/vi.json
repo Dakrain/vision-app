@@ -754,8 +754,10 @@
       "default_title_of": "Cuộc họp của {name}"
     },
     "share": {
-      "app_windows": "Application windows",
-      "desktop": "Desktop",
+      "app_windows": "Cửa sổ ứng dụng",
+      "desktop": "Màn hình",
+      "empty_windows": "Không có cửa sổ nào khác đang mở",
+      "screen_n": "Màn hình {n}",
       "share": "Chia sẻ",
       "title": "Chia sẻ màn hình"
     },

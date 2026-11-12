@@ -755,7 +755,9 @@
     },
     "share": {
       "app_windows": "Application windows",
-      "desktop": "Desktop",
+      "desktop": "Screens",
+      "empty_windows": "No other windows are open",
+      "screen_n": "Screen {n}",
       "share": "Share",
       "title": "Share screen"
     },

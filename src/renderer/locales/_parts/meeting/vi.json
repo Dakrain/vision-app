@@ -345,10 +345,12 @@
       "default_title_of": "Cuộc họp của {name}"
     },
     "share": {
-      "app_windows": "Application windows",
-      "desktop": "Desktop",
+      "app_windows": "Cửa sổ ứng dụng",
+      "desktop": "Màn hình",
       "share": "Chia sẻ",
-      "title": "Chia sẻ màn hình"
+      "title": "Chia sẻ màn hình",
+      "screen_n": "Màn hình {n}",
+      "empty_windows": "Không có cửa sổ nào khác đang mở"
     },
     "tile": {
       "connecting": "Đang kết nối…",

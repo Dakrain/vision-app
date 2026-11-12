@@ -346,9 +346,11 @@
     },
     "share": {
       "app_windows": "应用窗口",
-      "desktop": "桌面",
+      "desktop": "屏幕",
       "share": "共享",
-      "title": "共享屏幕"
+      "title": "共享屏幕",
+      "screen_n": "屏幕 {n}",
+      "empty_windows": "没有其他打开的窗口"
     },
     "tile": {
       "connecting": "正在连接…",
