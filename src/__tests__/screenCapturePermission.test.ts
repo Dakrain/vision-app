@@ -68,4 +68,12 @@ describe('ensureScreenCaptureAccess (macOS Screen Recording)', () => {
     confirm.mock.calls[0][0].onOk();
     expect(ipc.invoke).toHaveBeenCalledWith('open-screen-capture-settings');
   });
+
+  it('UI testing (VISION_DEBUG_SCREEN_PERMISSION=1, main says "debug"): our dialog every time', async () => {
+    status('debug');
+    await expect(ensureScreenCaptureAccess()).resolves.toBe(false);
+    await expect(ensureScreenCaptureAccess()).resolves.toBe(false);
+    expect(confirm).toHaveBeenCalledTimes(2);
+    expect(requested()).toBe(0);
+  });
 });

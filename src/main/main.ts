@@ -156,11 +156,14 @@ ipcMain.on('resize-window', (event, { width, height }) => {
 
 // macOS needs the Screen Recording permission for screen sharing; without
 // it capture silently sends nothing. Other platforms need no permission.
-ipcMain.handle('screen-capture-access', () =>
-  process.platform === 'darwin'
+// VISION_DEBUG_SCREEN_PERMISSION=1 answers 'debug': the app's permission
+// dialog every time, to test its UI on a Mac that already allows it.
+ipcMain.handle('screen-capture-access', () => {
+  if (process.env.VISION_DEBUG_SCREEN_PERMISSION === '1') return 'debug';
+  return process.platform === 'darwin'
     ? systemPreferences.getMediaAccessStatus('screen')
-    : 'granted',
-);
+    : 'granted';
+});
 
 // Asking for the screens makes macOS show its own Screen Recording prompt
 // (only the first time an app asks) and list the app under Screen

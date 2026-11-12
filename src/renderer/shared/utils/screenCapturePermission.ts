@@ -39,7 +39,8 @@ export const ensureScreenCaptureAccess = async (): Promise<boolean> => {
     .catch(() => 'granted');
   if (status === 'granted') return true;
 
-  if (!askedBefore()) {
+  // 'debug' (VISION_DEBUG_SCREEN_PERMISSION=1): always our dialog, to test it.
+  if (status !== 'debug' && !askedBefore()) {
     rememberAsked();
     const after: string = await ipc()
       .invoke('request-screen-capture-access')
