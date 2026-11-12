@@ -3,11 +3,12 @@ import { Button } from '@/renderer/shared/components/Button';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Image, Modal, notification } from 'antd';
+import { Image, notification } from 'antd';
 import {
   loadVirtualBackground,
   saveVirtualBackground,
 } from '@/renderer/shared/utils/virtualBackground';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 import { VirtualBackgroundProps, VirtualBackground } from './types';
 
 const { ipcRenderer, nativeImage } = window.require('electron');
@@ -107,7 +108,7 @@ export function VirtualBackgroundDialog({
   };
 
   const removeCustomBackground = (source: VirtualBackground) => {
-    Modal.confirm({
+    confirmDialog({
       title: t('meeting.background.delete_title'),
       content: t('meeting.background.delete_message'),
       okText: t('common.delete'),

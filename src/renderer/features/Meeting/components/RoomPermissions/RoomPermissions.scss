@@ -16,3 +16,28 @@
     gap: 16px;
   }
 }
+
+// The panel's title, with its close (X) at the right like every window.
+.room-permissions-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.room-permissions-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: #f2f2f2;
+  }
+}

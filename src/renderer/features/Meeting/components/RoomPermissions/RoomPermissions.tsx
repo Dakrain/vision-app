@@ -1,3 +1,4 @@
+import Icon from '@/assets/svg/icons';
 import { RoomSettings } from '@/renderer/shared/types/meeting';
 import { notification, Popover, Switch } from 'antd';
 import { ReactNode, useState } from 'react';
@@ -42,6 +43,7 @@ interface Props {
 export function RoomPermissions({ settings, onChange, children }: Props) {
   const { t } = useTranslation();
   const [saving, setSaving] = useState<keyof RoomSettings>();
+  const [open, setOpen] = useState(false);
 
   const toggle = async (key: keyof RoomSettings, allowed: boolean) => {
     setSaving(key);
@@ -79,7 +81,21 @@ export function RoomPermissions({ settings, onChange, children }: Props) {
   return (
     <Popover
       content={content}
-      title={t('meeting.participants.permissions')}
+      title={
+        <div className="room-permissions-title">
+          <span>{t('meeting.participants.permissions')}</span>
+          <button
+            type="button"
+            className="room-permissions-close"
+            aria-label={t('common.close')}
+            onClick={() => setOpen(false)}
+          >
+            <Icon name="meetingClose" />
+          </button>
+        </div>
+      }
+      open={open}
+      onOpenChange={setOpen}
       trigger="click"
       placement="bottomRight"
     >

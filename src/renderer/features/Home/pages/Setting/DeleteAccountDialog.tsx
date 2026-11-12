@@ -41,7 +41,8 @@ export function DeleteAccountDialog({ open, onCancel, onDeleted }: Props) {
       width={420}
       title={null}
       footer={null}
-      closable={false}
+      // Not while the account is being deleted.
+      closable={!deleting}
       className="settings-dialog"
     >
       <div className="settings-confirm">

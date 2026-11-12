@@ -1,5 +1,5 @@
-import { Modal } from 'antd';
 import i18n from '@/renderer/i18n';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 
 /** The devices a meeting may ask to use. */
 export type MediaKind = 'camera' | 'microphone';
@@ -79,7 +79,7 @@ export const ensureMediaAccess = async (want: {
   if (camera && microphone) message = 'shared.media_access.both_message';
   else if (microphone) message = 'shared.media_access.microphone_message';
 
-  Modal.confirm({
+  confirmDialog({
     title: i18n.t('shared.media_access.title'),
     content: i18n.t(message),
     okText: i18n.t('shared.media_access.open_system_settings'),

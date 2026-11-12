@@ -2,7 +2,7 @@ import Icon from '@/assets/svg/icons';
 import useLoading from '@/shared/hooks/useLoading';
 import { MeetingService } from '@/shared/services/Meeting';
 import { MeetingStatus, type MeetingListItem } from '@/shared/types/meeting';
-import { Modal, notification, Spin } from 'antd';
+import { notification, Spin } from 'antd';
 import {
   type JSX,
   type UIEvent,
@@ -13,11 +13,12 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { inviteUrl } from '@/shared/utils/inviteLink';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 import { EditMeetingDialog } from './components/EditMeetingDialog';
 import { MeetingCard } from './components/MeetingCard';
 import { groupByDay, sortMeetings } from './meetingTime';
 import './Meeting.scss';
-import { inviteUrl } from '@/shared/utils/inviteLink';
 
 const { clipboard } = window.require('electron');
 
@@ -173,7 +174,7 @@ function Meeting({
 
   const onDelete = useCallback(
     (meeting: MeetingListItem) => {
-      Modal.confirm({
+      confirmDialog({
         title: t('meeting.list.delete_title'),
         content: t('meeting.list.delete_message', { title: meeting.title }),
         okText: t('common.delete'),

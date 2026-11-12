@@ -24,6 +24,7 @@ import {
 } from '@/renderer/shared/hooks/useRemoteVideoSubscriptions';
 import { ownerOfAgUid, parseAgUid } from '@/renderer/shared/utils/agoraUid';
 import { takeAutoRecord } from '@/shared/utils/recordingPrefs';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 import { ensureScreenCaptureAccess } from '@/shared/utils/screenCapturePermission';
 import { LivestreamDialog } from './components/LivestreamDialog/LivestreamDialog';
 import { AddMemberDialog } from './components/AddMemberDialog/AddMemberDialog';
@@ -617,7 +618,7 @@ function Meeting() {
   };
 
   const onMuteAll = () => {
-    Modal.confirm({
+    confirmDialog({
       title: t('meeting.participants.mute_all_title'),
       content: t('meeting.participants.mute_all_confirm'),
       okText: t('meeting.participants.mute_all_title'),
