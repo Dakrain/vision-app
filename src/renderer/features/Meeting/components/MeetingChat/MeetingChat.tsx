@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { sendChat } from '../../store/action';
+import { PanelHeader } from '../PanelHeader';
 import { selectChats } from '../../store/selector';
 import './MeetingChat.scss';
 import { MeetingChatProps } from './types';
@@ -15,6 +16,7 @@ export function MeetingChat({
   sendMessage,
   canSend = true,
   online = true,
+  onClose,
 }: MeetingChatProps) {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -46,7 +48,7 @@ export function MeetingChat({
 
   return (
     <div className="meeting-chat">
-      <div className="meeting-chat-header">{t('meeting.chat.title')}</div>
+      <PanelHeader title={t('meeting.chat.title')} onClose={onClose} />
       {!online && (
         <div className="meeting-chat-offline" role="status">
           <span className="meeting-chat-offline-spinner" />

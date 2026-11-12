@@ -112,19 +112,6 @@
       display: flex;
       flex-direction: column;
 
-      &-title {
-        flex: none;
-        margin: 0;
-        height: 64px;
-        padding: 20px;
-        box-sizing: border-box;
-        background-color: #fff;
-        text-align: center;
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 24px;
-        color: #333;
-      }
 
       &-tabs {
         flex: none;

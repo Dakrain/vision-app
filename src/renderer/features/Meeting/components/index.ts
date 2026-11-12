@@ -3,6 +3,7 @@ export * from './MeetingChat';
 export * from './MeetingDetail';
 export * from './MeetingUser';
 export * from './MenuItem';
+export * from './PanelHeader';
 export * from './ReactionBubbles';
 export * from './ShareScreenDialog';
 export * from './UserSection';

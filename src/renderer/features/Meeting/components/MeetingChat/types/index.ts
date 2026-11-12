@@ -6,4 +6,6 @@ export interface MeetingChatProps {
   canSend?: boolean;
   /** Chat (RTM) is connected; otherwise show that it is reconnecting. */
   online?: boolean;
+  /** The close button at the panel's top right. */
+  onClose: () => void;
 }

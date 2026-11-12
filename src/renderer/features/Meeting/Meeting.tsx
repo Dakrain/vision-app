@@ -38,6 +38,7 @@ import type { MemberAction } from './components/MeetingUser/MeetingUser';
 import {
   EmojiPicker,
   MeetingChat,
+  PanelHeader,
   MeetingDetail,
   MeetingUser,
   MenuItem,
@@ -641,6 +642,7 @@ function Meeting() {
         sendMessage={sendMessage}
         canSend={permissions.chat}
         online={chatOnline || !isConnected}
+        onClose={() => setShowChat(false)}
       />
     );
   }, [sendMessage, permissions.chat, chatOnline, isConnected]);
@@ -790,9 +792,10 @@ function Meeting() {
 
     return (
       <div className="meeting-users-container">
-        <h3 className="meeting-users-container-title">
-          {t('meeting.participants.title')}
-        </h3>
+        <PanelHeader
+          title={t('meeting.participants.title')}
+          onClose={() => setShowMeetingUser(false)}
+        />
         <div className="meeting-users-container-tabs">
           <Segmented
             block
