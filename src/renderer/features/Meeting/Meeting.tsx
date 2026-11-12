@@ -48,6 +48,7 @@ import {
   VideoView,
   VirtualBackgroundDialog,
 } from './components';
+import { LeaveMeetingDialog } from './components/LeaveMeetingDialog';
 import { ShareScreenDialog } from './components/ShareScreenDialog/ShareScreenDialog';
 import { DeviceSettingsDialog } from './components/DeviceSettingsDialog/DeviceSettingsDialog';
 import { MEETING_USER_TABS } from './constants';
@@ -1270,29 +1271,12 @@ function Meeting() {
             onClick={() => (isHost ? setOpenLeaveDialog(true) : leave())}
           />
         </div>
-        <Modal
+        <LeaveMeetingDialog
           open={openLeaveDialog}
-          onCancel={() => setOpenLeaveDialog(false)}
-          title={t('meeting.exit.title')}
-          centered
-          footer={null}
-        >
-          <Typography.Paragraph>
-            {t('meeting.exit.host_message')}
-          </Typography.Paragraph>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <Button
-              variant="primary"
-              title={t('meeting.exit.end_for_all_long')}
-              onClick={end}
-            />
-            <Button
-              variant="outline"
-              title={t('meeting.room.leave_room')}
-              onClick={leave}
-            />
-          </div>
-        </Modal>
+          onEnd={end}
+          onLeave={leave}
+          onClose={() => setOpenLeaveDialog(false)}
+        />
         <AddMemberDialog
           open={openAddMember}
           onClose={() => setOpenAddMember(false)}

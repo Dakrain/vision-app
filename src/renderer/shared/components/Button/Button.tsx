@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes, CSSProperties, memo } from 'react';
 import './Button.scss';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: 'primary' | 'outline';
+  variant: 'primary' | 'outline' | 'text';
   title: string;
   style?: CSSProperties;
 }

@@ -8,12 +8,12 @@
   transition: all 0.2s ease;
 
   &.primary {
-    background-color: #FF4D4F;
+    background-color: #ff4d4f;
     color: white;
     border: none;
 
     &:hover {
-      background-color: darken(#FF4D4F, 5%);
+      background-color: darken(#ff4d4f, 5%);
     }
 
     &:focus {
@@ -23,11 +23,25 @@
 
   &.outline {
     background-color: transparent;
-    color: #FF4D4F;
-    border: 1px solid #FF4D4F;
+    color: #ff4d4f;
+    border: 1px solid #ff4d4f;
 
     &:hover {
-      background-color: rgba(#FF4D4F, 0.1);
+      background-color: rgba(#ff4d4f, 0.1);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &.text {
+    background-color: transparent;
+    color: #4d4d4d;
+    border: none;
+
+    &:hover {
+      background-color: #f5f5f5;
     }
 
     &:focus {
