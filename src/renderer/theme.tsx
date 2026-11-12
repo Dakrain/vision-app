@@ -1,7 +1,9 @@
 import { ConfigProvider, notification, ThemeConfig } from 'antd';
+import type { ModalConfig } from 'antd/es/config-provider/context';
 import viVN from 'antd/locale/vi_VN';
 import enUS from 'antd/locale/en_US';
 import zhCN from 'antd/locale/zh_CN';
+import Icon from '@/assets/svg/icons';
 import i18n from '@/renderer/i18n';
 
 // antd's own texts (date pickers, empty lists…) in the app language.
@@ -69,6 +71,20 @@ export const appTheme: ThemeConfig = {
 const brandRed = '#FF4D4F';
 
 /**
+ * Every dialog closes with an X at its top right: the app's own icon
+ * (Figma's, like the dialogs that draw their own header), and the confirm
+ * dialogs have one too.
+ */
+export const modalConfig: ModalConfig = {
+  closable: true,
+  closeIcon: (
+    <span className="app-close-icon">
+      <Icon name="meetingClose" />
+    </span>
+  ),
+};
+
+/**
  * Modal.confirm / message / notification: the app's theme, with the app's
  * colours for their icons (green success, blue info, orange warning) —
  * not antd's. Their buttons look like the app's own through global.css.
@@ -94,7 +110,11 @@ export const configureStaticDialogs = () => {
   notification.config({ placement: 'top' });
   ConfigProvider.config({
     holderRender: (children) => (
-      <ConfigProvider theme={dialogTheme} locale={antdLocale(i18n.language)}>
+      <ConfigProvider
+        theme={dialogTheme}
+        modal={modalConfig}
+        locale={antdLocale(i18n.language)}
+      >
         {children}
       </ConfigProvider>
     ),

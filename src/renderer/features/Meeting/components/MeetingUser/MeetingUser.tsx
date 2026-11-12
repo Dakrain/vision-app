@@ -1,4 +1,4 @@
-import { Avatar, Dropdown, Modal } from 'antd';
+import { Avatar, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import {
   MeetingRole,
 } from '@/renderer/shared/types/meeting';
 import Icon from '@/assets/svg/icons';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 
 export type MemberAction =
   | 'muteAudio'
@@ -71,7 +72,7 @@ export function MeetingUser({
       onAction?.(user, action);
       return;
     }
-    Modal.confirm({
+    confirmDialog({
       title: t(ACTION_LABEL[action]),
       content: t(confirm, { name: user.fullName ?? '' }),
       okText: t(ACTION_LABEL[action]),

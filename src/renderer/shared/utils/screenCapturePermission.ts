@@ -1,5 +1,5 @@
-import { Modal } from 'antd';
 import i18n from '@/renderer/i18n';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -15,7 +15,7 @@ export const ensureScreenCaptureAccess = async (): Promise<boolean> => {
   if (status === 'granted' || status === 'not-determined') {
     return true;
   }
-  Modal.confirm({
+  confirmDialog({
     title: i18n.t('shared.screen_capture.title'),
     content: i18n.t('shared.screen_capture.message'),
     okText: i18n.t('shared.screen_capture.open_system_settings'),

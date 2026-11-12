@@ -16,7 +16,7 @@ import {
   watchMessages,
   setGroupAvatar,
 } from '@/shared/services/Firebase/chat';
-import { Dropdown, Modal, message as toast } from 'antd';
+import { Dropdown, message as toast } from 'antd';
 import FriendService from '@/shared/services/Friend/FriendService';
 import { playMessagePop } from '@/shared/utils/sfx';
 import {
@@ -30,6 +30,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { uploadAttachment } from '@/shared/utils/mediaUpload';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 import { ReportDialog } from './ReportDialog';
 import {
   dayDivider,
@@ -323,7 +324,7 @@ export function Thread({ conversation, onForward }: Props) {
       return;
     }
     const id = friendId;
-    Modal.confirm({
+    confirmDialog({
       title: t('chat.block.action'),
       content: t('chat.block.confirm', { name: title }),
       okText: t('chat.block.action'),

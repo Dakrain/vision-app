@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { Excalidraw } from '@excalidraw/excalidraw';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/dist/types/excalidraw/types';
@@ -9,6 +8,7 @@ import type {
   WhiteboardSync,
 } from '@/renderer/shared/utils/whiteboardSync';
 import './Whiteboard.scss';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 
 // Excalidraw's own UI follows the app language.
 const EXCALIDRAW_LANG: Record<string, string> = {
@@ -52,7 +52,7 @@ export default function Whiteboard({
       onClose();
       return;
     }
-    Modal.confirm({
+    confirmDialog({
       title: t('meeting.whiteboard.close_title'),
       content: t('meeting.whiteboard.close_message'),
       okText: t('common.close'),

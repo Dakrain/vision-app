@@ -1,10 +1,11 @@
 import Icon from '@/assets/svg/icons';
 import i18n from '@/renderer/i18n';
 import type { Message } from '@/shared/services/Firebase/chat';
-import { Dropdown, Modal } from 'antd';
+import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { confirmDialog } from '@/renderer/shared/utils/confirmDialog';
 import {
   bubbleTime,
   fileSize,
@@ -122,7 +123,7 @@ export const MessageBubble = memo(function MessageBubble({
         onClick={() => {
           if (!onCallBack) return;
           const video = m.callKind === 'video';
-          Modal.confirm({
+          confirmDialog({
             title: video
               ? t('call.trace.call_back_video_title')
               : t('call.trace.call_back_title'),

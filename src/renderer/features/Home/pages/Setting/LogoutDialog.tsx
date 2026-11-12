@@ -19,7 +19,6 @@ export function LogoutDialog({ open, onCancel, onConfirm }: Props) {
       width={420}
       title={null}
       footer={null}
-      closable={false}
       className="settings-dialog"
     >
       <div className="settings-confirm">

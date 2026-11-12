@@ -15,14 +15,23 @@ import Dashboard from './features/Home/Dashboard';
 import Meeting from './features/Meeting/Meeting';
 import MeetingLobby from './features/MeetingLobby/MeetingLobby';
 import SplashScreen from './features/Auth/pages/SplashScreen/SplashScreen';
-import { antdLocale, appTheme, configureStaticDialogs } from './theme';
+import {
+  antdLocale,
+  appTheme,
+  configureStaticDialogs,
+  modalConfig,
+} from './theme';
 
 configureStaticDialogs();
 
 export default function App() {
   const { i18n } = useTranslation();
   return (
-    <ConfigProvider locale={antdLocale(i18n.language)} theme={appTheme}>
+    <ConfigProvider
+      locale={antdLocale(i18n.language)}
+      theme={appTheme}
+      modal={modalConfig}
+    >
       <Provider store={store}>
         <LoadingOverlay />
         <Router>
