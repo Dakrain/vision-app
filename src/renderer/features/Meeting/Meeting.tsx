@@ -1061,12 +1061,14 @@ function Meeting() {
         <div className="meeting-footer">
           <div className="meeting-footer-group">
             <MenuItem
+              tooltip
               icon={enableCamera ? 'cameraOn' : 'cameraOff'}
               name={t('meeting.toolbar.camera')}
               onClick={toggleCamera}
               locked={!enableCamera && !permissions.camera}
             />
             <MenuItem
+              tooltip
               icon={enableMic ? 'micOn' : 'micOff'}
               name={t('meeting.toolbar.audio')}
               onClick={toggleMic}
@@ -1076,6 +1078,7 @@ function Meeting() {
           <div className="meeting-footer-group center">
             {/* Local recording: host/co-host, or members if the room allows. */}
             <MenuItem
+              tooltip
               icon="record"
               name={
                 recorder.isRecording
@@ -1099,6 +1102,7 @@ function Meeting() {
               }}
             />
             <MenuItem
+              tooltip
               icon="shareScreen"
               name={
                 isSharing
@@ -1138,6 +1142,7 @@ function Meeting() {
               }}
             />
             <MenuItem
+              tooltip
               icon="whiteboard"
               name={
                 whiteboard
@@ -1177,6 +1182,7 @@ function Meeting() {
             />
             {canManageLivestream && livestream.supported && (
               <MenuItem
+                tooltip
                 icon={
                   <span
                     className={`meeting-live-icon ${livestream.isLive ? 'on' : ''}`}
@@ -1206,6 +1212,7 @@ function Meeting() {
               }}
             >
               <MenuItem
+                tooltip
                 icon="emoji"
                 caret="up"
                 name={t('meeting.toolbar.react')}
@@ -1213,11 +1220,13 @@ function Meeting() {
               />
             </EmojiPicker>
             <MenuItem
+              tooltip
               icon="users"
               name={t('meeting.toolbar.participants')}
               onClick={toggleShowMeetingUser}
             />
             <MenuItem
+              tooltip
               icon="chat"
               name={
                 unreadChat > 0
@@ -1246,12 +1255,11 @@ function Meeting() {
                 },
               }}
             >
-              <span className="meeting-footer-dropdown">
-                <MenuItem
-                  icon="meetingSetting"
-                  name={t('meeting.toolbar.settings')}
-                />
-              </span>
+              <MenuItem
+                tooltip
+                icon="meetingSetting"
+                name={t('meeting.toolbar.settings')}
+              />
             </Dropdown>
           </div>
           <Button

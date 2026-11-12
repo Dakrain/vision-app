@@ -401,6 +401,34 @@
   .menu-item-label {
     display: none;
   }
+
+  // The name, above the button while the pointer is on it (the bar shows
+  // icons only, and the browser's title tooltip was slow and easy to
+  // miss). Not while the button's own menu / picker is open there.
+  &.with-tooltip {
+    position: relative;
+
+    &:hover:not(.ant-popover-open):not(.ant-dropdown-open),
+    &:focus-visible {
+      .menu-item-label {
+        display: block;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background-color: #ffffff;
+        color: #333333;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 500;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
+        pointer-events: none;
+      }
+    }
+  }
 }
 
 @keyframes meeting-spin {
