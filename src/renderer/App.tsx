@@ -4,9 +4,6 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './global.css';
 import { Provider } from 'react-redux';
 import { ConfigProvider } from 'antd';
-import viVN from 'antd/locale/vi_VN';
-import enUS from 'antd/locale/en_US';
-import zhCN from 'antd/locale/zh_CN';
 import { useTranslation } from 'react-i18next';
 import { store } from '@/renderer/store/configureStore';
 import { CallOverlay } from './shared/social/CallOverlay';
@@ -18,71 +15,14 @@ import Dashboard from './features/Home/Dashboard';
 import Meeting from './features/Meeting/Meeting';
 import MeetingLobby from './features/MeetingLobby/MeetingLobby';
 import SplashScreen from './features/Auth/pages/SplashScreen/SplashScreen';
+import { antdLocale, appTheme, configureStaticDialogs } from './theme';
 
-// antd's own texts (date pickers, empty lists…) in the app language.
-const ANTD_LOCALE = { vi: viVN, en: enUS, zh: zhCN } as const;
+configureStaticDialogs();
 
 export default function App() {
   const { i18n } = useTranslation();
   return (
-    <ConfigProvider
-      locale={ANTD_LOCALE[i18n.language as keyof typeof ANTD_LOCALE] ?? viVN}
-      theme={{
-        components: {
-          Menu: {
-            itemHeight: 72,
-          },
-          Segmented: {
-            borderRadius: 6,
-          },
-          Modal: {
-            footerBg: '#F7F7F7',
-            colorPrimary: '#FF4D4F',
-            colorPrimaryHover: '#ff7875',
-            colorTextLightSolid: '#FFFFFF', // Màu text button
-          },
-          Switch: {
-            colorPrimary: '#1EC88C',
-            colorPrimaryHover: '#4AD3A4',
-            trackHeight: 32,
-            handleSize: 28,
-            trackMinWidth: 52,
-          },
-          Input: {
-            fontSize: 16,
-            borderRadius: 8,
-            paddingBlock: 8,
-            paddingInline: 16,
-            colorBgContainer: '#F7F7F7',
-            colorBorder: 'transparent',
-          },
-          InputNumber: {
-            fontSize: 16,
-            borderRadius: 8,
-            paddingBlock: 8,
-            paddingInline: 16,
-            colorBgContainer: '#F7F7F7',
-            colorBorder: 'transparent',
-          },
-          DatePicker: {
-            borderRadius: 8,
-            fontSize: 16,
-            paddingInline: 16,
-            paddingBlockLG: 8,
-            paddingInlineLG: 16,
-            paddingInlineSM: 16,
-            paddingBlock: 16,
-            colorBgContainer: '#F7F7F7',
-            colorBorder: 'transparent',
-          },
-        },
-        token: {
-          colorPrimary: '#FF4D4F',
-          fontFamily: 'SF-Compact-Display',
-          colorText: '#333333',
-        },
-      }}
-    >
+    <ConfigProvider locale={antdLocale(i18n.language)} theme={appTheme}>
       <Provider store={store}>
         <LoadingOverlay />
         <Router>

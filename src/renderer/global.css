@@ -42,3 +42,11 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+/* `*` gives every element the text colour. antd sets the colour on a
+   button or an icon itself; what is inside must follow it — a primary
+   button's white label, a confirm dialog's coloured icon. */
+.ant-btn *,
+.anticon * {
+  color: inherit;
+}
