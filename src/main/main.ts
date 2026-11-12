@@ -20,6 +20,7 @@ import {
   OpenDialogOptions,
   SaveDialogOptions,
   systemPreferences,
+  desktopCapturer,
 } from 'electron';
 import appPackage from '../../release/app/package.json';
 import MenuBuilder from './menu';
@@ -160,6 +161,21 @@ ipcMain.handle('screen-capture-access', () =>
     ? systemPreferences.getMediaAccessStatus('screen')
     : 'granted',
 );
+
+// Asking for the screens makes macOS show its own Screen Recording prompt
+// (only the first time an app asks) and list the app under Screen
+// Recording, so the user just turns it on. The answer only counts after a
+// restart, so this resolves with the status as it is now.
+ipcMain.handle('request-screen-capture-access', async () => {
+  if (process.platform !== 'darwin') return 'granted';
+  if (systemPreferences.getMediaAccessStatus('screen') === 'granted') {
+    return 'granted';
+  }
+  await desktopCapturer
+    .getSources({ types: ['screen'], thumbnailSize: { width: 0, height: 0 } })
+    .catch(() => []);
+  return systemPreferences.getMediaAccessStatus('screen');
+});
 
 ipcMain.handle('open-screen-capture-settings', () =>
   shell.openExternal(
